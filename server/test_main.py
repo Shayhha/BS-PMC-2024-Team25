@@ -1,5 +1,5 @@
 import pytest
-from bugFixer import add
+from main import add
 
 def test_add_positive_numbers():
     result = add(2, 3)
