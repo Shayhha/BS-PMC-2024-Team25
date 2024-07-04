@@ -1,5 +1,5 @@
 pipeline {
-    agent none
+    agent any
     stages {
         stage('Build') {
             agent {
@@ -31,6 +31,7 @@ pipeline {
                 docker {
                     // Use the same Python image and install pytest
                     image 'python:3.9-alpine'
+                    args '-u root'
                     reuseNode true
                 }
             }
