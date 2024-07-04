@@ -14,7 +14,7 @@ pipeline {
                 // Install dependencies and compile Python files
                 sh '''
                 pip install --no-cache-dir -r requirements.txt
-                python -m py_compile sources/add2vals.py sources/calc.py
+                python -m py_compile bugFixer.py test_bugFixer.py
                 '''
             }
             post {
@@ -36,7 +36,7 @@ pipeline {
                 // Install pytest and run tests
                 sh '''
                 pip install --no-cache-dir pytest
-                pytest --verbose --junit-xml test-reports/results.xml sources/test_calc.py
+                pytest --verbose --junit-xml test-reports/results.xml text_bugFixer.py
                 '''
             }
             post {
