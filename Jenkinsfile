@@ -6,6 +6,8 @@ pipeline {
                 docker {
                     // Use a specific version of Python
                     image 'python:3.9-alpine'
+                    // Run Docker container as root (optional but may be necessary for some setups)
+                    args '-u root'  
                     // Enable reuse of the container across stages if needed
                     reuseNode true
                 }
