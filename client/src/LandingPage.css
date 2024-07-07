@@ -1,0 +1,8 @@
+.landing-page {
+    padding-top: 100px; 
+}
+
+.article-container {
+    max-height: calc(100vh - 100px);
+    overflow-y: auto; /* Enable vertical scrolling */
+}

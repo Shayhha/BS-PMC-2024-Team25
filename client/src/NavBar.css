@@ -1,4 +1,4 @@
-.header {
+.navbar_header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -14,19 +14,19 @@
     z-index: 1000;
 }
 
-.header .logo {
+.navbar_logo {
     font-size: 24px;
     font-weight: bold;
 }
 
-.header .nav {
+.navbar_nav {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.header .nav a {
+.navbar_nav a {
     position: relative;
     color: white;
     margin: 0 15px;
@@ -36,7 +36,7 @@
     transition: color 0.3s ease;
 }
 
-.header .nav a::after {
+.navbar_nav a::after {
     content: '';
     position: absolute;
     left: 0;
@@ -47,15 +47,15 @@
     transition: background-color 0.3s ease;
 }
 
-.header .nav a:hover {
+.navbar_nav a:hover {
     color: #ffde59;
 }
 
-.header .nav a:hover::after {
+.navbar_nav a:hover::after {
     background-color: #ffde59;
 }
 
-.header .profile-icon {
+.navbar_profile-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -64,12 +64,12 @@
     cursor: pointer;
 }
 
-.header .profile-icon img {
+.navbar_profile-icon img {
     width: 40px;
     height: 40px;
 }
 
-.dropdown {
+.navbar_dropdown {
     position: absolute;
     top: 60px;
     right: 0;
@@ -82,7 +82,7 @@
     text-align: center;
 }
 
-.dropdown-button {
+.navbar_dropdown-button {
     display: block;
     width: 100%;
     padding: 10px 0;
@@ -94,10 +94,10 @@
     transition: background-color 0.3s ease;
 }
 
-.dropdown-button:hover {
+.navbar_dropdown-button:hover {
     background-color: #f1f1f1;
 }
 
-.dropdown-button:focus {
+.navbar_dropdown-button:focus {
     outline: none;
 }

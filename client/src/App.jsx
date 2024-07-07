@@ -5,6 +5,8 @@ import './App.css'
 import axios from "axios"
 
 import NavBar from './NavBar.jsx'
+import ArticleLayout from './ArticleLayout.jsx'
+import LandingPage from './LandingPage.jsx'
 
 function App() {
   const [count, setCount] = useState(0);
@@ -23,7 +25,8 @@ function App() {
 
   return (
     <>
-      <NavBar></NavBar>
+      <LandingPage />
+      
       {/* <div>
         <a href="https://vitejs.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
