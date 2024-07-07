@@ -8,7 +8,6 @@ pipeline {
                 }
             }
             steps {
-                sh 'pip install -r devops/requirements.txt'
                 sh 'python -m py_compile server/main.py server/test_main.py'
             }
         }
