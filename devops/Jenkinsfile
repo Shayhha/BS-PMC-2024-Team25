@@ -19,6 +19,9 @@ pipeline {
             }
             steps {
                 sh 'pip install pytest'
+                sh 'pip install flask'
+                sh 'pip install flask-cors'
+                sh 'pip install jsonify'
                 sh 'py.test --verbose --junit-xml test-reports/results.xml server/test_main.py'
             }
             post {
