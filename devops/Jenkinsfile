@@ -8,7 +8,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'python -m py_compile bugFixer.py test_bugFixer.py'
+                sh 'python -m py_compile server/main.py server/test_main.py'
             }
         }
         stage('Test') {
@@ -18,7 +18,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'py.test --verbose --junit-xml test-reports/results.xml test_bugFixer.py'
+                sh 'py.test --verbose --junit-xml test-reports/results.xml server/test_main.py'
             }
             post {
                 always {
