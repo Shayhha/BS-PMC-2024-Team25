@@ -2,7 +2,7 @@ import pytest
 from main import add
 
 def test_add_positive_numbers():
-    assert test_add_positive_numbers() == 4
+    assert add(2,2) == 4
 
 # def test_add_negative_numbers():
 #     result = add(-1, -1)
