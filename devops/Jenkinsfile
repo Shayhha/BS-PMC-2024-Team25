@@ -18,7 +18,6 @@ pipeline {
                 }
             }
             steps {
-                sh 'pip install --trusted-host pypi.python.org -r devops/requirements.txt'
                 sh 'py.test --verbose --junit-xml test-reports/results.xml server/test_main.py'
             }
             post {
