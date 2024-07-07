@@ -10,7 +10,7 @@ function App() {
 
   // fetching the data from the backend server
   const fetchAPI = async () => {
-    const response = await axios.get("http://localhost:8080/api/users");
+    const response = await axios.get("http://localhost:8090/api/users");
     setArray(response.data.users);
   }
 
