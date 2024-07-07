@@ -13,8 +13,9 @@ pipeline {
         }
         stage('Test') {
             agent {
-                docker {
-                    image 'qnib/pytest'
+                dockerfile {
+                    filename 'Dockerfile'
+                    dir 'server'
                 }
             }
             steps {
