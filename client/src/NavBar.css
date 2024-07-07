@@ -1,3 +1,6 @@
+/* src/NavBar.css */
+
+/* Container for the entire navbar */
 .navbar_header {
     display: flex;
     justify-content: space-between;
@@ -14,11 +17,13 @@
     z-index: 1000;
 }
 
+/* Logo style */
 .navbar_logo {
     font-size: 24px;
     font-weight: bold;
 }
 
+/* Centering navigation links */
 .navbar_nav {
     flex: 1;
     display: flex;
@@ -26,6 +31,7 @@
     align-items: center;
 }
 
+/* Navigation links */
 .navbar_nav a {
     position: relative;
     color: white;
@@ -36,6 +42,7 @@
     transition: color 0.3s ease;
 }
 
+/* Underline effect on hover */
 .navbar_nav a::after {
     content: '';
     position: absolute;
@@ -55,33 +62,37 @@
     background-color: #ffde59;
 }
 
+/* Profile icon and dropdown container */
 .navbar_profile-icon {
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin-right: 40px;
     position: relative;
     cursor: pointer;
+    margin-right: 40px;
 }
 
+/* Profile icon image */
 .navbar_profile-icon img {
     width: 40px;
     height: 40px;
+    border-radius: 50%;
 }
 
+/* Dropdown menu */
 .navbar_dropdown {
     position: absolute;
-    top: 60px;
+    top: 100%;
     right: 0;
     background-color: #fff;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
-    padding: 10px;
+    padding: 10px 0;
     z-index: 1000;
     width: 120px;
     text-align: center;
 }
 
+/* Dropdown button styles */
 .navbar_dropdown-button {
     display: block;
     width: 100%;
@@ -91,13 +102,16 @@
     color: #3c3567;
     cursor: pointer;
     font-size: 16px;
+    text-align: center;
     transition: background-color 0.3s ease;
 }
 
+/* Hover effect for dropdown buttons */
 .navbar_dropdown-button:hover {
     background-color: #f1f1f1;
 }
 
+/* Remove outline on focus */
 .navbar_dropdown-button:focus {
     outline: none;
 }
