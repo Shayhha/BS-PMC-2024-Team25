@@ -15,29 +15,12 @@ class SQLHelper(ABC):
     connection = None # connecction string for SQL server database
     cursor = None # cursor for executig SQL commands
 
-    # constructor of class SQLHelper
-    def __init__(self):
-        load_dotenv()  # load environment variables from env file
-
     # method for connecting to SQL server database
     def connect(self):
+        # load environment variables from env file
+        load_dotenv()  
         # getting necessary database credentials from env file for database connection
-        server = os.getenv('DB_SERVER')
-        database = os.getenv('DB_DATABASE')
-        username = os.getenv('DB_USERNAME')
-        password = os.getenv('DB_PASSWORD')
-
-        if not all([server, database, username, password]): # if failed to get one we raise exception
-            raise ValueError('Database credentials are not fully provided.')
-        
-        # connecting with predefined info
-        connectionString = (
-            f'DRIVER={{ODBC Driver 17 for SQL Server}};'
-            f'SERVER={server};'
-            f'DATABASE={database};'
-            f'UID={username};'
-            f'PWD={password};'
-        )
+        connectionString = os.getenv('DB_CONNECTION_STRING')
         self.connection = pyodbc.connect(connectionString)
         self.cursor = self.connection.cursor() #initialize cursor 
     
