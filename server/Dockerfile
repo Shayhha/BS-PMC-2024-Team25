@@ -10,6 +10,7 @@ COPY . .
 # Install pytest
 RUN pip install pytest
 RUN pip install Flask Flask-Cors python-dotenv
+RUN sudo apt install unixodbc-dev
 RUN pip uninstall pyodbc
 RUN pip install pyodbc
 EXPOSE 8080
