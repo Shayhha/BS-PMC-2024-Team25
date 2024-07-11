@@ -213,6 +213,16 @@ class BugFixer(ABC):
         else:
             return jsonify({'error': 'Old password is incorrect'})
         
+              # function to logout from the website  
+    @app.route('/homepage/logout', methods=['POST'])
+    def logout():
+        global globalUser
+        if globalUser:
+            globalUser = None
+            return jsonify({'message':'logged out successfully'})
+        else:
+            return jsonify({'error':'No user is logged in'})
+        
     # function for changing user's info like userName, fname, lname
     @app.route('/userSettings/changeUserInfo', methods=['POST'])
     def changeUserInfo():
