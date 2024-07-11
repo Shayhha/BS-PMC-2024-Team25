@@ -9,7 +9,7 @@ COPY . .
 
 # Install pytest
 RUN pip install pytest
-RUN pip install Flask Flask-Cors python-dotenv pyodbc
+RUN pip install Flask Flask-Cors python-dotenv
 EXPOSE 8080
 
 # Command to run pytest
