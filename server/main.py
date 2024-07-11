@@ -138,7 +138,7 @@ class BugFixer(ABC):
        
     # function for login of user into the website
     @app.route('/homepage/login', methods=['POST'])
-    def login(email, password):
+    def login():
         data = request.get_json()
         user = db.searchUser(data.get('email'), data.get('password'))
         if user is not None: # if user was found
@@ -171,9 +171,9 @@ class BugFixer(ABC):
         
     # function for searching bugs by name/title
     @app.route('/homePage/search', methods=['POST'])
-    def searchBugs(bugName):
+    def searchBugs():
         data = request.get_json()
-        bugDict = db.searchBug(data.get('bugName')) # search all matching bugs in db
+        bugDict = db.searchBug(data.get('searchBar')) # search all matching bugs in db
         if bugDict is not None: 
             return jsonify(bugDict) # return matched bugs in json form
         else: 
