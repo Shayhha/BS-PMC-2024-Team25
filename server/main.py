@@ -91,6 +91,17 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return False
         
+    # method for searching bug in db by its name\title, returns bug dict, else none
+    def searchBug(self, bugName):
+        try:
+            query = 'SELECT * FROM Bugs WHERE bugName = ?'
+            self.cursor.execute(query, (bugName,))
+            bugs = self.cursor.fetchall()
+            bugDict = [dict(zip([column[0] for column in self.cursor.description], row)) for row in bugs]
+            return bugDict
+        except Exception as e:
+            print(f'Error: {e}')
+            return None
 
 # ==================================================================================================================== #
 
@@ -158,6 +169,15 @@ class BugFixer(ABC):
         else:
             return jsonify({'error': 'failed to perform database query'})
         
+    # function for searching bugs by name/title
+    @app.route('/homePage/search', methods=['POST'])
+    def searchBugs():
+        data = request.get_json()
+        bugDict = db.searchBug(data.get('searchBar')) # search all matching bugs in db
+        if bugDict is not None: 
+            return jsonify(bugDict) # return matched bugs in json form
+        else: 
+            return jsonify({'error': 'failed to perform database query'})
 
 # ==================================================================================================================== #
 
