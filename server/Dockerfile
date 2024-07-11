@@ -10,10 +10,8 @@ COPY . .
 # Install pytest
 RUN pip install pytest
 RUN pip install Flask Flask-Cors python-dotenv
-RUN sudo apt install unixodbc-dev
-RUN pip uninstall pyodbc
-RUN pip install pyodbc
-EXPOSE 8080
+RUN pip install -Iv pyodbc==4.0.34
+EXPOSE 8090
 
 # Command to run pytest
 CMD ["pytest", "-s", "test_main.py"]
