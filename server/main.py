@@ -18,6 +18,33 @@ db = None # this is sql database instance for making queries
 class SQLHelper(ABC):
     connection = None # connecction string for SQL server database
     cursor = None # cursor for executig SQL commands
+ 
+    @app.route('/register', methods=['POST'])
+    def register():
+        data = request.get_json()
+        print(data)
+        email = data.get('email')
+        userName = data.get('userName')
+        fName = data.get('fName')
+        lName = data.get('lName')
+        userType = data.get('userType')
+        
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            return jsonify({"error": "User with this email already exists"})
+        if not all([email,userName,fName,lName,userType]):
+            return jsonify({'error':"missing fields"})
+        globalUser=User(email,userName,fName,lName,userType)
+
+        try:
+            db.session.add(globalUser)
+            db.session.commit()
+            return jsonify({"message":"User registered successfully"})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)})
+
+ 
 
     # method for connecting to SQL server database
     def connect(self):
