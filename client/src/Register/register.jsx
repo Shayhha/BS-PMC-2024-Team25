@@ -1,6 +1,7 @@
 // src/Register/register.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios'; // Import Axios for HTTP requests
 import './register.css';
 
 function Register() {
@@ -8,12 +9,12 @@ function Register() {
     username: '',
     email: '',
     password: '',
-    confirmPassword: '',
     name: '',
     lastname: '',
     workerType: '', // New field for worker type
   });
 
+  // Function to handle input changes in the form
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -22,10 +23,23 @@ function Register() {
     }));
   };
 
-  const handleSubmit = e => {
+  // Function to handle form submission
+  const handleSubmit = async e => {
     e.preventDefault();
-    console.log(formData);
-    // Add your form submission logic here (e.g., API call)
+
+    try {
+      const response = await axios.post('http://localhost:8090/api/register', formData);
+
+      if (!response.data.success) {
+        throw new Error('Failed to register');
+      }
+
+      console.log('Registration successful:', response.data);
+      // Optionally, redirect to login page or show success message
+    } catch (error) {
+      console.error('Error registering user:', error.message);
+      // Handle error - show error message to user or retry registration
+    }
   };
 
   return (
@@ -108,7 +122,7 @@ function Register() {
           </select>
         </div>
 
-        <button type="submit" style={{ fontSize: '30px' }}>Register</button>
+        <button type="submit">Register</button>
       </form>
       <p>Already have an account? <Link to="/login">Login</Link></p>
     </div>
