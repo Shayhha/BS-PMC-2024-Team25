@@ -62,6 +62,35 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return False
+    
+    # method for checking passowrd of user in db, returns true or false
+    def checkPassword(self, userId, password):
+        try:
+            query = 'SELECT * FROM Users WHERE userId = ? AND password = ?'
+            self.cursor.execute(query, (userId, password,))
+            user = self.cursor.fetchone()
+            if user:
+                return True
+            else:
+                return False
+        except Exception as e:
+            print(f'Error: {e}')
+            return False
+
+    # method for updating passowrd of user in db, returns true or false
+    def updatePassword(self, userId, newPassword, oldPassword):
+        try:
+            query = 'UPDATE Users SET password = ? WHERE userId = ? AND password = ?'
+            self.cursor.execute(query, (newPassword, userId, oldPassword,))
+            self.connection.commit()  # commit the transaction for update
+            if self.cursor.rowcount > 0:
+                return True
+            else:
+                return False 
+        except Exception as e:
+            print(f'Error: {e}')
+            return False
+        
 
 # ==================================================================================================================== #
 
@@ -108,6 +137,18 @@ class BugFixer(ABC):
         else: # else user's credentials aren't valid
              return jsonify({'error': 'Invalid credentials'})
         
+    # function for changing password of user
+    @app.route('/userSettings/changePassword', methods=['POST'])
+    def changePassword():
+        data = request.get_json()
+        if db.checkPassword(globalUser.userId, data.get('oldPassword')):
+            if db.updatePassword(globalUser.userId, data.get('newpassword'), data.get('oldPassword')):
+                return jsonify({'success': 'Changed password succusfully'})
+            else:
+                return jsonify({'error': 'failed to perform database query'})
+        else:
+            return jsonify({'error': 'Old password is incorrect'})
+        
     # function for changing user's info like userName, fname, lname
     @app.route('/userSettings/changeUserInfo', methods=['POST'])
     def changeUserInfo():
@@ -116,6 +157,7 @@ class BugFixer(ABC):
             return jsonify({'success': 'Changed user info succusfully'})
         else:
             return jsonify({'error': 'failed to perform database query'})
+        
 
 # ==================================================================================================================== #
 
