@@ -1,0 +1,72 @@
+.bug_item_div {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    min-width: 500px;
+    min-height: 300px;
+    width: 800px;
+    height: 300px;
+
+    padding: 20px;
+    margin: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: none;
+    border-radius: 20px;
+}
+
+.bug_item_title {
+    color: #555;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.bug_item_description {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.bug_item_status,
+.bug_item_assigned_to,
+.bug_item_priority,
+.bug_item_importance,
+.bug_item_creation_date,
+.bug_item_open_date {
+    font-size: 12px;
+    color: #333;
+    margin: 2px 0;
+}
+
+.bug_item_status::before {
+    content: "Status: ";
+    font-weight: bold;
+}
+
+.bug_item_assigned_to::before {
+    content: "Assigned To: ";
+    font-weight: bold;
+}
+
+.bug_item_priority::before {
+    content: "Priority: ";
+    font-weight: bold;
+}
+
+.bug_item_importance::before {
+    content: "Importance: ";
+    font-weight: bold;
+}
+
+.bug_item_creation_date::before {
+    content: "Creation Date: ";
+    font-weight: bold;
+}
+
+.bug_item_open_date::before {
+    content: "Open Date: ";
+    font-weight: bold;
+}

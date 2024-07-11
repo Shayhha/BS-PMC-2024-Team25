@@ -30,7 +30,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/adminlandpage" element={<Admin />} />
-
+        <Route path="/homepage" element={<HomePage />} />
         {/* Add more routes as needed */}
       </Routes>
     </Router>
