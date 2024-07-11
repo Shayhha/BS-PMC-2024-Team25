@@ -63,7 +63,45 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return False
     
-    
+    # method for checking passowrd of user in db, returns true or false
+    def checkPassword(self, userId, password):
+        try:
+            query = 'SELECT * FROM Users WHERE userId = ? AND password = ?'
+            self.cursor.execute(query, (userId, password,))
+            user = self.cursor.fetchone()
+            if user:
+                return True
+            else:
+                return False
+        except Exception as e:
+            print(f'Error: {e}')
+            return False
+
+    # method for updating passowrd of user in db, returns true or false
+    def updatePassword(self, userId, newPassword, oldPassword):
+        try:
+            query = 'UPDATE Users SET password = ? WHERE userId = ? AND password = ?'
+            self.cursor.execute(query, (newPassword, userId, oldPassword,))
+            self.connection.commit()  # commit the transaction for update
+            if self.cursor.rowcount > 0:
+                return True
+            else:
+                return False 
+        except Exception as e:
+            print(f'Error: {e}')
+            return False
+        
+    # method for searching bug in db by its name\title, returns bug dict, else none
+    def searchBug(self, bugName):
+        try:
+            query = 'SELECT * FROM Bugs WHERE bugName = ?'
+            self.cursor.execute(query, (bugName,))
+            bugs = self.cursor.fetchall()
+            bugDict = [dict(zip([column[0] for column in self.cursor.description], row)) for row in bugs]
+            return bugDict
+        except Exception as e:
+            print(f'Error: {e}')
+            return None
 
 # ==================================================================================================================== #
 
@@ -98,15 +136,48 @@ class User:
 # class that includes various fucntions for interacting with db and using various features in website
 class BugFixer(ABC):
        
+    # function for login of user into the website
+    @app.route('/homepage/login', methods=['POST'])
+    def login(email, password):
+        data = request.get_json()
+        user = db.searchUser(data.get('email'), data.get('password'))
+        if user is not None: # if user was found
+            global globalUser 
+            globalUser = user # set globalUser object
+            return jsonify(user.toDict())
+        else: # else user's credentials aren't valid
+             return jsonify({'error': 'Invalid credentials'})
+        
+    # function for changing password of user
+    @app.route('/userSettings/changePassword', methods=['POST'])
+    def changePassword():
+        data = request.get_json()
+        if db.checkPassword(globalUser.userId, data.get('oldPassword')):
+            if db.updatePassword(globalUser.userId, data.get('newpassword'), data.get('oldPassword')):
+                return jsonify({'success': 'Changed password succusfully'})
+            else:
+                return jsonify({'error': 'failed to perform database query'})
+        else:
+            return jsonify({'error': 'Old password is incorrect'})
+        
     # function for changing user's info like userName, fname, lname
-    @app.route('/userSettings/changeUserInfo', methods=['GET'])
+    @app.route('/userSettings/changeUserInfo', methods=['POST'])
     def changeUserInfo():
         data = request.get_json()
         if db.updateUserInfo(globalUser.userId, data.get('newUserName'), data.get('newFname'), data.get('newLname')):
             return jsonify({'success': 'Changed user info succusfully'})
         else:
             return jsonify({'error': 'failed to perform database query'})
-    
+        
+    # function for searching bugs by name/title
+    @app.route('/homePage/search', methods=['POST'])
+    def searchBugs(bugName):
+        data = request.get_json()
+        bugDict = db.searchBug(data.get('bugName')) # search all matching bugs in db
+        if bugDict is not None: 
+            return jsonify(bugDict) # return matched bugs in json form
+        else: 
+            return jsonify({'error': 'failed to perform database query'})
 
 # ==================================================================================================================== #
 

@@ -1,8 +1,9 @@
 // src/NavBar.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './NavBar.css';
-import userIcon from './assets/userIcon.png';
+import './NavBar.css'; // Make sure NavBar.css exists and contains necessary styles
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 function NavBar() {
     const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -40,7 +41,7 @@ function NavBar() {
                 ref={profileRef}
                 aria-haspopup="true"
             >
-                <img className="hero-image" src={userIcon} alt="Profile Icon" />
+                <FontAwesomeIcon icon={faUser} className="hero-image" />
                 {dropdownVisible && (
                     <div className="navbar_dropdown" role="menu">
                         <Link to="/login" className="navbar_dropdown-button" role="menuitem">Login</Link>

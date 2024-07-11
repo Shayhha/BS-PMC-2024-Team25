@@ -1,0 +1,73 @@
+/* Register.css */
+
+.register-container {
+    max-width: 850px; /* Increased maximum width */
+    margin: 400px auto 50px; /* Adjusted margin for spacing, lower the top margin */
+    padding: 60px; /* Increased the padding */
+    border: 3px solid #ccc;
+    border-radius: 50px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Added shadow for depth */
+}
+
+.register-container h2 {
+    font-size: 40px; /* Adjusted the font size for h2 */
+}
+
+.form-group {
+    margin-bottom: 20px; /* Increased the margin-bottom */
+}
+
+label {
+    display: block;
+    margin-bottom: 10px; /* Increased the margin-bottom */
+    font-size: 18px; /* Increased the font size */
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 15px; /* Increased the padding */
+    font-size: 26px; /* Increased the font size */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+select {
+    width: 80%;
+    padding: 10px; /* Increased the padding */
+    font-size: 26px; /* Increased the font size */
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 25px; /* Increased the padding */
+    background-color: #007bff;
+    color: #000000;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 30px; /* Increased the font size for button text */
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+p {
+    margin-top: 20px; /* Increased the margin-top */
+    text-align: center;
+    font-size: 20px; /* Increased the font size */
+}
+
+p a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+p a:hover {
+    text-decoration: underline;
+}

@@ -8,9 +8,8 @@ WORKDIR /server
 COPY . .
 
 # Install pytest
-RUN pip install pytest
-RUN pip install Flask Flask-Cors
-EXPOSE 8080
+RUN pip install -r requirements.txt
+EXPOSE 8090
 
 # Command to run pytest
 CMD ["pytest", "-s", "test_main.py"]

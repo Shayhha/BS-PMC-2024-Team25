@@ -1,7 +1,7 @@
 // src/LogIn/Login.jsx
 
 import React from 'react';
-import './login.css'; // Make sure to adjust the path to your CSS file
+import './login.css'; 
 
 function Login() {
   return (
