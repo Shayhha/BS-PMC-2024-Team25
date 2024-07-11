@@ -8,7 +8,10 @@ function Register() {
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    name: '',
+    lastname: '',
+    workerType: '', // New field for worker type
   });
 
   const handleChange = e => {
@@ -22,6 +25,7 @@ function Register() {
   const handleSubmit = e => {
     e.preventDefault();
     console.log(formData);
+    // Add your form submission logic here (e.g., API call)
   };
 
   return (
@@ -39,17 +43,7 @@ function Register() {
             required
           />
         </div>
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
+
         <div className="form-group">
           <label htmlFor="password">Password</label>
           <input
@@ -61,22 +55,64 @@ function Register() {
             required
           />
         </div>
+
         <div className="form-group">
-          <label htmlFor="confirmPassword">Confirm Password</label>
+          <label htmlFor="email">Email</label>
           <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
             onChange={handleChange}
             required
           />
         </div>
+
+        <div className="form-group">
+          <label htmlFor="name">Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="lastname">Lastname</label>
+          <input
+            type="text"
+            id="lastname"
+            name="lastname"
+            value={formData.lastname}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="workerType">Worker Type</label>
+          <select
+            id="workerType"
+            name="workerType"
+            value={formData.workerType}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Worker Type</option>
+            <option value="admin">Admin</option>
+            <option value="softwareEngineer">Software Engineer</option>
+            <option value="softwareTester">Software Tester</option>
+          </select>
+        </div>
+
         <button type="submit" style={{ fontSize: '30px' }}>Register</button>
-        </form>
+      </form>
       <p>Already have an account? <Link to="/login">Login</Link></p>
     </div>
   );
 }
 
-export default Register; // Ensure default export is present
+export default Register;

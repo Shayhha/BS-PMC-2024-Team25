@@ -8,6 +8,7 @@ import LandingPage from './LandingPage.jsx';
 import HomePage from './HomePage.jsx';
 import Login from './LogIn/login.jsx';
 import Register from './Register/register.jsx'; // Ensure this path is correct
+import Admin from './Admin/adminlandpage.jsx'; // Import the Admin component
 
 function App() {
   const [array, setArray] = useState([]);
@@ -27,11 +28,9 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
-<<<<<<< HEAD
         <Route path="/register" element={<Register />} />
-=======
-        <Route path="/homepage" element={<HomePage />} />
->>>>>>> f9c5aa15a0bf65d4f911c6feaa1ee801739708aa
+        <Route path="/adminlandpage" element={<Admin />} />
+
         {/* Add more routes as needed */}
       </Routes>
     </Router>
