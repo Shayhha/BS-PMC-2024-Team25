@@ -72,11 +72,13 @@
 }
 
 /* Profile icon image */
-.navbar_profile-icon img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+.hero-image {
+    width: 50px; /* Adjust size as needed */
+    height: 50px;
+    margin-right: 30px; /* Adjust spacing between icon and text */
+
 }
+
 
 /* Dropdown menu */
 .navbar_dropdown {
@@ -95,8 +97,8 @@
 /* Dropdown button styles */
 .navbar_dropdown-button {
     display: block;
-    width: 100%;
-    padding: 10px 0;
+    width: 105%;
+    padding: 12px 0;
     background-color: transparent;
     border: none;
     color: #3c3567;
