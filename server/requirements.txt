@@ -30,7 +30,7 @@ packaging==24.1
     # via pytest
 pluggy==1.5.0
     # via pytest
-pyodbc==5.1.0
+pyodbc==4.0.34
     # via -r requirements.in
 pytest==8.2.2
     # via -r requirements.in

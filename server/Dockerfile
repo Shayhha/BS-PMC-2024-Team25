@@ -8,9 +8,7 @@ WORKDIR /server
 COPY . .
 
 # Install pytest
-RUN pip install pytest
-RUN pip install Flask Flask-Cors python-dotenv
-RUN pip install -Iv pyodbc==4.0.34
+RUN pip install -r requirements.txt
 EXPOSE 8090
 
 # Command to run pytest
