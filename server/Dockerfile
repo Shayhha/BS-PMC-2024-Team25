@@ -10,6 +10,7 @@ COPY . .
 # Install pytest
 RUN pip install pytest
 RUN pip install Flask Flask-Cors python-dotenv
+RUN pip uninstall pyodbc
 RUN pip install --no-binary :all: pyodbc
 EXPOSE 8080
 
