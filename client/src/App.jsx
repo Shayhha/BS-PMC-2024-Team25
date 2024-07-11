@@ -6,6 +6,7 @@ import axios from 'axios';
 
 import NavBar from './NavBar.jsx';
 import LandingPage from './LandingPage.jsx';
+import HomePage from './HomePage.jsx';
 import Login from './LogIn/login.jsx';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/homepage" element={<HomePage />} />
         {/* Add more routes as needed */}
       </Routes>
     </Router>
