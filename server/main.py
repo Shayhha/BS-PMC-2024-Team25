@@ -296,9 +296,6 @@ class BugFixer(ABC):
 
 # ==================================================================================================================== #
 
-
-
-
 # function that checks database users
 @app.route('/api/users', methods=['GET'])
 def users():

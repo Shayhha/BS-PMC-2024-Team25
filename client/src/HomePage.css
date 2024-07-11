@@ -12,7 +12,34 @@
     display: none; /* For Chrome, Safari, and Opera */
 }
 
+.home_page_search_container {
+    position: fixed;
+    top: 125px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: black;
+    width: 400px;
+    height: 50px;
+}
 
+.home_page_search_input {
+    border: none;
+    outline: none;
+    flex-grow: 1;
+    border-radius: 25px;
+    padding: 10px;
+    margin-right: 15px;
+    font-size: 16px;
+}
+
+.home_page_search_icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
 
 .home_page_bug_item_container {
     display: flex;

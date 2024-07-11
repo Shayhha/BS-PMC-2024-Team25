@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './HomePage.css';
 import plusIcon from './assets/plusIcon.png';
+import searchIcon from './assets/searchIcon.png';
 import BugItem from './BugItem';
 import axios from 'axios';
 
@@ -87,6 +88,10 @@ function HomePage() {
     return (
         <div className="home_page">
 
+        <div className="home_page_search_container">
+            <input type="text" className="home_page_search_input" placeholder="Search..." />
+            <img src={searchIcon} className="home_page_search_icon" alt="Search" />
+        </div>
 
 
 
