@@ -97,12 +97,31 @@ function Tester() {
     };
 
 
+    const [searchResult, setSearchResult] = useState("");
+
+    const handleSearchChange = (e) => {
+        setSearchResult(e.target.value);
+    };
+
+    const handleSearch = async (e) => { 
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:8090/homePage/search', {searchResult : searchResult});
+            setBugArray(response.data);
+            console.log('Data sent successfully:', response.data);
+        }
+        catch (error) {
+            console.error('Error sending data:', error);
+        }
+    };
+
+
     return (
         <div className="tester">
 
-            <div className="tester_search_container">
-                <input type="text" className="tester_search_input" placeholder="Search..." />
-                <img src={searchIcon} className="tester_search_icon" alt="Search" />
+            <div className="home_page_search_container">
+                <input type="text" className="home_page_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
+                <img src={searchIcon} className="home_page_search_icon" alt="Search" onClick={handleSearch}/>
             </div>
 
             <div className="tester_inner_container">
