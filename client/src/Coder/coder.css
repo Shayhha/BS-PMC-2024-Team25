@@ -1,17 +1,50 @@
-/* src/Coder.css */
-.coder-container {
+
+.coder {
+    padding-top: 340px;
+    position: relative;
     max-width: 900px; /* Example: Adjust as needed */
     margin: 0 auto;
-    padding: 40px;
     border: 3px solid #ccc;
     border-radius: 10px;
     background-color: #f9f9f9;
 }
 
-.coder-title {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
+.coder_inner_container {
+    max-height: calc(100vh - 100px);
+    overflow-y: scroll; /* Enables vertical scrolling */
 }
 
-/* Add more styles as needed */
+.coder_inner_container::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+}
+
+.coder_search_container {
+    position: fixed;
+    top: 125px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: black;
+    width: 400px;
+    height: 50px;
+}
+
+.coder_search_input {
+    border: none;
+    outline: none;
+    flex-grow: 1;
+    border-radius: 25px;
+    padding: 10px;
+    margin-right: 15px;
+    font-size: 16px;
+}
+
+.coder_search_icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+
