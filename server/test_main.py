@@ -17,7 +17,7 @@ db = None
 
 def test_insert_bug_1():
     db = SQLHelper()
-    db.connect()
+    db.connect2()
 
     try:
         # Insert the bug into the database
@@ -51,7 +51,7 @@ def test_insert_bug_1():
 
 def test_insert_bug_2():
     db = SQLHelper()
-    db.connect()
+    db.connect2()
 
     try:
         # Insert the bug into the database
@@ -84,7 +84,7 @@ def test_insert_bug_2():
 
 def test_insert_bug_3():
     db = SQLHelper() 
-    db.connect()
+    db.connect2()
 
     try:
         # Insert the bug into the database
