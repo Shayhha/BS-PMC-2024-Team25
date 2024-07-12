@@ -17,6 +17,7 @@ function HomePage() {
         setIsPopupVisible(false);
     };
 
+    const [searchResult, setSearchResult] = useState("");
 
     const [bugArray, setBugArray] = useState([]);
 
@@ -29,8 +30,6 @@ function HomePage() {
         fetchBugs();
     }, []);
 
-
-
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -42,12 +41,17 @@ function HomePage() {
         openDate: ''
     });
 
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
             ...prevState,
             [name]: value
         }));
+    };
+
+    const handleSearchChange = (e) => {
+        setSearchResult(e.target.value);
     };
 
     const formatDate = (date) => {
@@ -84,18 +88,25 @@ function HomePage() {
         }
     };
 
+    const handleSearch = async (e) => { 
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:8090/homePage/search', {searchResult : searchResult});
+            setBugArray(response.data);
+            console.log('Data sent successfully:', response.data);
+        }
+        catch (error) {
+            console.error('Error sending data:', error);
+        }
+    };
 
     return (
         <div className="home_page">
 
         <div className="home_page_search_container">
-            <input type="text" className="home_page_search_input" placeholder="Search..." />
-            <img src={searchIcon} className="home_page_search_icon" alt="Search" />
+            <input type="text" className="home_page_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
+            <img src={searchIcon} className="home_page_search_icon" alt="Search" onClick={handleSearch}/>
         </div>
-
-
-
-
             <div className="home_page_inner_container">
                 <img
                     src={plusIcon}

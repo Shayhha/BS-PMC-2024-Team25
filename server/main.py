@@ -121,8 +121,8 @@ class SQLHelper(ABC):
     # method for searching bug in db by its name\title, returns bug dict, else none
     def searchBug(self, bugName):
         try:
-            query = 'SELECT * FROM Bugs WHERE bugName = ?'
-            self.cursor.execute(query, (bugName,))
+            query = 'SELECT * FROM Bugs WHERE bugName LIKE ?'
+            self.cursor.execute(query, ('%' + bugName + '%',))
             bugs = self.cursor.fetchall()
             bugDict = [dict(zip([column[0] for column in self.cursor.description], row)) for row in bugs]
             return bugDict
@@ -255,7 +255,7 @@ class BugFixer(ABC):
     @app.route('/homePage/search', methods=['POST'])
     def searchBugs():
         data = request.get_json()
-        bugDict = db.searchBug(data.get('searchBar')) # search all matching bugs in db
+        bugDict = db.searchBug(data.get('searchResult')) # search all matching bugs in db
         if bugDict is not None: 
             return jsonify(bugDict) # return matched bugs in json form
         else: 
