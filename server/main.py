@@ -27,7 +27,23 @@ class SQLHelper(ABC):
         connectionString = os.getenv('DB_CONNECTION_STRING')
         self.connection = pyodbc.connect(connectionString)
         self.cursor = self.connection.cursor() #initialize cursor 
-    
+
+
+    def searchUserByEmail(self, email):
+        try:
+            query = 'SELECT * FROM Users WHERE email = ?'
+            self.cursor.execute(query, (email,))
+            user = self.cursor.fetchone()
+            if user:
+                return User(user[0], user[1], user[2], user[3], user[4], user[5])
+            else:
+                return None
+        except Exception as e:
+            print(f'Error: {e}')
+            return None
+        
+
+
     # method for closing database connection
     def close(self):
         if self.cursor:
@@ -201,14 +217,24 @@ class BugFixer(ABC):
     # function for login of user into the website
     @app.route('/homepage/login', methods=['POST'])
     def login():
+
         data = request.get_json()
-        user = db.searchUser(data.get('email'), data.get('password'))
-        if user is not None: # if user was found
-            global globalUser 
-            globalUser = user # set globalUser object
-            return jsonify(user.toDict())
-        else: # else user's credentials aren't valid
-             return jsonify({'error': 'Invalid credentials'})
+        email = data.get('email')
+        password = data.get('password')
+    
+      # Check if the user exists by email
+        user_by_email = db.searchUserByEmail(email)
+        if user_by_email:
+            # If the email exists, check the password
+            user = db.searchUser(email, password)
+            if user:
+                global globalUser 
+                globalUser = user  # set globalUser object
+                return jsonify(user.toDict())
+            else:
+                return jsonify({'error': 'Incorrect password'})
+        else:
+            return jsonify({'error': 'Email not found'})
         
     # function for changing password of user
     @app.route('/userSettings/changePassword', methods=['POST'])
