@@ -28,15 +28,6 @@ class SQLHelper(ABC):
         self.connection = pyodbc.connect(connectionString)
         self.cursor = self.connection.cursor() #initialize cursor 
 
-    def connect2(self):
-        # load environment variables from env file
-        load_dotenv()  
-        # getting necessary database credentials from env file for database connection
-        connectionString = "DRIVER={ODBC Driver 17 for SQL Server}; SERVER=bugfixer.database.windows.net; DATABASE=BugFixer; UID=shay; PWD=Bugfix1234$;"
-        self.connection = pyodbc.connect(connectionString)
-        self.cursor = self.connection.cursor() #initialize cursor 
-
-
     def searchUserByEmail(self, email):
         try:
             query = 'SELECT * FROM Users WHERE email = ?'
