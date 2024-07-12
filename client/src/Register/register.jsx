@@ -11,7 +11,7 @@ function Register() {
     password: '',
     name: '',
     lastname: '',
-    workerType: '', // New field for worker type
+    userType: '', // New field for worker type
   });
 
   // Function to handle input changes in the form
@@ -28,7 +28,7 @@ function Register() {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:8090/api/register', formData);
+      const response = await axios.post('http://localhost:8090/homepage/register', formData);
 
       if (!response.data.success) {
         throw new Error('Failed to register');
@@ -107,18 +107,18 @@ function Register() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="workerType">Worker Type</label>
+          <label htmlFor="userType">Worker Type</label>
           <select
-            id="workerType"
-            name="workerType"
-            value={formData.workerType}
+            id="userType"
+            name="userType"
+            value={formData.userType}
             onChange={handleChange}
             required
           >
             <option value="">Select Worker Type</option>
-            <option value="admin">Admin</option>
-            <option value="softwareEngineer">Software Engineer</option>
-            <option value="softwareTester">Software Tester</option>
+            <option value="Coder">Coder</option>
+            <option value="Tester">Tester</option>
+            <option value="Manager">Manager</option>
           </select>
         </div>
 

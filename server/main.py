@@ -19,30 +19,7 @@ class SQLHelper(ABC):
     connection = None # connecction string for SQL server database
     cursor = None # cursor for executig SQL commands
  
-    @app.route('/register', methods=['POST'])
-    def register():
-        data = request.get_json()
-        print(data)
-        email = data.get('email')
-        userName = data.get('userName')
-        fName = data.get('fName')
-        lName = data.get('lName')
-        userType = data.get('userType')
-        
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            return jsonify({"error": "User with this email already exists"})
-        if not all([email,userName,fName,lName,userType]):
-            return jsonify({'error':"missing fields"})
-        globalUser=User(email,userName,fName,lName,userType)
-
-        try:
-            db.session.add(globalUser)
-            db.session.commit()
-            return jsonify({"message":"User registered successfully"})
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({"error": str(e)})
+   
 
  
 
@@ -77,18 +54,22 @@ class SQLHelper(ABC):
             return None
         
     # method for updating user userName, fName, lName  in db, returns true or false
-    def updateUserInfo(self, userId, newUserName, newFname, newLname):
+# method for adding a new user to the Users table
+    def addUser(self, email, userName, fName, lName, userType,password):
         try:
-            query = 'UPDATE Users SET userName = ?, fname = ?, lname = ? WHERE userId = ?'
-            self.cursor.execute(query, (newUserName, newFname, newLname, userId,))
-            self.connection.commit()  # commit the transaction for update
+            query = 'INSERT INTO Users (email, userName, fname, lname, userType,password) VALUES (?, ?, ?, ?, ?,?)'
+            self.cursor.execute(query, (email, userName, fName, lName, userType,password))
+            self.connection.commit()  # commit the transaction for insert
             if self.cursor.rowcount > 0:
                 return True
             else:
-                return False  # user not found
+                return False  # user not inserted
+
         except Exception as e:
-            print(f'Error: {e}')
+            print(f'Error adding user: {e}')
+            self.connection.rollback()  # rollback changes if there's an error
             return False
+
     
     # method for checking passowrd of user in db, returns true or false
     def checkPassword(self, userId, password):
@@ -130,6 +111,8 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return None
 
+    
+
 # ==================================================================================================================== #
 
 # ======================================================User-Class==================================================== #
@@ -163,31 +146,32 @@ class User:
 # class that includes various fucntions for interacting with db and using various features in website
 class BugFixer(ABC):
     # function for refister of user into the website 
-    @app.route('/register', methods=['POST'])
+    @app.route('/homepage/register', methods=['POST'])
     def register():
         data = request.get_json()
         print(data)
         email = data.get('email')
-        userName = data.get('userName')
-        fName = data.get('fName')
-        lName = data.get('lName')
+        userName = data.get('username')
+        fName = data.get('name')
+        lName = data.get('lastname')
         userType = data.get('userType')
+        password=data.get('password')
         
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            return jsonify({"error": "User with this email already exists"})
-        if not all([email,userName,fName,lName,userType]):
-            return jsonify({'error':"missing fields"})
-        globalUser=User(email,userName,fName,lName,userType)
-
-        try:
-            db.session.add(globalUser)
-            db.session.commit()
+      #  existing_user = User.query.filter_by(email=email).first()
+       # if existing_user:
+        #    return jsonify({"error": "User with this email already exists"})
+        print("HII")
+        #if not all([email,userName,fName,lName,userType]):
+         #   print("error11")
+          #  return jsonify({'error':"missing fields"})
+        if db.addUser(email,userName,fName,lName,userType,password) :
+            print("OK")
             return jsonify({"message":"User registered successfully"})
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({"error": str(e)})
+        else :
+            print("error")
+            return jsonify({"error"})
 
+    
        
     # function for login of user into the website
     @app.route('/homepage/login', methods=['POST'])
