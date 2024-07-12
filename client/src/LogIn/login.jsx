@@ -19,8 +19,19 @@ function Login() {
         // Handle successful login, e.g., save user data, redirect, etc.
         console.log('Login successful:', response.data);
         setError(''); // Clear any previous error
-        setSuccess('Login successful!'); // Set success message
-        // Redirect or perform actions on successful login
+        setSuccess('Login successful! Redirecting...'); // Set success message
+        
+        // Redirect based on userType after a short delay
+        const userType = response.data.userType;
+        setTimeout(() => {
+          if (userType === 'Manager') {
+            window.location.href = '/admin'; // Redirect to admin page
+          } else if (userType === 'Coder') {
+            window.location.href = '/coder'; // Redirect to coder page inside Coder folder
+          } else if (userType === 'Tester') {
+            window.location.href = '/tester'; // Redirect to tester page inside Tester folder
+          }
+        }, 1000); // Delay of 1 second before redirecting
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
