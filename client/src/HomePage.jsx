@@ -6,7 +6,7 @@ import BugItem from './BugItem';
 import axios from 'axios';
 
 function HomePage() {
-    
+
     const [isPopupVisible, setIsPopupVisible] = useState(false);
 
     const handleImageClick = () => {
@@ -17,18 +17,18 @@ function HomePage() {
         setIsPopupVisible(false);
     };
 
-    const [searchResult, setSearchResult] = useState("");
 
     const [bugArray, setBugArray] = useState([]);
 
     const fetchBugs = async () => {
-      const response = await axios.get('http://localhost:8090/api/get_bugs');
+      const response = await axios.get('http://localhost:8090/homePage/getBugs');
       setBugArray(response.data);
     };
   
     useEffect(() => {
         fetchBugs();
     }, []);
+
 
     const [formData, setFormData] = useState({
         title: '',
@@ -41,17 +41,12 @@ function HomePage() {
         openDate: ''
     });
 
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
             ...prevState,
             [name]: value
         }));
-    };
-
-    const handleSearchChange = (e) => {
-        setSearchResult(e.target.value);
     };
 
     const formatDate = (date) => {
@@ -68,10 +63,10 @@ function HomePage() {
             openDate: formData.openDate ? formatDate(formData.openDate) : ''
         };
         
+
         try {
-            const response = await axios.post('http://localhost:8090/api/add_bug', formattedData);
-            console.log('Data sent successfully:', response.data);
-            // Reset form after successful submission if needed
+            const response = await axios.post('http://localhost:8090/homePage/addBug', formattedData);
+            console.log('Success:', response.data);
             setFormData({
                 title: '',
                 description: '',
@@ -84,29 +79,35 @@ function HomePage() {
             });
             fetchBugs();
         } catch (error) {
-            console.error('Error sending data:', error);
+            if (error.response) {
+                // Server responded with a status code outside of the 2xx range
+                console.log('Error data:', error.response.data);
+                console.log('Error status:', error.response.status);
+            } else if (error.request) {
+                // Request was made but no response was received
+                console.log('Error request:', error.request);
+            } else {
+                // Sodmething happened in setting up the request that triggered an error
+                console.log('Error message:', error.message);
+            }
+        
+            // Show error message to the user
+            alert(`Error: ${error.response ? error.response.data.error : 'Unknown error occurred'}`);
         }
     };
 
-    const handleSearch = async (e) => { 
-        e.preventDefault();
-        try {
-            const response = await axios.post('http://localhost:8090/homePage/search', {searchResult : searchResult});
-            setBugArray(response.data);
-            console.log('Data sent successfully:', response.data);
-        }
-        catch (error) {
-            console.error('Error sending data:', error);
-        }
-    };
 
     return (
         <div className="home_page">
 
         <div className="home_page_search_container">
-            <input type="text" className="home_page_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
-            <img src={searchIcon} className="home_page_search_icon" alt="Search" onClick={handleSearch}/>
+            <input type="text" className="home_page_search_input" placeholder="Search..." />
+            <img src={searchIcon} className="home_page_search_icon" alt="Search" />
         </div>
+
+
+
+
             <div className="home_page_inner_container">
                 <img
                     src={plusIcon}
@@ -138,15 +139,15 @@ function HomePage() {
                         <form onSubmit={handleSubmit}>
                             <label>
                                 Title:
-                                <input type="text" name="title"  value={formData.title} onChange={handleChange}/>
+                                <input type="text" name="title"  value={formData.title} onChange={handleChange} required/>
                             </label>
                             <label>
                                 Description:
-                                <textarea name="description" value={formData.description} onChange={handleChange}></textarea>
+                                <textarea name="description" value={formData.description} onChange={handleChange} required></textarea>
                             </label>
                             <label>
                                 Status:
-                                <select name="status" value={formData.status} onChange={handleChange}>
+                                <select name="status" value={formData.status} onChange={handleChange} required>
                                     <option value="option1">New</option>
                                     <option value="option2">In Progress</option>
                                     <option value="option3">Done</option>
@@ -154,7 +155,7 @@ function HomePage() {
                             </label>
                             <label>
                                 Assigned To:
-                                <select name="assigned-to"  value={formData.assignedTo} onChange={handleChange}>
+                                <select name="assigned-to"  value={formData.assignedTo} onChange={handleChange} required>
                                     <option value="option1">None</option>
                                     <option value="option2">Option 2</option>
                                     <option value="option3">Option 3</option>
@@ -162,19 +163,19 @@ function HomePage() {
                             </label>
                             <label>
                                 Priority:
-                                <input type="text" name="priority" value={formData.priority} onChange={handleChange} />
+                                <input type="text" name="priority" value={formData.priority} onChange={handleChange} required/>
                             </label>
                             <label>
                                 Importance:
-                                <input type="text" name="importance" value={formData.importance} onChange={handleChange} />
+                                <input type="text" name="importance" value={formData.importance} onChange={handleChange} required/>
                             </label>
                             <label>
                                 Creation Date:
-                                <input type="date" name="creationDate" value={formData.creationDate} onChange={handleChange} />
+                                <input type="date" name="creationDate" value={formData.creationDate} onChange={handleChange} required/>
                             </label>
                             <label>
                                 Open Date:
-                                <input type="date" name="openDate" value={formData.openDate} onChange={handleChange} />
+                                <input type="date" name="openDate" value={formData.openDate} onChange={handleChange} required/>
                             </label>
                             <button type="submit" className="home_page_popup_submit_button">Submit</button>
                         </form>

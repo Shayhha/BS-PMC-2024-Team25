@@ -18,10 +18,6 @@ db = None # this is sql database instance for making queries
 class SQLHelper(ABC):
     connection = None # connecction string for SQL server database
     cursor = None # cursor for executig SQL commands
- 
-   
-
- 
 
     # method for connecting to SQL server database
     def connect(self):
@@ -126,8 +122,18 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return None
-        
-    def insert_bug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate):
+
+    def getBugs(self):
+        try:
+            db.cursor.execute('SELECT * FROM Bugs') 
+            bugs = db.cursor.fetchall()
+            print('Connected successfully to database')
+            bugList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in bugs]
+            return jsonify(bugList)
+        except:
+            return jsonify('Failed to connect to database.')
+         
+    def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate):
         try:
             # SQL insert statement
             insert_sql = """
@@ -141,10 +147,9 @@ class SQLHelper(ABC):
             # Commit the transaction
             self.connection.commit()
             print("\nData inserted successfully")
-            return True
         except Exception as e:
-            print(f"\nError inserting data: {e}")
-            return False
+            print(f"Error occurred: {e}")
+            raise
 
     
 
@@ -271,25 +276,23 @@ class BugFixer(ABC):
         else: 
             return jsonify({'error': 'failed to perform database query'})
 
-    @app.route('/api/get_bugs', methods=['GET'])
+    @app.route('/homePage/getBugs', methods=['GET'])
     def getBugs():
         try:
-            db.cursor.execute('SELECT * FROM Bugs') 
-            bugs = db.cursor.fetchall()
-            print('Connected successfully to database')
-            bugList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in bugs]
-            return jsonify(bugList)
+            bugList = db.getBugs()
+            return bugList
         except:
-            return jsonify('Failed to connect to database.')
+            return jsonify({'error': 'failed to perform database query'})
 
     # function that gets from the user new bug data (and adds to the database)
-    @app.route('/api/add_bug', methods=['POST'])
-    def create_bug():
+    @app.route('/homePage/addBug', methods=['POST'])
+    def createBug():
         bug_data = request.json  # Assuming JSON data is sent
         # Process the received data (save to database, etc.)
         print('Received bug data:', bug_data)
 
-        db.insert_bug(bug_data.get('title'), 
+        try:
+            db.insertBug(bug_data.get('title'), 
                 1, 
                 1,
                 3, 
@@ -301,18 +304,21 @@ class BugFixer(ABC):
                 bug_data.get('creationDate'), 
                 bug_data.get('openDate'), 
                 None)
-
-        return jsonify({'message': 'Bug data received successfully'})
-
+            
+            return jsonify({'message': 'Bug data received successfully'}), 200
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            return jsonify({'error': 'failed to perform database query'}), 500
+        
 # ==================================================================================================================== #
 
 # function that checks database users
-@app.route('/api/users', methods=['GET'])
-def users():
-    db.cursor.execute('SELECT * FROM users') 
-    users = db.cursor.fetchall()
-    userList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in users]
-    return jsonify(userList)
+# @app.route('/api/users', methods=['GET'])
+# def users():
+#     db.cursor.execute('SELECT * FROM users') 
+#     users = db.cursor.fetchall()
+#     userList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in users]
+#     return jsonify(userList)
 
 # example function for testing Jenkins
 def add(a, b):
