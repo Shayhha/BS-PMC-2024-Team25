@@ -28,7 +28,6 @@ class SQLHelper(ABC):
         self.connection = pyodbc.connect(connectionString)
         self.cursor = self.connection.cursor() #initialize cursor 
 
-
     def searchUserByEmail(self, email):
         try:
             query = 'SELECT * FROM Users WHERE email = ?'
@@ -147,6 +146,7 @@ class SQLHelper(ABC):
             # Commit the transaction
             self.connection.commit()
             print("\nData inserted successfully")
+            return True
         except Exception as e:
             print(f"Error occurred: {e}")
             raise
