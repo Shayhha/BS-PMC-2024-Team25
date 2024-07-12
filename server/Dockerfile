@@ -8,11 +8,6 @@ WORKDIR /server
 COPY . .
 
 # Install pytest
-# Example Dockerfile snippet
-RUN apt-get update && \
-    apt-get install -y unixodbc unixodbc-dev && \
-    apt-get install -y msodbcsql17
-
 RUN pip install -r requirements.txt
 EXPOSE 8090
 
