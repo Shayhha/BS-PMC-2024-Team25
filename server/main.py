@@ -131,6 +131,7 @@ class SQLHelper(ABC):
             # Commit the transaction
             self.connection.commit()
             print("\nData inserted successfully")
+            return True
         except Exception as e:
             print(f"Error occurred: {e}")
             raise
