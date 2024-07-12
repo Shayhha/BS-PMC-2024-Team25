@@ -11,16 +11,16 @@ import Register from './Register/register.jsx'; // Ensure this path is correct
 import Admin from './Admin/adminlandpage.jsx'; // Import the Admin component
 
 function App() {
-  const [array, setArray] = useState([]);
+  // const [array, setArray] = useState([]);
 
-  const fetchAPI = async () => {
-    const response = await axios.get('http://localhost:8090/api/users');
-    setArray(response.data.users);
-  };
+  // const fetchAPI = async () => {
+  //   const response = await axios.get('http://localhost:8090/api/users');
+  //   setArray(response.data.users);
+  // };
 
-  useEffect(() => {
-    fetchAPI();
-  }, []);
+  // useEffect(() => {
+  //   fetchAPI();
+  // }, []);
 
   return (
     <Router>
@@ -30,7 +30,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/adminlandpage" element={<Admin />} />
-
+        <Route path="/homepage" element={<HomePage />} />
         {/* Add more routes as needed */}
       </Routes>
     </Router>
