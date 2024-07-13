@@ -135,6 +135,7 @@ function Tester() {
                 {bugArray.map(bug => (
                     <BugItem
                         key={bug.bugId}
+                        bugId={bug.bugId}
                         title={bug.bugName}
                         description={bug.bugDesc}
                         status={bug.status}

@@ -147,6 +147,7 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return None
 
+
     # fucntion for getting bugs from database
     def getBugs(self):
         try:
@@ -157,7 +158,7 @@ class SQLHelper(ABC):
             return jsonify(bugList)
         except:
             return jsonify('Failed to connect to database.')
-         
+
     # insert given bug into the database     
     def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate):
         try:
@@ -177,6 +178,15 @@ class SQLHelper(ABC):
             print(f"Error occurred: {e}")
             raise
 
+    # method for removing a bug from the database using the bug id
+    def removeBug(self, bugId):
+        try:
+            self.cursor.execute('DELETE FROM Bugs WHERE bugId = ?', (bugId,)) 
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            raise
     
 
 # ==================================================================================================================== #
@@ -313,6 +323,7 @@ class BugFixer(ABC):
         else: 
             return jsonify({'error': 'Failed to perform database query'}), 500
 
+    # function for getting all bugs from the database using a helper method
     @app.route('/homePage/getBugs', methods=['GET'])
     def getBugs():
         try:
@@ -347,6 +358,19 @@ class BugFixer(ABC):
             print(f"Error occurred: {e}")
             return jsonify({'error': 'Failed to perform database query'}), 500
         
+    # function for removing bugs, used only by Manager type users
+    @app.route('/homePage/removeBug', methods=['POST'])
+    def removeBug():
+        bugId = request.json
+        try:
+            db.removeBug(bugId.get('bugId'))
+            return jsonify({'message': 'Bug removed successfully'}), 200
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            return jsonify({'error': 'failed to perform database query'}), 500
+        
+
+
 # ==================================================================================================================== #
 
 # function that checks database users
