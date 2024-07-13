@@ -5,7 +5,8 @@ from abc import ABC
 import pyodbc
 import os
 import re
-
+from datetime import datetime
+ 
 
 # initialize app with flask for backend connection with front end react
 app = Flask(__name__)
@@ -341,8 +342,8 @@ class BugFixer(ABC):
     @app.route('/homePage/addBug', methods=['POST'])
     def createBug():
         bug_data = request.json  # Assuming JSON data is sent
-        # Process the received data (save to database, etc.)
-        print('Received bug data:', bug_data)
+        if not HelperFunctions.checkBugInfo(bug_data):
+            return jsonify({'error': 'User entered invalid data'}), 500
 
         try:
             db.insertBug(bug_data.get('title'), 
@@ -378,7 +379,7 @@ class BugFixer(ABC):
 # ==================================================================================================================== #
 
 # =============================================HelperFunctions-Class================================================== #
-# class for various helper fucntion for testing into etc.
+# class for various helper function for testing into etc.
 class HelperFunctions(ABC):
 
     # check username input from front end
@@ -409,6 +410,42 @@ class HelperFunctions(ABC):
             return True
         return False
 
+    # checking if all bug info is correct 
+    def checkBugInfo(bugData):
+        if (HelperFunctions.checkBugTitleOrDescription(bugData.get('title')) == False 
+            or HelperFunctions.checkBugTitleOrDescription(bugData.get('description')) == False
+            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('priority')) == False
+            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('importance')) == False
+            or HelperFunctions.checkBugOpenCreationDate(bugData.get('openDate'), bugData.get('creationDate')) == False):
+            return False
+        return True
+        
+    def checkBugTitleOrDescription(title):
+        pattern = re.compile(r'^[a-zA-Z0-9\-_!?(),.%+*/\'"|\[\]{};:<> \s]+$')
+        if not pattern.fullmatch(title) or len(title) == 0:
+            return False
+        return True
+
+    def checkBugPriorityOrImportance(priority):
+        try:
+            priority_int = int(priority)
+        except ValueError:
+            return False
+
+        if priority_int < 0 or priority_int > 10:
+            return False
+        return True
+
+    def checkBugOpenCreationDate(openDate, creationDate):
+        open_datetime = datetime.strptime(openDate, '%d/%m/%Y')
+        creation_datetime = datetime.strptime(creationDate, '%d/%m/%Y')
+        
+        if  creation_datetime <= open_datetime:
+            return True
+        else:
+            return False
+
+    
     # example function for testing Jenkins
     def add(a, b):
         """Return the sum of a and b."""
