@@ -47,6 +47,69 @@ def test_add_zero():
 #     finally:
 #         db.close()
 
+def test_check_User_Name_1():
+    try:
+        if not HF.checkUserName('Shay12'):
+            raise 
+    except:
+        pytest.fail(f"checkUserName raised an exception: username regex is not valid.")
+
+def test_check_User_Name_2():
+    try:
+        if not HF.checkUserName('MaxSu'):
+            raise 
+    except:
+        pytest.fail(f"checkUserName raised an exception: username regex is not valid.")
+
+def test_check_User_Name_3():
+    try:
+        if HF.checkUserName('Shay*&'):
+            raise 
+    except:
+        pytest.fail(f"checkUserName raised an exception: username regex is not valid.")
+
+def test_check_fName_1():
+    try:
+        if not HF.checkFname('Shay'):
+            raise 
+    except:
+        pytest.fail(f"checkFname raised an exception: firstName regex is not valid.")
+
+def test_check_fName_2():
+    try:
+        if not HF.checkFname('Maxim'):
+            raise 
+    except:
+        pytest.fail(f"checkFname raised an exception: firstName regex is not valid.")
+
+def test_check_fName_3():
+    try:
+        if HF.checkFname('Sh4y'):
+            raise 
+    except:
+        pytest.fail(f"checkFname raised an exception: firstName regex is not valid.")
+
+def test_check_lName_1():
+    try:
+        if not HF.checkLname('Hahiashvili'):
+            raise 
+    except:
+        pytest.fail(f"checkLname raised an exception: lastName regex is not valid.")
+
+def test_check_lName_2():
+    try:
+        if not HF.checkLname('Subotin'):
+            raise 
+    except:
+        pytest.fail(f"checkLname raised an exception: lastName regex is not valid.")
+
+def test_check_lName_3():
+    try:
+        if HF.checkLname('S3btus4'):
+            raise 
+    except:
+        pytest.fail(f"checkLname raised an exception: lastName regex is not valid.")
+
 # def test_insert_bug_1():
 #     db = SQLHelper()
 #     db.connect()
