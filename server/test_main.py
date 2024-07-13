@@ -176,6 +176,13 @@ def test_check_email5():
         pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
 
 
+def test_check_email5():
+    try:
+        if  HF.checkemail("shay@.com"):
+            raise
+    except:
+        pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
+
 
 
 
