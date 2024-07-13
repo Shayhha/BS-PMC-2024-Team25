@@ -28,6 +28,13 @@ class SQLHelper(ABC):
         self.connection = pyodbc.connect(connectionString)
         self.cursor = self.connection.cursor() #initialize cursor 
 
+    # method for closing database connection
+    def close(self):
+        if self.cursor:
+            self.cursor.close()
+        if self.connection:
+            self.connection.close()
+
     def searchUserByEmail(self, email):
         try:
             query = 'SELECT * FROM Users WHERE email = ?'
@@ -40,17 +47,8 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return None
-        
 
-
-    # method for closing database connection
-    def close(self):
-        if self.cursor:
-            self.cursor.close()
-        if self.connection:
-            self.connection.close()
-
-    # method for searching user in db, returns user obj if found else returns none
+     # method for searching user in db, returns user obj if found else returns none
     def searchUser(self, email, password):
         try:
             query = 'SELECT * FROM Users WHERE email = ? AND password = ?'
@@ -65,7 +63,20 @@ class SQLHelper(ABC):
             return None
         
     # method for updating user userName, fName, lName  in db, returns true or false
-# method for adding a new user to the Users table
+    def updateUserInfo(self, userId, newUserName, newFname, newLname):
+        try:
+            query = 'UPDATE Users SET userName = ?, fname = ?, lname = ? WHERE userId = ?'
+            self.cursor.execute(query, (newUserName, newFname, newLname, userId,))
+            self.connection.commit()  # commit the transaction for update
+            if self.cursor.rowcount > 0:
+                return True
+            else:
+                return False  # user not found
+        except Exception as e:
+            print(f'Error: {e}')
+            return False
+        
+    # method for adding a new user to the Users table
     def addUser(self, email, userName, fName, lName, userType,password):
         try:
             query = 'INSERT INTO Users (email, userName, fname, lname, userType,password) VALUES (?, ?, ?, ?, ?,?)'
@@ -96,6 +107,20 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return False
 
+    # method for getting passowrd of user in db, retuns none if didnt find password of user
+    def getUserPassword(self, userId):
+        try:
+            query = 'SELECT * FROM Users WHERE userId = ?'
+            self.cursor.execute(query, (userId,))
+            user = self.cursor.fetchone()
+            if user:
+                return user[6]
+            else:
+                return None
+        except Exception as e:
+            print(f'Error: {e}')
+            return None
+        
     # method for updating passowrd of user in db, returns true or false
     def updatePassword(self, userId, newPassword, oldPassword):
         try:
@@ -122,6 +147,7 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return None
 
+    # fucntion for getting bugs from database
     def getBugs(self):
         try:
             db.cursor.execute('SELECT * FROM Bugs') 
@@ -132,6 +158,7 @@ class SQLHelper(ABC):
         except:
             return jsonify('Failed to connect to database.')
          
+    # insert given bug into the database     
     def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate):
         try:
             # SQL insert statement
@@ -146,7 +173,6 @@ class SQLHelper(ABC):
             # Commit the transaction
             self.connection.commit()
             print("\nData inserted successfully")
-            return True
         except Exception as e:
             print(f"Error occurred: {e}")
             raise
@@ -172,7 +198,7 @@ class User:
         userDict = {
             'userId': self.userId,
             'email': self.email,
-            'username': self.userName,
+            'userName': self.userName,
             'fName': self.fName,
             'lName': self.lName,
             'userType': self.userType
@@ -181,7 +207,7 @@ class User:
 
 # ==================================================================================================================== #
 
-# =====================================================BugFixer======================================================= #
+# =====================================================BugFixer-Class================================================= #
 
 # class that includes various fucntions for interacting with db and using various features in website
 class BugFixer(ABC):
@@ -240,31 +266,42 @@ class BugFixer(ABC):
     def changePassword():
         data = request.get_json()
         if db.checkPassword(globalUser.userId, data.get('oldPassword')):
-            if db.updatePassword(globalUser.userId, data.get('newpassword'), data.get('oldPassword')):
-                return jsonify({'success': 'Changed password succusfully'})
+            if db.updatePassword(globalUser.userId, data.get('newPassword'), data.get('oldPassword')):
+                return jsonify({'success': 'Changed password successfully'}), 200
             else:
-                return jsonify({'error': 'failed to perform database query'})
+                return jsonify({'error': 'Failed to perform database query'}), 500
         else:
-            return jsonify({'error': 'Old password is incorrect'})
+            return jsonify({'error': 'Old password is incorrect'}), 500
         
-              # function to logout from the website  
+    # function to logout from the website  
     @app.route('/homepage/logout', methods=['POST'])
     def logout():
         global globalUser
         if globalUser:
             globalUser = None
-            return jsonify({'message':'logged out successfully'})
+            return jsonify({'message':'Logged out successfully'})
         else:
             return jsonify({'error':'No user is logged in'})
+        
+    # function to getting logged in user 
+    @app.route('/userSettings/getUser', methods=['GET'])
+    def getUser():
+        global globalUser
+        globalUser = db.searchUser('shay@shay.com', 'shay123')
+        userData = globalUser.toDict() # get user data
+        if globalUser and userData:
+            return jsonify(userData), 200
+        else:
+            return jsonify({'error':'No user is logged in'}), 500
         
     # function for changing user's info like userName, fname, lname
     @app.route('/userSettings/changeUserInfo', methods=['POST'])
     def changeUserInfo():
         data = request.get_json()
-        if db.updateUserInfo(globalUser.userId, data.get('newUserName'), data.get('newFname'), data.get('newLname')):
-            return jsonify({'success': 'Changed user info succusfully'})
+        if db.updateUserInfo(globalUser.userId, data.get('userName'), data.get('fName'), data.get('lName')):
+            return jsonify({'success': 'Changed user info succusfully'}), 200
         else:
-            return jsonify({'error': 'failed to perform database query'})
+            return jsonify({'error': 'Failed to perform database query'}), 500
         
     # function for searching bugs by name/title
     @app.route('/homePage/search', methods=['POST'])
@@ -272,9 +309,9 @@ class BugFixer(ABC):
         data = request.get_json()
         bugDict = db.searchBug(data.get('searchResult')) # search all matching bugs in db
         if bugDict is not None: 
-            return jsonify(bugDict) # return matched bugs in json form
+            return jsonify(bugDict), 200 # return matched bugs in json form
         else: 
-            return jsonify({'error': 'failed to perform database query'})
+            return jsonify({'error': 'Failed to perform database query'}), 500
 
     @app.route('/homePage/getBugs', methods=['GET'])
     def getBugs():
@@ -282,7 +319,7 @@ class BugFixer(ABC):
             bugList = db.getBugs()
             return bugList
         except:
-            return jsonify({'error': 'failed to perform database query'})
+            return jsonify({'error': 'Failed to perform database query'})
 
     # function that gets from the user new bug data (and adds to the database)
     @app.route('/homePage/addBug', methods=['POST'])
@@ -308,7 +345,7 @@ class BugFixer(ABC):
             return jsonify({'message': 'Bug data received successfully'}), 200
         except Exception as e:
             print(f"Error occurred: {e}")
-            return jsonify({'error': 'failed to perform database query'}), 500
+            return jsonify({'error': 'Failed to perform database query'}), 500
         
 # ==================================================================================================================== #
 
