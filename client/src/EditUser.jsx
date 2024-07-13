@@ -160,14 +160,52 @@ function EditUser() {
         }
     };
 
-    //handle function for submit changes of emailForm
+     //handle function for submit changes of emailForm
     const handleRightEmailSubmit = async (e) => {}; //TODO
 
     //handle rightPasswordChange for passwordForm
-    const handleRightPasswordChange = (e) => {};
+    const handleRightPasswordChange = (e) => {
+        const { name, value } = e.target;
+        setPasswordData(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+
+        //validate password form
+        // /^(?=.*[A-Z])[^\s'=]{6,24}$/ 
+        if (/^[^\s'=]{1,24}$/.test(value)) {
+            passwordData.isValid = '0';
+            setPasswordError('');
+        } else {
+            passwordData.isValid = '1';
+            setPasswordError('Invalid password format, password should include at least 6 characters and at least one capital letter.');
+        }
+    };
 
     //handle function for submit changes of passwordForm
-    const handleRightPasswordSubmit = async (e) => {};
+    const handleRightPasswordSubmit = async (e) => {
+        e.preventDefault();
+
+        if (passwordData.isValid === '1') {
+            alert(`Invalid password format, please provide a valid password that matches requirements.`);
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:8090/userSettings/changePassword', passwordData);
+            console.log('User password updated successfully:', response.data);
+            alert(`User password updated successfully.`);
+            //clear password fields after successful submission
+            setPasswordData(prevState => ({
+                ...prevState,
+                oldPassword: '',
+                newPassword: ''
+            }));
+        } 
+        catch (error) {
+            alert(`Error updating user password: ${error.response.data.error}`);
+        }
+    };
     
     return (
         <div className="edit_user_page">

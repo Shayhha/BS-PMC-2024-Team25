@@ -287,7 +287,7 @@ class BugFixer(ABC):
     @app.route('/userSettings/getUser', methods=['GET'])
     def getUser():
         global globalUser
-        globalUser = db.searchUser('shay@shay.com', 'shay123')
+        globalUser = db.searchUser('shay@shay.com', 'shay123') # for testing
         userData = globalUser.toDict() # get user data
         if globalUser and userData:
             return jsonify(userData), 200
