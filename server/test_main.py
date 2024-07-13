@@ -110,6 +110,27 @@ def test_check_lName_3():
     except:
         pytest.fail(f"checkLname raised an exception: lastName regex is not valid.")
 
+def test_check_password_1():
+    try:
+        if not HF.checkPassword('Apple123'):
+            raise 
+    except:
+        pytest.fail(f"checkPassword raised an exception: password regex is not valid.")
+
+def test_check_password_2():
+    try:
+        if not HF.checkPassword('CatDog22'):
+            raise 
+    except:
+        pytest.fail(f"checkPassword raised an exception: password regex is not valid.")
+
+def test_check_password_3():
+    try:
+        if HF.checkPassword('tomcruize21'):
+            raise 
+    except:
+        pytest.fail(f"checkPassword raised an exception: password regex is not valid.")
+
 # def test_insert_bug_1():
 #     db = SQLHelper()
 #     db.connect()
