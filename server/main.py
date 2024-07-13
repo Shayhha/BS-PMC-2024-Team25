@@ -408,6 +408,13 @@ class HelperFunctions(ABC):
         if pattern.fullmatch(password):
             return True
         return False
+    
+    #check email input from frontend
+    def checkemail(email):
+        pattern = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        if pattern.fullmatch(email):
+            return True
+        return False
 
     # example function for testing Jenkins
     def add(a, b):

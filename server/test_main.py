@@ -68,6 +68,15 @@ def test_check_User_Name_3():
     except:
         pytest.fail(f"checkUserName raised an exception: username regex is not valid.")
 
+
+def test_check_User_Name_4():
+    try:
+        if HF.checkUserName('*₪12'):
+            raise 
+    except:
+        pytest.fail(f"checkUserName raised an exception: username regex is not valid.")
+
+
 def test_check_fName_1():
     try:
         if not HF.checkFname('Shay'):
@@ -130,6 +139,49 @@ def test_check_password_3():
             raise 
     except:
         pytest.fail(f"checkPassword raised an exception: password regex is not valid.")
+
+def test_check_email1():
+    try:
+        if HF.checkemail("plainaddress"):
+            raise
+    except:
+        pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
+
+def test_check_email2():
+    try:
+        if not HF.checkemail("ayman@gmail.com"):
+            raise
+    except:
+        pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
+
+def test_check_email3():
+    try:
+        if not HF.checkemail("user.name+tag+sorting@example.com"):
+            raise
+    except:
+        pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
+
+def test_check_email4():
+    try:
+        if not HF.checkemail("user_name@sub.example.org"):
+            raise
+    except:
+        pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
+
+def test_check_email5():
+    try:
+        if  HF.checkemail("@missingusername.com"):
+            raise
+    except:
+        pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
+
+
+
+
+
+
+
+
 
 # def test_insert_bug_1():
 #     db = SQLHelper()
