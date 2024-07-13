@@ -3,11 +3,11 @@ import './BugItem.css';
 import trashIcon from './assets/trashIcon.png';
 import axios from 'axios';
 
-function BugItem({ title, description, status, assignedTo, priority, importance, creationDate, openDate, isAdmin }) {
+function BugItem({ bugId, title, description, status, assignedTo, priority, importance, creationDate, openDate, isAdmin }) {
 
     const handleDeleteBug = async () => {
         try {
-            const response = await axios.get('http://localhost:8090/homePage/removeBug');
+            const response = await axios.post('http://localhost:8090/homePage/removeBug', {bugId : bugId});
             window.location.reload(); // refresh the page after successful deletion to see the updated list of bugs
         } catch (error) {
             alert(`Error removing the bug, ${error.response.data.error}`);
