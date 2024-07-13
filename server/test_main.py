@@ -190,6 +190,108 @@ def test_check_email5():
 
 
 
+
+
+def test_check_bug_title_or_description_1():
+    try:
+        if not HF.checkBugTitleOrDescription('Bug 1'):
+            raise 
+    except:
+        pytest.fail(f"checkBugTitleOrDescription raised an exception.")
+
+def test_check_bug_title_or_description_2():
+    try:
+        if not HF.checkBugTitleOrDescription('(Test1) good title 123'):
+            raise 
+    except:
+        pytest.fail(f"checkBugTitleOrDescription raised an exception.")
+
+def test_check_bug_title_or_description_3():
+    try:
+        if not HF.checkBugTitleOrDescription('Lorem ipsum dolor, sit amet consectetur adipisicing elit. Reprehenderit repellat tenetur eos a tempora velit ipsa dolore error nihil, blanditiis debitis expedita repudiandae praesentium! Mollitia aut fuga laborum repudiandae enim.'):
+            raise 
+    except:
+        pytest.fail(f"checkBugTitleOrDescription raised an exception.")
+
+def test_check_bug_title_or_description_4():
+    try:
+        if HF.checkBugTitleOrDescription('`SELECT * FROM Users`'):
+            raise 
+    except:
+        pytest.fail(f"checkBugTitleOrDescription raised an exception.")
+
+def test_check_bug_title_or_description_5():
+    try:
+        if HF.checkBugTitleOrDescription('`@)*&$VJ@*&JC&Shfsjhcajsh~`-182u`s\n\t`'):
+            raise 
+    except:
+        pytest.fail(f"checkBugTitleOrDescription raised an exception.")
+
+
+
+
+def test_check_bug_priority_or_importance_1():
+    try:
+        if not HF.checkBugPriorityOrImportance(3):
+            raise 
+    except:
+        pytest.fail(f"checkBugPriorityOrImportance raised an exception.")
+
+def test_check_bug_priority_or_importance_2():
+    try:
+        if not HF.checkBugPriorityOrImportance(10):
+            raise 
+    except:
+        pytest.fail(f"checkBugPriorityOrImportance raised an exception.")
+
+def test_check_bug_priority_or_importance_3():
+    try:
+        if not HF.checkBugPriorityOrImportance(0):
+            raise 
+    except:
+        pytest.fail(f"checkBugPriorityOrImportance raised an exception.")
+
+def test_check_bug_priority_or_importance_4():
+    try:
+        if HF.checkBugPriorityOrImportance(-25):
+            raise 
+    except:
+        pytest.fail(f"checkBugPriorityOrImportance raised an exception.")
+
+def test_check_bug_priority_or_importance_5():
+    try:
+        if HF.checkBugPriorityOrImportance(425):
+            raise 
+    except:
+        pytest.fail(f"checkBugPriorityOrImportance raised an exception.")
+
+
+
+
+def test_check_bug_open_creation_date_1():
+    try:
+        if not HF.checkBugOpenCreationDate('24/04/2022', '12/04/2022'):
+            raise 
+    except:
+        pytest.fail(f"checkBugOpenCreationDate raised an exception: open and creation dates are not valid.")
+
+def test_check_bug_open_creation_date_2():
+    try:
+        if not HF.checkBugOpenCreationDate('01/12/2023', '01/12/2023'):
+            raise 
+    except:
+        pytest.fail(f"checkBugOpenCreationDate raised an exception: open and creation dates are not valid.")
+
+def test_check_bug_open_creation_date_3():
+    try:
+        if HF.checkBugOpenCreationDate('16/01/2009', '18/06/2011'):
+            raise 
+    except:
+        pytest.fail(f"checkBugOpenCreationDate raised an exception: open and creation dates are not valid.")
+
+
+
+
 # def test_insert_bug_1():
 #     db = SQLHelper()
 #     db.connect()
