@@ -1,8 +1,8 @@
 
 .admin {
-    padding-top: 340px;
+    padding-top: 330px;
     position: relative;
-    max-width: 900px; /* Example: Adjust as needed */
+    max-width: 1200px; 
     margin: 0 auto;
     border: 3px solid #ccc;
     border-radius: 10px;
@@ -20,14 +20,14 @@
 
 .admin_search_container {
     position: fixed;
-    top: 125px;
+    top: 150px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-45%);
     display: flex;
     align-items: center;
     justify-content: space-between;
     color: black;
-    width: 400px;
+    width: 550px;
     height: 50px;
 }
 

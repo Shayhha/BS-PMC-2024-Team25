@@ -40,9 +40,9 @@ function Coder() {
     return (
         <div className="coder">
 
-            <div className="home_page_search_container">
-                <input type="text" className="home_page_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
-                <img src={searchIcon} className="home_page_search_icon" alt="Search" onClick={handleSearch}/>
+            <div className="coder_search_container">
+                <input type="text" className="coder_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
+                <img src={searchIcon} className="coder_search_icon" alt="Search" onClick={handleSearch}/>
             </div>
 
             <div className="coder_inner_container">
