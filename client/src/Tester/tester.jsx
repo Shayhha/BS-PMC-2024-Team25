@@ -119,9 +119,9 @@ function Tester() {
     return (
         <div className="tester">
 
-            <div className="home_page_search_container">
-                <input type="text" className="home_page_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
-                <img src={searchIcon} className="home_page_search_icon" alt="Search" onClick={handleSearch}/>
+            <div className="tester_search_container">
+                <input type="text" className="tester_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
+                <img src={searchIcon} className="tester_search_icon" alt="Search" onClick={handleSearch}/>
             </div>
 
             <div className="tester_inner_container">

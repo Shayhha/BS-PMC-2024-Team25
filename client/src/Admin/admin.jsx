@@ -40,9 +40,9 @@ function Admin() {
     return (
         <div className="admin">
 
-            <div className="home_page_search_container">
-                <input type="text" className="home_page_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
-                <img src={searchIcon} className="home_page_search_icon" alt="Search" onClick={handleSearch}/>
+            <div className="admin_search_container">
+                <input type="text" className="admin_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
+                <img src={searchIcon} className="admin_search_icon" alt="Search" onClick={handleSearch}/>
             </div>
 
             <div className="admin_inner_container">
@@ -57,6 +57,7 @@ function Admin() {
                         importance={bug.importance}
                         creationDate={bug.creationDate}
                         openDate={bug.openDate}
+                        isAdmin={true}
                     />
                 ))}
             </div>
