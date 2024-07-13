@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from abc import ABC
 import pyodbc
 import os
+import re
 
 
 # initialize app with flask for backend connection with front end react
@@ -275,6 +276,8 @@ class BugFixer(ABC):
     @app.route('/userSettings/changePassword', methods=['POST'])
     def changePassword():
         data = request.get_json()
+        if not HelperFunctions.checkPassword(data.get('newPassword')):
+             return jsonify({'error': 'New password does not meet requirements.'}), 500
         if db.checkPassword(globalUser.userId, data.get('oldPassword')):
             if db.updatePassword(globalUser.userId, data.get('newPassword'), data.get('oldPassword')):
                 return jsonify({'success': 'Changed password successfully'}), 200
@@ -297,7 +300,7 @@ class BugFixer(ABC):
     @app.route('/userSettings/getUser', methods=['GET'])
     def getUser():
         global globalUser
-        globalUser = db.searchUser('shay@shay.com', 'shay123') # for testing
+        globalUser = db.searchUser('shay@shay.com', 'Shay123') # for testing
         userData = globalUser.toDict() # get user data
         if globalUser and userData:
             return jsonify(userData), 200
@@ -308,6 +311,8 @@ class BugFixer(ABC):
     @app.route('/userSettings/changeUserInfo', methods=['POST'])
     def changeUserInfo():
         data = request.get_json()
+        if not HelperFunctions.checkUserName(data.get('userName')) or not HelperFunctions.checkFname(data.get('fName')) or not HelperFunctions.checkLname(data.get('lName')):
+            return jsonify({'error': 'User info parameters are invalid.'}), 500 
         if db.updateUserInfo(globalUser.userId, data.get('userName'), data.get('fName'), data.get('lName')):
             return jsonify({'success': 'Changed user info succusfully'}), 200
         else:
@@ -370,21 +375,46 @@ class BugFixer(ABC):
             return jsonify({'error': 'failed to perform database query'}), 500
         
 
-
 # ==================================================================================================================== #
 
-# function that checks database users
-# @app.route('/api/users', methods=['GET'])
-# def users():
-#     db.cursor.execute('SELECT * FROM users') 
-#     users = db.cursor.fetchall()
-#     userList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in users]
-#     return jsonify(userList)
+# =============================================HelperFunctions-Class================================================== #
+# class for various helper fucntion for testing into etc.
+class HelperFunctions(ABC):
 
-# example function for testing Jenkins
-def add(a, b):
-    """Return the sum of a and b."""
-    return a + b
+    # check username input from front end
+    def checkUserName(username):
+        pattern = re.compile(r'^[a-zA-Z0-9]*$')
+        if pattern.fullmatch(username):
+            return True
+        return False
+    
+    # check firstName input from front end
+    def checkFname(fName):
+        pattern = re.compile(r'^[a-zA-Z]*$') 
+        if pattern.fullmatch(fName):
+            return True
+        return False
+    
+    # check lastName input from front end
+    def checkLname(lName):
+        pattern = re.compile(r'^[a-zA-Z]*$')
+        if pattern.fullmatch(lName):
+            return True
+        return False
+    
+    # check password input from front end
+    def checkPassword(password):
+        pattern = re.compile(r'^(?=.*[A-Z])[^\s\'=]{6,24}$')
+        if pattern.fullmatch(password):
+            return True
+        return False
+
+    # example function for testing Jenkins
+    def add(a, b):
+        """Return the sum of a and b."""
+        return a + b
+    
+# ==================================================================================================================== #
 
 # ========================================================MAIN======================================================== #
 # running the python backend app

@@ -172,8 +172,7 @@ function EditUser() {
         }));
 
         //validate password form
-        // /^(?=.*[A-Z])[^\s'=]{6,24}$/ 
-        if (/^[^\s'=]{1,24}$/.test(value)) {
+        if (/^(?=.*[A-Z])[^\s'=]{6,24}$/.test(value)) {
             passwordData.isValid = '0';
             setPasswordError('');
         } else {

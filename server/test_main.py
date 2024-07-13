@@ -1,23 +1,55 @@
 import pytest
-from main import add, SQLHelper
+from main import HelperFunctions as HF, SQLHelper
+db = None
+
 
 def test_add_positive_numbers():
-    assert add(2,2) == 4
+    assert HF.add(2,2) == 4
 
 def test_add_negative_numbers():
-    result = add(-1, -1)
+    result = HF.add(-1, -1)
     assert result == -2
 
 def test_add_zero():
-    result = add(0, 0)
+    result = HF.add(0, 0)
     assert result == 0
 
+# def test_search_bug_1():
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         if len(db.searchBug('bug')) == 0:
+#             raise
+#     except Exception as e:
+#         pytest.fail(f"searchBug raised an exception: {e}")
+#     finally:
+#         db.close()
 
-# db = None
+# def test_search_bug_2():
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         if len(db.searchBug('B')) == 0:
+#             raise
+#     except Exception as e:
+#         pytest.fail(f"searchBug raised an exception: {e}")
+#     finally:
+#         db.close()
+
+# def test_search_bug_3():
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         if len(db.searchBug('aux')) is not 0:
+#             raise
+#     except Exception as e:
+#         pytest.fail(f"searchBug raised an exception: {e}")
+#     finally:
+#         db.close()
 
 # def test_insert_bug_1():
 #     db = SQLHelper()
-#     db.connect2()
+#     db.connect()
 
 #     try:
 #         # Insert the bug into the database
