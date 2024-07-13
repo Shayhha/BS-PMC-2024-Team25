@@ -1,17 +1,160 @@
-/* src/Tester.css */
-.tester-container {
+
+.tester {
+    padding-top: 340px;
+    position: relative;
     max-width: 900px; /* Example: Adjust as needed */
     margin: 0 auto;
-    padding: 40px;
     border: 3px solid #ccc;
     border-radius: 10px;
     background-color: #f9f9f9;
 }
 
-.tester-title {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
+.tester_inner_container {
+    max-height: calc(100vh - 100px);
+    overflow-y: scroll; /* Enables vertical scrolling */
 }
 
-/* Add more styles as needed */
+.tester_inner_container::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+}
+
+.tester_search_container {
+    position: fixed;
+    top: 150px;
+    left: 50%;
+    transform: translateX(-45%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: black;
+    width: 550px;
+    height: 50px;
+}
+
+.tester_search_input {
+    border: none;
+    outline: none;
+    flex-grow: 1;
+    border-radius: 25px;
+    padding: 10px;
+    margin-right: 15px;
+    font-size: 16px;
+}
+
+.tester_search_icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.tester_bug_item_container {
+    display: flex;
+    background-color: transparent;
+    color: white;
+    min-width: 500px;
+    min-height: 300px;
+    width: 1000px;
+    height: 400px;
+    padding: 20px;
+    margin: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: none;
+    border-radius: 20px;
+}
+
+.tester_add_new_bug_button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 20px 20px;
+    margin: 10px;
+    background-color: #4CAF50; /* Nice green color */
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s;
+}
+
+.tester_add_new_bug_button:hover {
+    background-color: #45a049; /* Slightly darker green on hover */
+}
+
+.tester_popup_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.tester_popup {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    background-color: white;
+    color: black;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 70%; /* Adjust width as needed */
+    max-width: 500px; /* Set a maximum width if necessary */
+    min-height: 400px;
+    text-align: center;
+}
+
+.tester_close_button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+    color: black;
+}
+
+.tester_popup form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tester_popup label {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.tester_popup input[type="text"] {
+    padding: 8px; /* Adjust padding for input fields */
+    font-size: 14px; /* Adjust font size for input fields */
+    width: 100%; /* Adjust width to fit within container */
+    box-sizing: border-box; /* Ensure padding is included in the width */
+}
+    
+
+
+.tester_popup form textarea {
+    height: 150px; /* Adjust the height as needed */
+    resize: none; /* Prevent resizing */
+    overflow: auto; /* Always show scrollbar */
+}
+
+
+.tester_popup select {
+padding: 6px; /* Adjust padding for select boxes */
+font-size: 14px; /* Adjust font size for select boxes */
+width: 100%; /* Adjust width to fit within container */
+box-sizing: border-box; /* Ensure padding is included in the width */
+}
+
+.tester_popup_submit_button {
+    color: white;
+    margin-top: 20px;
+}
