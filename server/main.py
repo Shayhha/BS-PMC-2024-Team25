@@ -423,9 +423,21 @@ class HelperFunctions(ABC):
             or HelperFunctions.checkBugTitleOrDescription(bugData.get('description')) == False
             or HelperFunctions.checkBugPriorityOrImportance(bugData.get('priority')) == False
             or HelperFunctions.checkBugPriorityOrImportance(bugData.get('importance')) == False
-            or HelperFunctions.checkBugOpenCreationDate(bugData.get('openDate'), bugData.get('creationDate')) == False):
+            or HelperFunctions.checkBugOpenCreationDate(bugData.get('openDate'), bugData.get('creationDate')) == False
+            or HelperFunctions.checkBugCloseDate(bugData.get('openDate'), bugData.get('creationDate'))==False):
             return False
         return True
+    
+    def checkBugCloseDate(OpenDate,CloseDate):
+        OpenDate = datetime.strptime(OpenDate, '%d/%m/%Y')
+        CloseDate = datetime.strptime(CloseDate, '%d/%m/%Y') 
+
+        if CloseDate==None:
+            return True
+        if CloseDate<OpenDate:
+            return False
+        else:
+            return True
         
     def checkBugTitleOrDescription(title):
         pattern = re.compile(r'^[a-zA-Z0-9\-_!?(),.%+*/\'"|\[\]{};:<> \s]+$')
