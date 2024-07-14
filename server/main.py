@@ -468,16 +468,16 @@ class HelperFunctions(ABC):
             or HelperFunctions.checkBugPriorityOrImportance(bugData.get('priority')) == False
             or HelperFunctions.checkBugPriorityOrImportance(bugData.get('importance')) == False
             or HelperFunctions.checkBugOpenCreationDate(bugData.get('openDate'), bugData.get('creationDate')) == False
-            or HelperFunctions.checkBugCloseDate(bugData.get('openDate'), bugData.get('creationDate'))==False):
+            or HelperFunctions.checkBugCloseDate(bugData.get('openDate'), bugData.get('closeDate'))==False):
             return False
         return True
     
     def checkBugCloseDate(OpenDate,CloseDate):
+        if CloseDate==None:
+                    return True
+
         OpenDate = datetime.strptime(OpenDate, '%d/%m/%Y')
         CloseDate = datetime.strptime(CloseDate, '%d/%m/%Y') 
-
-        if CloseDate==None:
-            return True
         if CloseDate<OpenDate:
             return False
         else:

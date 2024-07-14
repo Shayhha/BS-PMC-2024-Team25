@@ -199,7 +199,7 @@ def test_check_bug_clsoe_2():
 
 def test_check_bug_clsoe_3():
     try:
-        if  HF.checkBugCloseDate('20/02/2003', '16/01/2009'):
+        if  HF.checkBugCloseDate('20/02/2012', '16/01/2009'):
             raise 
     except:
         pytest.fail(f"checkBugCloseDate raised an exception: close date is  not valid.")
@@ -207,7 +207,7 @@ def test_check_bug_clsoe_3():
 
 def test_check_bug_clsoe_4():
     try:
-        if  HF.checkBugCloseDate('10/01/2009', '16/01/2009'):
+        if  HF.checkBugCloseDate('10/04/2009', '16/01/2009'):
             raise 
     except:
         pytest.fail(f"checkBugCloseDate raised an exception: close date is  not valid.")
