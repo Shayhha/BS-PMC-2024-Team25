@@ -77,7 +77,7 @@ function Coder() {
                         importance={bug.importance}
                         creationDate={bug.creationDate}
                         openDate={bug.openDate}
-                        isAdmin={true} // Adjust this based on actual admin check
+                        isAdmin={false} // Adjust this based on actual admin check
                         onSave={handleSave}
                     />
                 ))}

@@ -94,6 +94,33 @@
     gap: 10px;
 }
 
+.bug-item-row label {
+    color: black;
+}
+
+.bug-item-row input {
+    color: black;
+    background-color: white;
+}
+
+.bug-item-label {
+    color: black;
+}
+
+.bug-item-cancel-button {
+    padding: 10px 20px;
+    background-color: #ff3c00;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.bug-item-cancel-button:hover {
+    background-color: #ff0000;
+}
+
 .bug-item-input,
 .bug-item-select,
 .bug-item-textarea {

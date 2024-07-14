@@ -180,6 +180,17 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f"Error occurred: {e}")
             raise
+
+    # method for removing a bug from the database using the bug id
+    def removeBug(self, bugId):
+         try:
+             self.cursor.execute('DELETE FROM Bugs WHERE bugId = ?', (bugId,)) 
+             self.connection.commit()
+             return True
+         except Exception as e:
+             print(f"Error occurred: {e}")
+             raise
+
     def update_bug(self, bug_id, bug_name=None, bug_desc=None, status=None, importance=None, priority=None, assigned_id=None):
         try:
             fields = []
@@ -502,16 +513,16 @@ class HelperFunctions(ABC):
             or HelperFunctions.checkBugPriorityOrImportance(bugData.get('priority')) == False
             or HelperFunctions.checkBugPriorityOrImportance(bugData.get('importance')) == False
             or HelperFunctions.checkBugOpenCreationDate(bugData.get('openDate'), bugData.get('creationDate')) == False
-            or HelperFunctions.checkBugCloseDate(bugData.get('openDate'), bugData.get('creationDate'))==False):
+            or HelperFunctions.checkBugCloseDate(bugData.get('openDate'), bugData.get('closeDate'))==False):
             return False
         return True
     
     def checkBugCloseDate(OpenDate,CloseDate):
+        if CloseDate==None:
+                    return True
+
         OpenDate = datetime.strptime(OpenDate, '%d/%m/%Y')
         CloseDate = datetime.strptime(CloseDate, '%d/%m/%Y') 
-
-        if CloseDate==None:
-            return True
         if CloseDate<OpenDate:
             return False
         else:

@@ -32,6 +32,8 @@ function BugItem({
     const statusOptions = ["In Progress", "New", "Done"]; // Options for status dropdown
 
     const handleDeleteBug = async () => {
+        if (status !== "Done") return;
+        if (!confirm("Are you sure you want to delete this bug?")) return;
         try {
             await axios.post('http://localhost:8090/homePage/removeBug', { bugId });
             window.location.reload(); // refresh the page after successful deletion to see the updated list of bugs
@@ -65,6 +67,10 @@ function BugItem({
         } catch (error) {
             console.error('Failed to update bug:', error);
         }
+    };
+
+    const handleCancelClick = async () => {
+        setIsEditing(false);
     };
 
     const getStatusColor = (status) => {
@@ -151,6 +157,7 @@ function BugItem({
                         <p className="bug-item-open-date">{openDate}</p>
                     </div>
                     <button onClick={handleSaveClick} className="bug-item-save-button">Save</button>
+                    <button onClick={handleCancelClick} className="bug-item-cancel-button">Cancel</button>
                 </div>
             ) : (
                 <div className="bug-item-view">
@@ -183,7 +190,9 @@ function BugItem({
                         <div className="bug-item-label">Open Date:</div>
                         <p className="bug-item-open-date">{openDate}</p>
                     </div>
-                    {isAdmin && (
+                    {isAdmin ? (
+                        <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" ></img>
+                    ) : (
                         <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>
                     )}
                 </div>

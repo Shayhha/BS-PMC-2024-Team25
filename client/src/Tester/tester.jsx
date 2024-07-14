@@ -15,6 +15,16 @@ function Tester() {
 
     const handleCloseClick = () => {
         setIsPopupVisible(false);
+        setFormData({
+            title: '',
+            description: '',
+            status: 'New',
+            assignedTo: 'None',
+            priority: '',
+            importance: '',
+            creationDate: '',
+            openDate: ''
+        });
     };
 
 
@@ -63,6 +73,7 @@ function Tester() {
             openDate: formData.openDate ? formatDate(formData.openDate) : ''
         };
         
+        console.log(formattedData)
 
         try {
             const response = await axios.post('http://localhost:8090/homePage/addBug', formattedData);
@@ -115,6 +126,15 @@ function Tester() {
         }
     };
 
+    const handleSave = async (updatedBug) => {
+        try {
+            const response = await axios.post('http://localhost:8090/homePage/updateBug', updatedBug);
+            setBugArray(bugArray.map(bug => (bug.bugId === updatedBug.bugId ? updatedBug : bug)));
+            console.log('Bug updated successfully');
+        } catch (error) {
+            console.error('Failed to update bug on backend:', error);
+        }
+    };
 
     return (
         <div className="tester">
@@ -144,6 +164,8 @@ function Tester() {
                         importance={bug.importance}
                         creationDate={bug.creationDate}
                         openDate={bug.openDate}
+                        isAdmin={false} // Adjust this based on actual admin check
+                        onSave={handleSave}
                     />
                 ))}
             </div>
@@ -165,15 +187,15 @@ function Tester() {
                             <label>
                                 Status:
                                 <select name="status" value={formData.status} onChange={handleChange} required>
-                                    <option value="option1">New</option>
-                                    <option value="option2">In Progress</option>
-                                    <option value="option3">Done</option>
+                                    <option value="New">New</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Done">Done</option>
                                 </select>
                             </label>
                             <label>
                                 Assigned To:
                                 <select name="assigned-to"  value={formData.assignedTo} onChange={handleChange} required>
-                                    <option value="option1">None</option>
+                                    <option value="None">None</option>
                                     <option value="option2">Option 2</option>
                                     <option value="option3">Option 3</option>
                                 </select>
