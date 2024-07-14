@@ -5,44 +5,63 @@ import BugItem from '../BugItem';
 import axios from 'axios';
 
 function Coder() {
-
     const [bugArray, setBugArray] = useState([]);
+    const [searchResult, setSearchResult] = useState("");
 
-    const fetchBugs = async () => {
-      const response = await axios.get('http://localhost:8090/homePage/getBugs');
-      setBugArray(response.data);
-    };
-  
     useEffect(() => {
         fetchBugs();
     }, []);
 
-
-    const [searchResult, setSearchResult] = useState("");
+    const fetchBugs = async () => {
+        try {
+            const response = await axios.get('http://localhost:8090/homePage/getBugs');
+            setBugArray(response.data);
+        } catch (error) {
+            console.error('Error fetching bugs:', error);
+        }
+    };
 
     const handleSearchChange = (e) => {
         setSearchResult(e.target.value);
     };
 
-    const handleSearch = async (e) => { 
+    const handleSearch = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8090/homePage/search', {searchResult : searchResult});
+            const response = await axios.post('http://localhost:8090/homePage/search', { searchResult });
             setBugArray(response.data);
             console.log('Data sent successfully:', response.data);
-        }
-        catch (error) {
+        } catch (error) {
             console.error('Error sending data:', error);
         }
     };
 
+    const handleSave = async (updatedBug) => {
+        try {
+            const response = await axios.post('http://localhost:8090/homePage/updateBug', updatedBug);
+            setBugArray(bugArray.map(bug => (bug.bugId === updatedBug.bugId ? updatedBug : bug)));
+            console.log('Bug updated successfully');
+        } catch (error) {
+            console.error('Failed to update bug on backend:', error);
+        }
+    };
 
     return (
         <div className="coder">
-
             <div className="coder_search_container">
-                <input type="text" className="coder_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
-                <img src={searchIcon} className="coder_search_icon" alt="Search" onClick={handleSearch}/>
+                <input 
+                    type="text" 
+                    className="coder_search_input" 
+                    placeholder="Search..." 
+                    value={searchResult} 
+                    onChange={handleSearchChange}
+                />
+                <img 
+                    src={searchIcon} 
+                    className="coder_search_icon" 
+                    alt="Search" 
+                    onClick={handleSearch} 
+                />
             </div>
 
             <div className="coder_inner_container">
@@ -58,6 +77,8 @@ function Coder() {
                         importance={bug.importance}
                         creationDate={bug.creationDate}
                         openDate={bug.openDate}
+                        isAdmin={true} // Adjust this based on actual admin check
+                        onSave={handleSave}
                     />
                 ))}
             </div>

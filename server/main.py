@@ -179,31 +179,57 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f"Error occurred: {e}")
             raise
-
-    # method for removing a bug from the database using the bug id
-    def removeBug(self, bugId):
+    def update_bug(self, bug_id, bug_name=None, bug_desc=None, status=None, importance=None, priority=None, assigned_id=None):
         try:
-            self.cursor.execute('DELETE FROM Bugs WHERE bugId = ?', (bugId,)) 
+            fields = []
+            values = []
+
+            if bug_name is not None:
+                fields.append("bugName = ?")
+                values.append(bug_name)
+
+            if bug_desc is not None:
+                fields.append("bugDesc = ?")
+                values.append(bug_desc)
+
+            if status is not None:
+                fields.append("status = ?")
+                values.append(status)
+
+            if importance is not None:
+                fields.append("importance = ?")
+                values.append(importance)
+
+            if priority is not None:
+                fields.append("priority = ?")
+                values.append(priority)
+
+            if assigned_id is not None:
+                fields.append("assignedId = ?")
+                values.append(assigned_id)
+
+            values.append(bug_id)
+
+            # If there are no fields to update, exit the function
+            if not fields:
+                return False
+
+            set_clause = ', '.join(fields)
+            query = f"UPDATE Bugs SET {set_clause} WHERE bugId = ?"  # Adjusted to bugId
+
+            self.cursor.execute(query, values)
             self.connection.commit()
-            return True
+
+            if self.cursor.rowcount > 0:
+                return True
+            else:
+                return False
         except Exception as e:
-            print(f"Error occurred: {e}")
-            raise
-    
+            print(f'Error: {e}')
+            return False
 
-# ==================================================================================================================== #
 
-# ======================================================User-Class==================================================== #
-# class that represents user in website
-class User:
-    # constructor of user class
-    def __init__(self, userId, email, userName, fName, lName, userType):
-        self.userId = userId
-        self.email = email
-        self.userName = userName
-        self.fName = fName
-        self.lName = lName
-        self.userType = userType
+
 
     # method for getting a dictionary representation of user object
     def toDict(self):
@@ -375,6 +401,24 @@ class BugFixer(ABC):
             print(f"Error occurred: {e}")
             return jsonify({'error': 'failed to perform database query'}), 500
         
+    @app.route('/homePage/updateBug', methods=['POST'])
+    def update_bug_route():
+        bug_data = request.json  # Assuming JSON data is sent
+        bug_id = bug_data.get('bugId')
+        bug_name = bug_data.get('bugName')
+        bug_desc = bug_data.get('bugDesc')
+        status = bug_data.get('status')
+        importance = bug_data.get('importance')
+        priority = bug_data.get('priority')
+        assigned_id = bug_data.get('assignedId')
+
+        if db.update_bug(bug_id, bug_name, bug_desc, status, importance, priority, assigned_id):
+            return jsonify({'message': 'Bug updated successfully'})
+        else:
+            return jsonify({'error': 'Failed to update bug'})
+
+
+
 
 # ==================================================================================================================== #
 
