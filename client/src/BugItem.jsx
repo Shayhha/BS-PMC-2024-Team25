@@ -82,8 +82,6 @@ function BugItem({
 
     return (
         <div className="bug-item-div" style={{ borderColor: getStatusColor(status) }}>
-           
-            
             {isEditing ? (
                 <div className="bug-item-editing">
                     <div className="bug-item-row">
@@ -94,6 +92,7 @@ function BugItem({
                             name="bugDesc" 
                             value={editedBug.bugDesc} 
                             onChange={handleInputChange} 
+                            className="bug-item-input" // Added className for consistent styling
                         />
                     </div>
                     <div className="bug-item-row">
@@ -103,6 +102,7 @@ function BugItem({
                             name="status" 
                             value={editedBug.status} 
                             onChange={handleInputChange} 
+                            className="bug-item-select" // Added className for consistent styling
                         >
                             {statusOptions.map(option => (
                                 <option key={option} value={option}>{option}</option>
@@ -117,6 +117,7 @@ function BugItem({
                             name="assignedId" 
                             value={editedBug.assignedId} 
                             onChange={handleInputChange} 
+                            className="bug-item-input" // Added className for consistent styling
                         />
                     </div>
                     <div className="bug-item-row">
@@ -127,6 +128,7 @@ function BugItem({
                             name="priority" 
                             value={editedBug.priority} 
                             onChange={handleInputChange} 
+                            className="bug-item-input" // Added className for consistent styling
                         />
                     </div>
                     <div className="bug-item-row">
@@ -137,6 +139,7 @@ function BugItem({
                             name="importance" 
                             value={editedBug.importance} 
                             onChange={handleInputChange} 
+                            className="bug-item-input" // Added className for consistent styling
                         />
                     </div>
                     <div className="bug-item-row">

@@ -78,6 +78,7 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return False
         
+        
     # method for adding a new user to the Users table
     def addUser(self, email, userName, fName, lName, userType,password):
         try:
@@ -246,6 +247,32 @@ class SQLHelper(ABC):
 # ==================================================================================================================== #
 
 # =====================================================BugFixer-Class================================================= #
+# ==================================================================================================================== #
+# ======================================================User-Class==================================================== #
+# class that represents user in website
+class User:
+    # constructor of user class
+    def __init__(self, userId, email, userName, fName, lName, userType):
+        self.userId = userId
+        self.email = email
+        self.userName = userName
+        self.fName = fName
+        self.lName = lName
+        self.userType = userType
+
+    # method for getting a dictionary representation of user object
+    def toDict(self):
+         userDict = {
+             'userId': self.userId,
+             'email': self.email,
+             'userName': self.userName,
+             'fName': self.fName,
+             'lName': self.lName,
+             'userType': self.userType
+  
+        }
+         return userDict
+ # ==================================================================================================================== #
 
 # class that includes various fucntions for interacting with db and using various features in website
 class BugFixer(ABC):
@@ -341,9 +368,16 @@ class BugFixer(ABC):
         if not HelperFunctions.checkUserName(data.get('userName')) or not HelperFunctions.checkFname(data.get('fName')) or not HelperFunctions.checkLname(data.get('lName')):
             return jsonify({'error': 'User info parameters are invalid.'}), 500 
         if db.updateUserInfo(globalUser.userId, data.get('userName'), data.get('fName'), data.get('lName')):
-            return jsonify({'success': 'Changed user info succusfully'}), 200
+            if 'email' in data:
+                if db.updateUserEmail(globalUser.userId, data.get('email')):
+                    globalUser.email = data.get('email')  # Update globalUser object
+                    return jsonify({'success': 'Changed user info and email successfully'}), 200
+                else:
+                    return jsonify({'error': 'Failed to update email'}), 500
+            return jsonify({'success': 'Changed user info successfully'}), 200
         else:
             return jsonify({'error': 'Failed to perform database query'}), 500
+
         
     # function for searching bugs by name/title
     @app.route('/homePage/search', methods=['POST'])

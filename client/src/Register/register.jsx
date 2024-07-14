@@ -1,7 +1,5 @@
-// src/Register/register.jsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios'; // Import Axios for HTTP requests
+import axios from 'axios';
 import './register.css';
 
 function Register() {
@@ -14,7 +12,9 @@ function Register() {
     userType: '', // New field for worker type
   });
 
-  // Function to handle input changes in the form
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -23,30 +23,40 @@ function Register() {
     }));
   };
 
-  // Function to handle form submission
   const handleSubmit = async e => {
     e.preventDefault();
 
     try {
       const response = await axios.post('http://localhost:8090/homepage/register', formData);
 
-      if (!response.data.success) {
-        throw new Error('Failed to register');
-      }
+      if (response.data.error) {
+        setError(response.data.error);
+        setSuccess(''); // Clear any previous success message
+      } else {
+        console.log('Registration successful:', response.data);
+        setError(''); // Clear any previous error
+        setSuccess('Registration successful! Redirecting...'); // Set success message
 
-      console.log('Registration successful:', response.data);
-      // Optionally, redirect to login page or show success message
+        // Show popup message
+        alert('Signed up successfully');
+
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+          window.location.href = '/login'; // Redirect to login page
+        }, 1000); // Delay of 1 second before redirecting
+      }
     } catch (error) {
-      console.error('Error registering user:', error.message);
-      // Handle error - show error message to user or retry registration
+      setError('An error occurred. Please try again.');
+      setSuccess(''); // Clear any previous success message
+      console.error('Registration error:', error);
     }
   };
 
   return (
-    <div className="register-container">
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
+    <div className="register-page">
+      <div className="register-container">
+        <h1 className="register-title">Register</h1>
+        <form className="register-form" onSubmit={handleSubmit}>
           <label htmlFor="username">Username</label>
           <input
             type="text"
@@ -56,9 +66,6 @@ function Register() {
             onChange={handleChange}
             required
           />
-        </div>
-
-        <div className="form-group">
           <label htmlFor="password">Password</label>
           <input
             type="password"
@@ -68,10 +75,7 @@ function Register() {
             onChange={handleChange}
             required
           />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">Email address</label>
           <input
             type="email"
             id="email"
@@ -80,9 +84,6 @@ function Register() {
             onChange={handleChange}
             required
           />
-        </div>
-
-        <div className="form-group">
           <label htmlFor="name">Name</label>
           <input
             type="text"
@@ -92,9 +93,6 @@ function Register() {
             onChange={handleChange}
             required
           />
-        </div>
-
-        <div className="form-group">
           <label htmlFor="lastname">Lastname</label>
           <input
             type="text"
@@ -104,9 +102,6 @@ function Register() {
             onChange={handleChange}
             required
           />
-        </div>
-
-        <div className="form-group">
           <label htmlFor="userType">Worker Type</label>
           <select
             id="userType"
@@ -120,11 +115,13 @@ function Register() {
             <option value="Tester">Tester</option>
             <option value="Manager">Manager</option>
           </select>
-        </div>
-
-        <button type="submit">Register</button>
-      </form>
-      <p>Already have an account? <Link to="/login">Login</Link></p>
+          {error && <div className="register-error">{error}</div>}
+          {success && <div className="register-success">{success}</div>}
+          <div className="register-form-footer">
+            <button type="submit" className="register-button">Register</button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
