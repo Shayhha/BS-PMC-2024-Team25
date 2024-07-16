@@ -90,16 +90,15 @@ function BugItem({
         <div className="bug-item-div" style={{ borderColor: getStatusColor(status) }}>
             {isEditing ? (
                 <div className="bug-item-editing">
-                    <div className="bug-item-row">
+                    <div className="bug-item-row-textarea">
                         <label htmlFor="bugDesc">Bug Description:</label>
-                        <input 
-                            type="text" 
+                        <textarea 
                             id="bugDesc" 
-                            name="bugDesc" 
+                            name="bugDesc"  
                             value={editedBug.bugDesc} 
                             onChange={handleInputChange} 
-                            className="bug-item-input" // Added className for consistent styling
-                        />
+                            className="bug-item-textarea">
+                        </textarea>
                     </div>
                     <div className="bug-item-row">
                         <label htmlFor="status">Status:</label>
