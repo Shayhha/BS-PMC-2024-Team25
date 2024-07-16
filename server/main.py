@@ -49,7 +49,7 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return None
-
+      
      # method for searching user in db, returns user obj if found else returns none
     def searchUser(self, email, password):
         try:
@@ -180,7 +180,19 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f"Error occurred: {e}")
             raise
-
+#updating email in edituser
+    def updateEmail(self, userId, newEmail):
+            try:
+                query = 'UPDATE Users SET email = ? WHERE userId = ?'
+                self.cursor.execute(query, (newEmail, userId,))
+                self.connection.commit()  # commit the transaction for update
+                if self.cursor.rowcount > 0:
+                    return True
+                else:
+                    return False 
+            except Exception as e:
+                print(f'Error: {e}')
+                return False
     # method for removing a bug from the database using the bug id
     def removeBug(self, bugId):
          try:
@@ -365,13 +377,18 @@ class BugFixer(ABC):
     @app.route('/userSettings/getUser', methods=['GET'])
     def getUser():
         global globalUser
-        globalUser = db.searchUser('shay@shay.com', 'Shay123') # for testing
-        userData = globalUser.toDict() # get user data
-        if globalUser and userData:
-            return jsonify(userData), 200
+        if globalUser:
+            try:
+                user_data = globalUser.toDict()
+                return jsonify(user_data), 200
+            except Exception as e:
+                print(f"Error getting user data: {e}")
+                return jsonify({'error': 'Failed to retrieve user data'}), 500
         else:
-            return jsonify({'error':'No user is logged in'}), 500
-        
+            return jsonify({'error': 'No user is logged in'}), 500
+
+
+    
     # function for changing user's info like userName, fname, lname
     @app.route('/userSettings/changeUserInfo', methods=['POST'])
     def changeUserInfo():
@@ -389,7 +406,15 @@ class BugFixer(ABC):
         else:
             return jsonify({'error': 'Failed to perform database query'}), 500
 
-        
+    @app.route('/userSettings/changeEmail', methods=['POST'])
+    def changeEmail():
+        data = request.get_json()
+        new_email = data.get('newEmail')
+        if db.updateEmail(globalUser.userId, new_email):
+            globalUser.email = new_email # update the email in the global user object
+            return jsonify({'success': 'Changed email successfully'})
+        else:
+            return jsonify({'error': 'Failed to perform database query'})
     # function for searching bugs by name/title
     @app.route('/homePage/search', methods=['POST'])
     def searchBugs():

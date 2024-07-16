@@ -160,8 +160,24 @@ function EditUser() {
         }
     };
 
-     //handle function for submit changes of emailForm
-    const handleRightEmailSubmit = async (e) => {}; //TODO
+    //handle function for submit changes of emailForm
+    const handleRightEmailSubmit = async (e) => {
+        e.preventDefault();
+
+        if (emailData.isValid === '1') {
+            alert(`Invalid email format.`);
+            return;
+        }
+
+        try {
+            const response = await axios.post('http://localhost:8090/userSettings/changeEmail', { newEmail: emailData.email });
+            setOldData(prevState => ({ ...prevState, email: emailData.email })); // Update oldData with new email
+            console.log('User email updated successfully:', response.data);
+            alert(`User email updated successfully.`);
+        } catch (error) {
+            alert(`Error updating user email: ${error.response.data.error}`);
+        }
+    };
 
     //handle rightPasswordChange for passwordForm
     const handleRightPasswordChange = (e) => {
@@ -261,7 +277,7 @@ function EditUser() {
                 </div>
             </div>
         </div>
-        );
-    }
+    );
+}
 
 export default EditUser;
