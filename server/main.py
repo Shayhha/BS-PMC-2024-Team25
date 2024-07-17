@@ -68,16 +68,29 @@ class SQLHelper(ABC):
     def updateUserInfo(self, userId, newUserName, newFname, newLname):
         try:
             query = 'UPDATE Users SET userName = ?, fname = ?, lname = ? WHERE userId = ?'
-            self.cursor.execute(query, (newUserName, newFname, newLname, userId,))
+            self.cursor.execute(query, (newUserName, newFname, newLname, userId))
             self.connection.commit()  # commit the transaction for update
             if self.cursor.rowcount > 0:
-                return True
+                return True  # Updated successfully
             else:
-                return False  # user not found
+                return False  # No user found with the given userId
         except Exception as e:
-            print(f'Error: {e}')
-            return False
-        
+            print(f'Error updating user info: {e}')
+            return False  # Error occurred during update
+
+    def updateUserEmail(self, userId, newEmail):
+        try:
+            query = 'UPDATE Users SET email = ? WHERE userId = ?'
+            self.cursor.execute(query, (newEmail, userId))
+            self.connection.commit()  # commit the transaction for update
+            if self.cursor.rowcount > 0:
+                return True  # Updated successfully
+            else:
+                return False  # No user found with the given userId
+        except Exception as e:
+            print(f'Error updating user email: {e}')
+            return False  # Error occurred during update
+
         
     # method for adding a new user to the Users table
     def addUser(self, email, userName, fName, lName, userType,password):
@@ -369,9 +382,9 @@ class BugFixer(ABC):
         global globalUser
         if globalUser:
             globalUser = None
-            return jsonify({'message':'Logged out successfully'})
+            return jsonify({'message': 'Logged out successfully'})
         else:
-            return jsonify({'error':'No user is logged in'})
+            return jsonify({'error': 'No user is logged in'})
         
     # function to getting logged in user 
     @app.route('/userSettings/getUser', methods=['GET'])
