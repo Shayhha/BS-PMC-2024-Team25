@@ -119,7 +119,7 @@ function NavBar() {
 
             <div className="navbar_profile">
                 <div className="navbar_profile-icons">
-                    {location.pathname === '/login' && (
+                    {(location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/') && (
                         <div
                             className="navbar_profile-icon"
                             onClick={toggleLoginDropdown}
@@ -139,7 +139,7 @@ function NavBar() {
                             )}
                         </div>
                     )}
-                    {isLoggedIn && location.pathname !== '/login' && location.pathname !== '/register' && (
+                    {isLoggedIn && location.pathname !== '/login' && location.pathname !== '/register' &&  location.pathname !== '/' && (
                         <>
                             <div
                                 className="navbar_profile-icon"
