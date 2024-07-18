@@ -3,6 +3,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from abc import ABC
 import pyodbc
+import hashlib
 import os
 import re
 
@@ -49,11 +50,12 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return None
 
-     # method for searching user in db, returns user obj if found else returns none
+    # method for searching user in db, returns user obj if found else returns none
     def searchUser(self, email, password):
         try:
             query = 'SELECT * FROM Users WHERE email = ? AND password = ?'
-            self.cursor.execute(query, (email, password,))
+            passSha = HelperFunctions.toSHA256(password)
+            self.cursor.execute(query, (email, passSha,))
             user = self.cursor.fetchone() # use fetchone to find single user 
             if user: # if user found
                 return User(user[0], user[1], user[2], user[3], user[4], user[5]) # return user object
@@ -81,7 +83,8 @@ class SQLHelper(ABC):
     def addUser(self, email, userName, fName, lName, userType,password):
         try:
             query = 'INSERT INTO Users (email, userName, fname, lname, userType,password) VALUES (?, ?, ?, ?, ?,?)'
-            self.cursor.execute(query, (email, userName, fName, lName, userType,password))
+            passSha = HelperFunctions.toSHA256(password)
+            self.cursor.execute(query, (email, userName, fName, lName, userType,passSha))
             self.connection.commit()  # commit the transaction for insert
             if self.cursor.rowcount > 0:
                 return True
@@ -98,7 +101,8 @@ class SQLHelper(ABC):
     def checkPassword(self, userId, password):
         try:
             query = 'SELECT * FROM Users WHERE userId = ? AND password = ?'
-            self.cursor.execute(query, (userId, password,))
+            passSha = HelperFunctions.toSHA256(password) # get sha256 representation
+            self.cursor.execute(query, (userId, passSha,))
             user = self.cursor.fetchone()
             if user:
                 return True
@@ -107,26 +111,14 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return False
-
-    # method for getting passowrd of user in db, retuns none if didnt find password of user
-    def getUserPassword(self, userId):
-        try:
-            query = 'SELECT * FROM Users WHERE userId = ?'
-            self.cursor.execute(query, (userId,))
-            user = self.cursor.fetchone()
-            if user:
-                return user[6]
-            else:
-                return None
-        except Exception as e:
-            print(f'Error: {e}')
-            return None
         
     # method for updating passowrd of user in db, returns true or false
     def updatePassword(self, userId, newPassword, oldPassword):
         try:
             query = 'UPDATE Users SET password = ? WHERE userId = ? AND password = ?'
-            self.cursor.execute(query, (newPassword, userId, oldPassword,))
+            oldPassSha = HelperFunctions.toSHA256(oldPassword) # get old pass sha256 representation
+            newPassSha = HelperFunctions.toSHA256(newPassword) # get new pass sha256 representation
+            self.cursor.execute(query, (newPassSha, userId, oldPassSha,))
             self.connection.commit()  # commit the transaction for update
             if self.cursor.rowcount > 0:
                 return True
@@ -135,6 +127,7 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return False
+
         
     # method for searching bug in db by its name\title, returns bug dict, else none
     def searchBug(self, bugName):
@@ -380,7 +373,13 @@ class BugFixer(ABC):
 # =============================================HelperFunctions-Class================================================== #
 # class for various helper fucntion for testing into etc.
 class HelperFunctions(ABC):
-
+    # function for hashing given password with sha-256, retuns hex representation
+    def toSHA256(str):
+        sha256Obj = hashlib.sha256()
+        sha256Obj.update(str.encode('utf-8'))
+        hexResult = sha256Obj.hexdigest()
+        return hexResult
+    
     # check username input from front end
     def checkUserName(username):
         pattern = re.compile(r'^[a-zA-Z0-9]*$')
