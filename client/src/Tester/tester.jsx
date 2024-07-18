@@ -174,7 +174,7 @@ function Tester() {
                 <div className="tester_popup_overlay">
                     <div className="tester_popup">
                         <span className="tester_close_button" onClick={handleCloseClick}>&times;</span>
-                        <h2>New Bug</h2>
+                        <h1>New Bug</h1>
                         <form onSubmit={handleSubmit}>
                             <label>
                                 Title:

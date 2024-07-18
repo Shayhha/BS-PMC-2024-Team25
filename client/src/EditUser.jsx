@@ -224,7 +224,7 @@ function EditUser() {
     
     return (
         <div className="edit_user_page">
-            <h2 className="edit_user_title">Edit User - {leftFormData.userType}</h2>
+            <h1 className="edit_user_title">Edit User - {leftFormData.userType}</h1>
             <div className="edit_user_container">
                 {/* Left side */}
                 <div className="edit_user_form_left">
@@ -263,12 +263,12 @@ function EditUser() {
                             Old Password:
                             <div className="oldPassword-input-container" style={{ position: 'relative' }}>
                             <input type={isOldPasswordVisible ? "text" : "password"} name="oldPassword" value={passwordData.oldPassword} onChange={handleRightPasswordChange} maxLength={24} ref={inputRef} required/>
-                            <span onClick={toggleOldPasswordVisibility}style={{position: 'absolute',right: '-13px',top: '38%',transform: 'translateY(-50%)',cursor: 'pointer'}}>{isOldPasswordVisible ? <FaEyeSlash size={25}/> : <FaEye size={25}/>}</span>
+                            <span onClick={toggleOldPasswordVisibility}style={{position: 'absolute',right: '18px',top: '40%',transform: 'translateY(-50%)',cursor: 'pointer'}}>{isOldPasswordVisible ? <FaEyeSlash size={25}/> : <FaEye size={25}/>}</span>
                             </div>
                             New Password:
                             <div className="newPassword-input-container" style={{ position: 'relative' }}>
                             <input type={isNewPasswordVisible ? "text" : "password"} name="newPassword" value={passwordData.newPassword} onChange={handleRightPasswordChange} maxLength={24} ref={inputRef} required/>
-                            <span onClick={toggleNewPasswordVisibility}style={{position: 'absolute',right: '-13px',top: '38%',transform: 'translateY(-50%)',cursor: 'pointer'}}>{isNewPasswordVisible ? <FaEyeSlash size={25}/> : <FaEye size={25}/>}</span>
+                            <span onClick={toggleNewPasswordVisibility}style={{position: 'absolute',right: '18px',top: '40%',transform: 'translateY(-50%)',cursor: 'pointer'}}>{isNewPasswordVisible ? <FaEyeSlash size={25}/> : <FaEye size={25}/>}</span>
                             </div>
                             {passwordError && <span style={{ color: 'red' }}>{passwordError}</span>}
                         </label>

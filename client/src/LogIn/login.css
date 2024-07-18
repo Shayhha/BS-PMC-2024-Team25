@@ -1,51 +1,60 @@
-/* src/LogIn/login.css */
-
-body, html {
-  height: 100%;
-  margin: 0; /* Reset margin to ensure no unexpected spacing */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
-}
 
 .login-page {
-  width: 100%;
-  max-width: 900px; /* Increased maximum width */
+  margin-top: 100px;
+  position: relative;
 }
 
 .login-container {
-  padding: 66px; /* Increased padding */
-  border-radius: 30px; /* Increased border radius */
-  background-color: #fff;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  width: 500px;
+  max-height: calc(100vh - 100px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  max-width: 850px; /* Increased maximum width */
+  padding: 60px; /* Increased the padding */
+  border: 3px solid #ccc;
+  border-radius: 50px;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* Added shadow for depth */
 }
 
 .login-title {
   text-align: center;
-  font-size: 36px; /* Increased font size */
-  color: #333;
-  margin-bottom: 40px; /* Increased margin bottom */
+  color: black;
+
+  margin-top: 0px;
+  margin-bottom: 30px; /* Increased margin bottom */
 }
 
 .login-form {
+  width: 100%;
   display: flex;
   flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px; /* Increased the margin-bottom */
 }
 
 .login-form label {
-  font-size: 20px; /* Increased font size */
-  color: #666;
-  margin-bottom: 12px; /* Increased margin bottom */
+  color: black;
+  margin-top: 10px;
+  margin-bottom: -5px;
+  margin-left: 3px;
+  display: block;
+  font-size: 22px; /* Increased the font size */
 }
 
 .login-form input {
-  padding: 16px; /* Increased padding */
-  margin-bottom: 30px; /* Increased margin bottom */
+  width: 100%;
+  padding: 15px; /* Increased padding */
+  font-size: 26px; /* Increased font size */
+  box-sizing: border-box;
+  color: black;
+  background-color: white;
+  margin-bottom: 20px; /* Increased margin bottom */
   border: 1px solid #ccc;
-  border-radius: 8px; /* Increased border radius */
-  font-size: 20px; /* Increased font size */
+  border-radius: 10px; /* Increased border radius */
 }
 
 .login-error {
@@ -77,14 +86,16 @@ body, html {
 }
 
 .login-button {
-  padding: 18px 0; /* Increased padding */
   background-color: #007bff;
   color: #fff;
+  transition: background-color 0.3s ease;
+  margin: 0px;
+  padding: 20px; 
+  width: 100%;
   border: none;
   border-radius: 8px;
-  font-size: 24px; /* Increased font size */
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 30px;
 }
 
 .login-button:hover {

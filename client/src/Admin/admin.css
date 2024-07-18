@@ -37,8 +37,11 @@
     flex-grow: 1;
     border-radius: 25px;
     padding: 10px;
+    padding-left: 15px;
     margin-right: 15px;
-    font-size: 16px;
+    font-size: 20px;
+    background-color: black;
+    color: white;
 }
 
 .admin_search_icon {
