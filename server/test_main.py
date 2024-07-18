@@ -47,6 +47,27 @@ def test_add_zero():
 #     finally:
 #         db.close()
 
+def test_to_sha256_1():
+    try:
+        if HF.toSHA256('Shay123') != 'a0ae799a2910f035b250e5175a02576f0ed0970c18ece1e65ce706767fa85c72':
+            raise 
+    except:
+        pytest.fail(f"toSHA256 raised an exception: SHA does not match expected hex.")
+
+def test_to_sha256_2():
+    try:
+        if HF.toSHA256('Ayman123') != '31b9d9d5e64cf62ecc7228e5f9861a7a1a994af39e52c70b137e2e38ba6c112d':
+            raise 
+    except:
+        pytest.fail(f"toSHA256 raised an exception: SHA does not match expected hex.")
+
+def test_to_sha256_3():
+    try:
+        if HF.toSHA256('ShayShay') == 'a0ae799a2910f035b250e5175a02576f0ed0970c18ece1e65ce706767fa85c72':
+            raise 
+    except:
+        pytest.fail(f"toSHA256 raised an exception: SHA returned unexpected hex.")
+
 def test_check_User_Name_1():
     try:
         if not HF.checkUserName('Shay12'):
