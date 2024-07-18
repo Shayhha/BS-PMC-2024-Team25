@@ -2,10 +2,11 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dotenv import load_dotenv
 from abc import ABC
+from datetime import datetime
 import pyodbc
+import hashlib
 import os
 import re
-from datetime import datetime
  
 
 # initialize app with flask for backend connection with front end react
@@ -30,12 +31,14 @@ class SQLHelper(ABC):
         self.connection = pyodbc.connect(connectionString)
         self.cursor = self.connection.cursor() #initialize cursor 
 
+
     # method for closing database connection
     def close(self):
         if self.cursor:
             self.cursor.close()
         if self.connection:
             self.connection.close()
+
 
     def searchUserByEmail(self, email):
         try:
@@ -49,12 +52,14 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return None
-      
-     # method for searching user in db, returns user obj if found else returns none
+
+
+    # method for searching user in db, returns user obj if found else returns none
     def searchUser(self, email, password):
         try:
             query = 'SELECT * FROM Users WHERE email = ? AND password = ?'
-            self.cursor.execute(query, (email, password,))
+            passSha = HelperFunctions.toSHA256(password)
+            self.cursor.execute(query, (email, passSha,))
             user = self.cursor.fetchone() # use fetchone to find single user 
             if user: # if user found
                 return User(user[0], user[1], user[2], user[3], user[4], user[5]) # return user object
@@ -64,6 +69,7 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return None
         
+
     # method for updating user userName, fName, lName  in db, returns true or false
     def updateUserInfo(self, userId, newUserName, newFname, newLname):
         try:
@@ -77,6 +83,7 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error updating user info: {e}')
             return False  # Error occurred during update
+
 
     def updateUserEmail(self, userId, newEmail):
         try:
@@ -96,7 +103,8 @@ class SQLHelper(ABC):
     def addUser(self, email, userName, fName, lName, userType,password):
         try:
             query = 'INSERT INTO Users (email, userName, fname, lname, userType,password) VALUES (?, ?, ?, ?, ?,?)'
-            self.cursor.execute(query, (email, userName, fName, lName, userType,password))
+            passSha = HelperFunctions.toSHA256(password)
+            self.cursor.execute(query, (email, userName, fName, lName, userType,passSha))
             self.connection.commit()  # commit the transaction for insert
             if self.cursor.rowcount > 0:
                 return True
@@ -113,7 +121,8 @@ class SQLHelper(ABC):
     def checkPassword(self, userId, password):
         try:
             query = 'SELECT * FROM Users WHERE userId = ? AND password = ?'
-            self.cursor.execute(query, (userId, password,))
+            passSha = HelperFunctions.toSHA256(password) # get sha256 representation
+            self.cursor.execute(query, (userId, passSha,))
             user = self.cursor.fetchone()
             if user:
                 return True
@@ -122,26 +131,15 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return False
-
-    # method for getting passowrd of user in db, retuns none if didnt find password of user
-    def getUserPassword(self, userId):
-        try:
-            query = 'SELECT * FROM Users WHERE userId = ?'
-            self.cursor.execute(query, (userId,))
-            user = self.cursor.fetchone()
-            if user:
-                return user[6]
-            else:
-                return None
-        except Exception as e:
-            print(f'Error: {e}')
-            return None
         
+
     # method for updating passowrd of user in db, returns true or false
     def updatePassword(self, userId, newPassword, oldPassword):
         try:
             query = 'UPDATE Users SET password = ? WHERE userId = ? AND password = ?'
-            self.cursor.execute(query, (newPassword, userId, oldPassword,))
+            oldPassSha = HelperFunctions.toSHA256(oldPassword) # get old pass sha256 representation
+            newPassSha = HelperFunctions.toSHA256(newPassword) # get new pass sha256 representation
+            self.cursor.execute(query, (newPassSha, userId, oldPassSha,))
             self.connection.commit()  # commit the transaction for update
             if self.cursor.rowcount > 0:
                 return True
@@ -150,6 +148,7 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return False
+
         
     # method for searching bug in db by its name\title, returns bug dict, else none
     def searchBug(self, bugName):
@@ -175,6 +174,7 @@ class SQLHelper(ABC):
         except:
             return jsonify('Failed to connect to database.')
 
+
     # insert given bug into the database     
     def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate):
         try:
@@ -193,7 +193,9 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f"Error occurred: {e}")
             raise
-#updating email in edituser
+
+
+    #updating email in edituser
     def updateEmail(self, userId, newEmail):
             try:
                 query = 'UPDATE Users SET email = ? WHERE userId = ?'
@@ -206,6 +208,8 @@ class SQLHelper(ABC):
             except Exception as e:
                 print(f'Error: {e}')
                 return False
+            
+
     # method for removing a bug from the database using the bug id
     def removeBug(self, bugId):
          try:
@@ -215,6 +219,7 @@ class SQLHelper(ABC):
          except Exception as e:
              print(f"Error occurred: {e}")
              raise
+
 
     def update_bug(self, bug_id, bug_name=None, bug_desc=None, status=None, importance=None, priority=None, assigned_id=None):
         try:
@@ -266,24 +271,8 @@ class SQLHelper(ABC):
             return False
 
 
-
-
-    # method for getting a dictionary representation of user object
-    def toDict(self):
-        userDict = {
-            'userId': self.userId,
-            'email': self.email,
-            'userName': self.userName,
-            'fName': self.fName,
-            'lName': self.lName,
-            'userType': self.userType
-        }
-        return userDict
-
 # ==================================================================================================================== #
 
-# =====================================================BugFixer-Class================================================= #
-# ==================================================================================================================== #
 # ======================================================User-Class==================================================== #
 # class that represents user in website
 class User:
@@ -308,8 +297,11 @@ class User:
   
         }
          return userDict
- # ==================================================================================================================== #
 
+
+# ==================================================================================================================== #
+
+# =====================================================BugFixer-Class================================================= #
 # class that includes various fucntions for interacting with db and using various features in website
 class BugFixer(ABC):
     # function for refister of user into the website 
@@ -338,7 +330,6 @@ class BugFixer(ABC):
             print("error")
             return jsonify({"error"})
 
-    
        
     # function for login of user into the website
     @app.route('/homepage/login', methods=['POST'])
@@ -362,6 +353,7 @@ class BugFixer(ABC):
         else:
             return jsonify({'error': 'Email not found'})
         
+
     # function for changing password of user
     @app.route('/userSettings/changePassword', methods=['POST'])
     def changePassword():
@@ -376,6 +368,7 @@ class BugFixer(ABC):
         else:
             return jsonify({'error': 'Old password is incorrect'}), 500
         
+
     # function to logout from the website  
     @app.route('/homepage/logout', methods=['POST'])
     def logout():
@@ -386,20 +379,17 @@ class BugFixer(ABC):
         else:
             return jsonify({'error': 'No user is logged in'})
         
+
     # function to getting logged in user 
     @app.route('/userSettings/getUser', methods=['GET'])
     def getUser():
         global globalUser
-        if globalUser:
-            try:
-                user_data = globalUser.toDict()
-                return jsonify(user_data), 200
-            except Exception as e:
-                print(f"Error getting user data: {e}")
-                return jsonify({'error': 'Failed to retrieve user data'}), 500
+        #globalUser = db.searchUser('shay@shay.com', 'Shay123') # for testing
+        userData = globalUser.toDict() # get user data
+        if globalUser and userData:
+            return jsonify(userData), 200
         else:
-            return jsonify({'error': 'No user is logged in'}), 500
-
+            return jsonify({'error':'No user is logged in'}), 500
 
     
     # function for changing user's info like userName, fname, lname
@@ -419,6 +409,7 @@ class BugFixer(ABC):
         else:
             return jsonify({'error': 'Failed to perform database query'}), 500
 
+
     @app.route('/userSettings/changeEmail', methods=['POST'])
     def changeEmail():
         data = request.get_json()
@@ -428,6 +419,8 @@ class BugFixer(ABC):
             return jsonify({'success': 'Changed email successfully'})
         else:
             return jsonify({'error': 'Failed to perform database query'})
+        
+
     # function for searching bugs by name/title
     @app.route('/homePage/search', methods=['POST'])
     def searchBugs():
@@ -438,6 +431,7 @@ class BugFixer(ABC):
         else: 
             return jsonify({'error': 'Failed to perform database query'}), 500
 
+
     # function for getting all bugs from the database using a helper method
     @app.route('/homePage/getBugs', methods=['GET'])
     def getBugs():
@@ -446,6 +440,7 @@ class BugFixer(ABC):
             return bugList
         except:
             return jsonify({'error': 'Failed to perform database query'})
+
 
     # function that gets from the user new bug data (and adds to the database)
     @app.route('/homePage/addBug', methods=['POST'])
@@ -473,6 +468,7 @@ class BugFixer(ABC):
             print(f"Error occurred: {e}")
             return jsonify({'error': 'Failed to perform database query'}), 500
         
+
     # function for removing bugs, used only by Manager type users
     @app.route('/homePage/removeBug', methods=['POST'])
     def removeBug():
@@ -483,6 +479,7 @@ class BugFixer(ABC):
         except Exception as e:
             print(f"Error occurred: {e}")
             return jsonify({'error': 'failed to perform database query'}), 500
+        
         
     @app.route('/homePage/updateBug', methods=['POST'])
     def update_bug_route():
@@ -502,13 +499,18 @@ class BugFixer(ABC):
 
 
 
-
 # ==================================================================================================================== #
 
 # =============================================HelperFunctions-Class================================================== #
 # class for various helper function for testing into etc.
 class HelperFunctions(ABC):
-
+    # function for hashing given password with sha-256, retuns hex representation
+    def toSHA256(str):
+        sha256Obj = hashlib.sha256()
+        sha256Obj.update(str.encode('utf-8'))
+        hexResult = sha256Obj.hexdigest()
+        return hexResult
+    
     # check username input from front end
     def checkUserName(username):
         pattern = re.compile(r'^[a-zA-Z0-9]*$')
