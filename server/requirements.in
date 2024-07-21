@@ -4,3 +4,4 @@ jsonify
 pytest
 pyodbc
 python-dotenv
+groq
