@@ -64,7 +64,11 @@ function NavBar() {
                         'Content-Type': 'application/json',
                     },
                 });
-                if (response.ok) {
+                if (response.status === 204) {
+                    setShowEditUser(false);
+                    setIsLoggedIn(false);
+                    //console.log('No content to display');
+                } else if (response.ok) {
                     const data = await response.json();
                     setUserName(data.userName);
                     setShowEditUser(true);
