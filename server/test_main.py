@@ -448,3 +448,26 @@ def test_check_bug_open_creation_date_3():
 #             raise
 
 #         db.close()
+# def test_sort_bugs_newest_to_oldest():
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         bugs = db.searchBug('')  # Fetch all bugs
+#         sorted_bugs = sorted(bugs, key=lambda x: x['openDate'], reverse=True)
+#         assert bugs == sorted_bugs
+#     except Exception as e:
+#         pytest.fail(f"Sorting bugs from newest to oldest raised an exception: {e}")
+#     finally:
+#         db.close()
+
+# def test_sort_bugs_oldest_to_newest():
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         bugs = db.searchBug('')  # Fetch all bugs
+#         sorted_bugs = sorted(bugs, key=lambda x: x['openDate'])
+#         assert bugs == sorted_bugs
+#     except Exception as e:
+#         pytest.fail(f"Sorting bugs from oldest to newest raised an exception: {e}")
+#     finally:
+#         db.close()
