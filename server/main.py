@@ -3,6 +3,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from abc import ABC
 from datetime import datetime
+from groq import Groq
 import pyodbc
 import hashlib
 import os
@@ -38,6 +39,28 @@ class SQLHelper(ABC):
             self.cursor.close()
         if self.connection:
             self.connection.close()
+
+
+    # method for sending query to Groq AI and getting response
+    def sendQueryToGroq(self, text):
+        # initalize client with api key
+        client = Groq(
+            groqApiKey=os.environ.get("GROQ_API_KEY"),
+        )
+
+        # initialize chat with Groq and send http request
+        chatCompletion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": text,
+                }
+            ],
+            model="llama3-8b-8192",
+        )
+
+        # return Groq response 
+        return chatCompletion.choices[0].message.content
 
 
     def searchUserByEmail(self, email):
@@ -608,6 +631,7 @@ if __name__ == '__main__':
     db = SQLHelper() 
     try:
         db.connect()
+        db.sendQueryToGroq('what is C programming?')
         # execute the app and open website
         app.run(debug=True, port=8090)
         # close dabase connection after website closes
