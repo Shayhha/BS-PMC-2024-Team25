@@ -408,6 +408,9 @@ class BugFixer(ABC):
     def getUser():
         global globalUser
         #globalUser = db.searchUser('shay@shay.com', 'Shay123') # for testing
+        if (globalUser == None):
+            return jsonify({'error':'No user is logged in'}), 204
+        
         userData = globalUser.toDict() # get user data
         if globalUser and userData:
             return jsonify(userData), 200
