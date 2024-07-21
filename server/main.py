@@ -472,7 +472,7 @@ class BugFixer(ABC):
 
         # get bug importance and priority rating from Groq AI
         bugImportance = HelperFunctions.handleBugImportance(data.get('title'), data.get('description'))
-        # bugPriority = HelperFunctions.handleBugPriority(bug_data.get('title'), bug_data.get('description'))
+        bugPriority = HelperFunctions.handleBugPriority(data.get('title'),data.get('description'))
 
         try:
             db.insertBug(data.get('title'), 
@@ -481,7 +481,7 @@ class BugFixer(ABC):
                 3, 
                 data.get('description'), 
                 data.get('status'), 
-                data.get('priority'), 
+                bugPriority, 
                 bugImportance, 
                 0, 
                 data.get('creationDate'), 
@@ -524,7 +524,7 @@ class BugFixer(ABC):
         # get bug importance and priority rating from Groq AI
         if data.get('isDescChanged') == '1':
             importance = HelperFunctions.handleBugImportance(bugName, bugDesc)
-            # priority = HelperFunctions.handleBugPriority(bugName, bugDesc)
+            priority = HelperFunctions.handleBugPriority(bugName, bugDesc)
 
         # update database with new values
         if db.updateBug(bugId, bugName, bugDesc, status, importance, priority, assignedId):
@@ -663,6 +663,30 @@ class HelperFunctions(ABC):
         # else if we falied to gain a valid response from Groq AI we return a random integer
         return randint(1, 10)
 
+
+    #function for classifing bugs by their Priority using Groq AI
+    def handleBugPriority(title, description):
+        groqResponse = None
+        # query for Groq AI 
+        priorityQuery = (
+            f'Your task is to determine the priority of this bug based on its impact and urgency. '
+            f'Please respond with a number from 1 to 10. '
+            f'For example, a critical bug that severely impacts functionality should be rated higher, '
+            f'while a minor bug with minimal impact can be rated lower.\n\n'
+            f'Bug Title: {title}\n'
+            f'Description: {description}\n\n'
+            f'Response: Please rate the priority of this bug on a scale from 1 to 10.\n'
+            f'A rating of 1 indicates the bug is of lowest priority, while a rating of 10 signifies it is top priority.\n'
+            f'Please respond only with a number between 1 and 10.'
+        )
+        #loop and try to get a valid response from Groq AI
+        for _ in range(0, 5):
+            groqResponse = db.sendQueryToGroq(priorityQuery) # send query to Groq and get the response
+            if groqResponse is not None and groqResponse.isdigit(): # if the response is a number we return valid response
+                return groqResponse
+
+        #else if we falied to gain a valid response from Groq AI we return a random integer
+        return randint(1, 10)
 
     # example function for testing Jenkins
     def add(a, b):
