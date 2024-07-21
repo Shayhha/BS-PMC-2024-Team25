@@ -203,4 +203,23 @@
 .tester_popup_submit_button:hover {
     background-color: #0056b3;
   }
-  
+  /* Combo Box Styles */
+.tester_sort_select {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 18px; /* Adjust as needed */
+    color: black;
+    background-color: white;
+    width: 200px; /* Adjust width as needed */
+    box-sizing: border-box; /* Ensures padding is included in the width */
+    cursor: pointer;
+    margin-bottom: 20px; /* Add margin to separate from other elements */
+}
+
+.tester_sort_select option {
+    padding: 10px;
+    font-size: 18px; /* Ensure consistency with other form elements */
+    background-color: white;
+    color: black;
+}

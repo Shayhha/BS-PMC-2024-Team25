@@ -7,7 +7,7 @@ import axios from 'axios';
 function Coder() {
     const [bugArray, setBugArray] = useState([]);
     const [searchResult, setSearchResult] = useState("");
-    const [sortOption, setSortOption] = useState('newest');
+    const [sortOption, setSortOption] = useState('newest'); // default to 'newest'
     const [oldestDate, setOldestDate] = useState(null);
     const [newestDate, setNewestDate] = useState(null);
     const [bugDateStatus, setBugDateStatus] = useState({});
@@ -92,8 +92,11 @@ function Coder() {
 
         if (sortOption === 'newest') {
             return dateB - dateA;
-        } else {
+        } else if (sortOption === 'oldest') {
             return dateA - dateB;
+        } else if (sortOption === 'priority') {
+            // Sort by priority, highest first
+            return b.priority - a.priority;
         }
     });
 
@@ -115,6 +118,7 @@ function Coder() {
                 >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
+                    <option value="priority">Priority</option>
                 </select>
                 
             </div>
