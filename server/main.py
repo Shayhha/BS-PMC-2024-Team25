@@ -331,50 +331,44 @@ class BugFixer(ABC):
     @app.route('/homepage/register', methods=['POST'])
     def register():
         data = request.get_json()
-        print(data)
         email = data.get('email')
         userName = data.get('username')
         fName = data.get('name')
         lName = data.get('lastname')
         userType = data.get('userType')
-        password=data.get('password')
-        
-      #  existing_user = User.query.filter_by(email=email).first()
-       # if existing_user:
-        #    return jsonify({"error": "User with this email already exists"})
-        print("HII")
-        #if not all([email,userName,fName,lName,userType]):
-         #   print("error11")
-          #  return jsonify({'error':"missing fields"})
-        if db.addUser(email,userName,fName,lName,userType,password) :
-            print("OK")
-            return jsonify({"message":"User registered successfully"})
-        else :
-            print("error")
-            return jsonify({"error"})
+        password = data.get('password')
+
+        # Check if all fields are provided
+        if not all([email, userName, fName, lName, userType, password]):
+            return jsonify({'error': "Missing fields"}), 400
+
+        # Check if the email already exists
+        existing_user = db.searchUserByEmail(email)
+        if existing_user:
+            return jsonify({"error": "User with this email already exists"}), 400
+
+        # Add the user to the database
+        if db.addUser(email, userName, fName, lName, userType, password):
+            return jsonify({"message": "User registered successfully"}), 201
+        else:
+            return jsonify({"error": "Error adding user"}), 500
 
        
     # function for login of user into the website
     @app.route('/homepage/login', methods=['POST'])
     def login():
-
         data = request.get_json()
         email = data.get('email')
         password = data.get('password')
-    
-      # Check if the user exists by email
-        user_by_email = db.searchUserByEmail(email)
-        if user_by_email:
-            # If the email exists, check the password
-            user = db.searchUser(email, password)
-            if user:
-                global globalUser 
-                globalUser = user  # set globalUser object
-                return jsonify(user.toDict())
-            else:
-                return jsonify({'error': 'Incorrect password'})
+
+        # Check if the user exists and the password matches
+        user = db.searchUser(email, password)
+        if user:
+            global globalUser 
+            globalUser = user  # set globalUser object
+            return jsonify(user.toDict()), 200
         else:
-            return jsonify({'error': 'Email not found'})
+            return jsonify({'error': 'Invalid email or password'}), 401
         
 
     # function for changing password of user
@@ -630,7 +624,7 @@ if __name__ == '__main__':
     db = SQLHelper() 
     try:
         db.connect()
-        #print(db.sendQueryToGroq("what is C++?"))
+        print(db.sendQueryToGroq("what is C++?"))
         # execute the app and open website
         app.run(debug=True, port=8090)
         # close dabase connection after website closes
