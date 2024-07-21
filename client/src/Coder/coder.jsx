@@ -7,10 +7,18 @@ import axios from 'axios';
 function Coder() {
     const [bugArray, setBugArray] = useState([]);
     const [searchResult, setSearchResult] = useState("");
+    const [sortOption, setSortOption] = useState('newest'); // default to 'newest'
+    const [oldestDate, setOldestDate] = useState(null);
+    const [newestDate, setNewestDate] = useState(null);
+    const [bugDateStatus, setBugDateStatus] = useState({});
 
     useEffect(() => {
         fetchBugs();
     }, []);
+
+    useEffect(() => {
+        calculateDateExtremes();
+    }, [bugArray]);
 
     const fetchBugs = async () => {
         try {
@@ -19,6 +27,38 @@ function Coder() {
         } catch (error) {
             console.error('Error fetching bugs:', error);
         }
+    };
+
+    const calculateDateExtremes = () => {
+        if (bugArray.length === 0) return;
+
+        const dates = bugArray.map(bug => parseDate(bug.creationDate));
+        const minDate = new Date(Math.min(...dates));
+        const maxDate = new Date(Math.max(...dates));
+
+        setOldestDate(minDate);
+        setNewestDate(maxDate);
+
+        const statusMap = {};
+        for (const bug of bugArray) {
+            const bugDate = parseDate(bug.creationDate);
+            if (oldestDate && newestDate) {
+                if (bugDate.getTime() === oldestDate.getTime()) {
+                    statusMap[bug.bugId] = 'oldest';
+                } else if (bugDate.getTime() === newestDate.getTime()) {
+                    statusMap[bug.bugId] = 'newest';
+                } else {
+                    statusMap[bug.bugId] = 'none';
+                }
+            }
+        }
+        setBugDateStatus(statusMap);
+    };
+
+    const parseDate = (dateStr) => {
+        // Convert DD/MM/YYYY to YYYY-MM-DD
+        const [day, month, year] = dateStr.split('/').map(num => parseInt(num, 10));
+        return new Date(year, month - 1, day);
     };
 
     const handleSearchChange = (e) => {
@@ -38,13 +78,25 @@ function Coder() {
 
     const handleSave = async (updatedBug) => {
         try {
-            const response = await axios.post('http://localhost:8090/homePage/updateBug', updatedBug);
             setBugArray(bugArray.map(bug => (bug.bugId === updatedBug.bugId ? updatedBug : bug)));
-            console.log('Bug updated successfully');
         } catch (error) {
             console.error('Failed to update bug on backend:', error);
         }
     };
+
+    const sortedBugs = [...bugArray].sort((a, b) => {
+        const dateA = parseDate(a.creationDate);
+        const dateB = parseDate(b.creationDate);
+
+        if (sortOption === 'newest') {
+            return dateB - dateA;
+        } else if (sortOption === 'oldest') {
+            return dateA - dateB;
+        } else if (sortOption === 'priority') {
+            // Sort by priority, highest first
+            return b.priority - a.priority;
+        }
+    });
 
     return (
         <div className="coder">
@@ -56,16 +108,21 @@ function Coder() {
                     value={searchResult} 
                     onChange={handleSearchChange}
                 />
-                <img 
-                    src={searchIcon} 
-                    className="coder_search_icon" 
-                    alt="Search" 
-                    onClick={handleSearch} 
-                />
+                
+                <select 
+                    className="coder_sort_select" 
+                    value={sortOption} 
+                    onChange={(e) => setSortOption(e.target.value)}
+                >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="priority">Priority</option>
+                </select>
+                
             </div>
 
             <div className="coder_inner_container">
-                {bugArray.map(bug => (
+                {sortedBugs.map(bug => (
                     <BugItem
                         key={bug.bugId}
                         bugId={bug.bugId}
@@ -79,6 +136,7 @@ function Coder() {
                         openDate={bug.openDate}
                         isAdmin={false} // Adjust this based on actual admin check
                         onSave={handleSave}
+                        dateStatus={bugDateStatus[bug.bugId] || 'none'}
                     />
                 ))}
             </div>

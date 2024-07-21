@@ -3,19 +3,7 @@ import './BugItem.css';
 import trashIcon from './assets/trashIcon.png';
 import axios from 'axios';
 
-function BugItem({ 
-    bugId, 
-    title, 
-    description, 
-    status, 
-    assignedTo, 
-    priority, 
-    importance, 
-    creationDate, 
-    openDate, 
-    isAdmin, 
-    onSave 
-}) {
+function BugItem({bugId, title, description, status, assignedTo, priority, importance, creationDate, openDate, isAdmin, onSave}) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedBug, setEditedBug] = useState({
         bugId,
@@ -26,7 +14,8 @@ function BugItem({
         priority,
         importance,
         creationDate,
-        openDate,
+        openDate, 
+        isDescChanged: '0'
     });
 
     const statusOptions = ["In Progress", "New", "Done"]; // Options for status dropdown
@@ -56,12 +45,23 @@ function BugItem({
 
     const handleSaveClick = async () => {
         setIsEditing(false);
+
+        //check if the description has changed
+        if (editedBug.bugDesc !== description) 
+            editedBug.isDescChanged = '1'; //indicate that description has been changed
+        else
+            editedBug.isDescChanged = '0'; //indicate that description hasn't changed
+
+        console.log(editedBug.isDescChanged);
+        console.log(editedBug.bugDesc);
+
         try {
             const response = await axios.post('http://localhost:8090/homePage/updateBug', editedBug);
-            if (response.data.message === 'Bug updated successfully') {
-                onSave(editedBug); // Update locally in the frontend if backend update was successful
+            if (!response.data.error) {
+                onSave(response.data); // Update locally in the frontend if backend update was successful
                 console.log('Bug updated successfully');
-            } else {
+            } 
+            else {
                 console.error('Failed to update bug on backend');
             }
         } catch (error) {

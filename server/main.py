@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from abc import ABC
 from datetime import datetime
 from groq import Groq
+from random import randint
 import pyodbc
 import hashlib
 import os
@@ -248,18 +249,18 @@ class SQLHelper(ABC):
              raise
 
 
-    def update_bug(self, bug_id, bug_name=None, bug_desc=None, status=None, importance=None, priority=None, assigned_id=None):
+    def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None):
         try:
             fields = []
             values = []
 
-            if bug_name is not None:
+            if bugName is not None:
                 fields.append("bugName = ?")
-                values.append(bug_name)
+                values.append(bugName)
 
-            if bug_desc is not None:
+            if bugDesc is not None:
                 fields.append("bugDesc = ?")
-                values.append(bug_desc)
+                values.append(bugDesc)
 
             if status is not None:
                 fields.append("status = ?")
@@ -273,9 +274,9 @@ class SQLHelper(ABC):
                 fields.append("priority = ?")
                 values.append(priority)
 
-            if assigned_id is not None:
+            if assignedId is not None:
                 fields.append("assignedId = ?")
-                values.append(assigned_id)
+                values.append(assignedId)
 
             values.append(bug_id)
 
@@ -371,50 +372,44 @@ class BugFixer(ABC):
     @app.route('/homepage/register', methods=['POST'])
     def register():
         data = request.get_json()
-        print(data)
         email = data.get('email')
         userName = data.get('username')
         fName = data.get('name')
         lName = data.get('lastname')
         userType = data.get('userType')
-        password=data.get('password')
-        
-      #  existing_user = User.query.filter_by(email=email).first()
-       # if existing_user:
-        #    return jsonify({"error": "User with this email already exists"})
-        print("HII")
-        #if not all([email,userName,fName,lName,userType]):
-         #   print("error11")
-          #  return jsonify({'error':"missing fields"})
-        if db.addUser(email,userName,fName,lName,userType,password) :
-            print("OK")
-            return jsonify({"message":"User registered successfully"})
-        else :
-            print("error")
-            return jsonify({"error"})
+        password = data.get('password')
+
+        # Check if all fields are provided
+        if not all([email, userName, fName, lName, userType, password]):
+            return jsonify({'error': "Missing fields"}), 400
+
+        # Check if the email already exists
+        existing_user = db.searchUserByEmail(email)
+        if existing_user:
+            return jsonify({"error": "User with this email already exists"}), 400
+
+        # Add the user to the database
+        if db.addUser(email, userName, fName, lName, userType, password):
+            return jsonify({"message": "User registered successfully"}), 201
+        else:
+            return jsonify({"error": "Error adding user"}), 500
 
        
     # function for login of user into the website
     @app.route('/homepage/login', methods=['POST'])
     def login():
-
         data = request.get_json()
         email = data.get('email')
         password = data.get('password')
-    
-      # Check if the user exists by email
-        user_by_email = db.searchUserByEmail(email)
-        if user_by_email:
-            # If the email exists, check the password
-            user = db.searchUser(email, password)
-            if user:
-                global globalUser 
-                globalUser = user  # set globalUser object
-                return jsonify(user.toDict())
-            else:
-                return jsonify({'error': 'Incorrect password'})
+
+        # Check if the user exists and the password matches
+        user = db.searchUser(email, password)
+        if user:
+            global globalUser 
+            globalUser = user  # set globalUser object
+            return jsonify(user.toDict()), 200
         else:
-            return jsonify({'error': 'Email not found'})
+            return jsonify({'error': 'Invalid email or password'}), 401
         
 
     # function for changing password of user
@@ -511,22 +506,26 @@ class BugFixer(ABC):
     # function that gets from the user new bug data (and adds to the database)
     @app.route('/homePage/addBug', methods=['POST'])
     def createBug():
-        bug_data = request.json  # Assuming JSON data is sent
-        if not HelperFunctions.checkBugInfo(bug_data):
+        data = request.json  
+        if not HelperFunctions.checkBugInfo(data):
             return jsonify({'error': 'User entered invalid data'}), 500
 
+        # get bug importance and priority rating from Groq AI
+        bugImportance = HelperFunctions.handleBugImportance(data.get('title'), data.get('description'))
+        bugPriority = HelperFunctions.handleBugPriority(data.get('title'),data.get('description'))
+
         try:
-            db.insertBug(bug_data.get('title'), 
+            db.insertBug(data.get('title'), 
                 1, 
                 1,
                 3, 
-                bug_data.get('description'), 
-                bug_data.get('status'), 
-                bug_data.get('priority'), 
-                bug_data.get('importance'), 
+                data.get('description'), 
+                data.get('status'), 
+                bugPriority, 
+                bugImportance, 
                 0, 
-                bug_data.get('creationDate'), 
-                bug_data.get('openDate'), 
+                data.get('creationDate'), 
+                data.get('openDate'), 
                 None)
             
             return jsonify({'message': 'Bug data received successfully'}), 200
@@ -545,23 +544,43 @@ class BugFixer(ABC):
         except Exception as e:
             print(f"Error occurred: {e}")
             return jsonify({'error': 'failed to perform database query'}), 500
-        
-        
-    @app.route('/homePage/updateBug', methods=['POST'])
-    def update_bug_route():
-        bug_data = request.json  # Assuming JSON data is sent
-        bug_id = bug_data.get('bugId')
-        bug_name = bug_data.get('bugName')
-        bug_desc = bug_data.get('bugDesc')
-        status = bug_data.get('status')
-        importance = bug_data.get('importance')
-        priority = bug_data.get('priority')
-        assigned_id = bug_data.get('assignedId')
 
-        if db.update_bug(bug_id, bug_name, bug_desc, status, importance, priority, assigned_id):
-            return jsonify({'message': 'Bug updated successfully'})
+
+    # function for updating bugs information using AI
+    @app.route('/homePage/updateBug', methods=['POST'])
+    def updateBug():
+        data = request.json  
+
+        bugId = data.get('bugId')
+        bugName = data.get('bugName')
+        bugDesc = data.get('bugDesc')
+        status = data.get('status')
+        importance = data.get('importance')
+        priority = data.get('priority')
+        assignedId = data.get('assignedId')
+        creationDate = data.get('creationDate')
+        openDate = data.get('openDate')
+
+        # get bug importance and priority rating from Groq AI
+        if data.get('isDescChanged') == '1':
+            importance = HelperFunctions.handleBugImportance(bugName, bugDesc)
+            priority = HelperFunctions.handleBugPriority(bugName, bugDesc)
+
+        # update database with new values
+        if db.updateBug(bugId, bugName, bugDesc, status, importance, priority, assignedId):
+             return jsonify({
+                'bugId': bugId,
+                'bugName': bugName,
+                'bugDesc': bugDesc,
+                'status': status,
+                'assignedId': assignedId,
+                'priority': priority,
+                'importance': importance,
+                'creationDate': creationDate,
+                'openDate': openDate
+                }), 200
         else:
-            return jsonify({'error': 'Failed to update bug'})
+            return jsonify({'error': 'Failed to update bug'}), 500
 
 
     @app.route('/bug/assignUserToBug', methods=['POST'])
@@ -680,7 +699,57 @@ class HelperFunctions(ABC):
         else:
             return False
 
-    
+
+    # function for classifing bugs by their importance using Groq AI
+    def handleBugImportance(title, description):
+        # response from Groq AI
+        groqResponse = None
+        # query for Groq AI 
+        groqQuery = (
+            f'Your task is to classify the importance of a bug based on how critical it is to fix it quickly, you have to replay only with a number from 1 to 10. '
+            f'For instance, an important bug might involve a critical failure that renders the app unusable, '
+            f'while a less important bug may not affect the core functionality and allows users to continue using the app.\n\n'
+            f'Bug Title: {title}\n'
+            f'Description: {description}\n\n'
+            f'Response: Please rate the importance of this bug on a scale from 1 to 10.\n'
+            f'A rating of 1 indicates the bug is of lowest importance, while a rating of 10 signifies it is very important.\n'
+            f'Please respond only in a number between 1 and 10.'
+        )
+
+        # loop and try to get a valid response from Groq AI
+        for _ in range(0, 5):
+            groqResponse = db.sendQueryToGroq(groqQuery) # send query to Groq and get the response
+            if groqResponse is not None and groqResponse.isdigit(): # if the response is a number we return valid response
+                return groqResponse
+            
+        # else if we falied to gain a valid response from Groq AI we return a random integer
+        return randint(1, 10)
+
+
+    #function for classifing bugs by their Priority using Groq AI
+    def handleBugPriority(title, description):
+        groqResponse = None
+        # query for Groq AI 
+        priorityQuery = (
+            f'Your task is to determine the priority of this bug based on its impact and urgency. '
+            f'Please respond with a number from 1 to 10. '
+            f'For example, a critical bug that severely impacts functionality should be rated higher, '
+            f'while a minor bug with minimal impact can be rated lower.\n\n'
+            f'Bug Title: {title}\n'
+            f'Description: {description}\n\n'
+            f'Response: Please rate the priority of this bug on a scale from 1 to 10.\n'
+            f'A rating of 1 indicates the bug is of lowest priority, while a rating of 10 signifies it is top priority.\n'
+            f'Please respond only with a number between 1 and 10.'
+        )
+        #loop and try to get a valid response from Groq AI
+        for _ in range(0, 5):
+            groqResponse = db.sendQueryToGroq(priorityQuery) # send query to Groq and get the response
+            if groqResponse is not None and groqResponse.isdigit(): # if the response is a number we return valid response
+                return groqResponse
+
+        #else if we falied to gain a valid response from Groq AI we return a random integer
+        return randint(1, 10)
+
     # example function for testing Jenkins
     def add(a, b):
         """Return the sum of a and b."""
