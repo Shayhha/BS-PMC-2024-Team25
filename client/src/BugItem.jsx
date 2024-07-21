@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './BugItem.css';
 import trashIcon from './assets/trashIcon.png';
 import axios from 'axios';
@@ -86,6 +86,51 @@ function BugItem({
         }
     };
 
+
+    const [users, setUsers] = useState([]);
+    const [assignedToCoder, setAssignedToCoder] = useState('');
+
+    const fetchCoderUsers = async () => {
+        try {
+            const response = await axios.get('http://localhost:8090/bug/getAllCoders');
+            if (!response.data.error) {
+                setUsers(response.data);
+            } else {
+                console.error('Error fetching users:', response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchCoderUsers();
+        if (assignedToCoder === '')
+            setAssignedToCoder(assignedTo)
+
+    }, []);
+
+
+    const handleAssignmentChange = (event) => {
+        const newAssignedTo = event.target.value;
+        setAssignedToCoder(newAssignedTo);
+    
+        assignUserInDatabase(newAssignedTo);
+    };
+    
+    const assignUserInDatabase = async (newAssignedTo) => {
+        const user = users.find(user => user['userName'] === newAssignedTo);
+        const selectedUserId = user ? user.userId : null;
+        try {
+            const response = await axios.post('http://localhost:8090/bug/assignUserToBug', { selectedUserId: selectedUserId, bugId: bugId });
+            if (response.data.error) {
+                console.error('Error assigning user:', response.data.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
     return (
         <div className="bug-item-div" style={{ borderColor: getStatusColor(status) }}>
             {isEditing ? (
@@ -113,17 +158,6 @@ function BugItem({
                                 <option key={option} value={option}>{option}</option>
                             ))}
                         </select>
-                    </div>
-                    <div className="bug-item-row">
-                        <label htmlFor="assignedId">Assigned To:</label>
-                        <input 
-                            type="text" 
-                            id="assignedId" 
-                            name="assignedId" 
-                            value={editedBug.assignedId} 
-                            onChange={handleInputChange} 
-                            className="bug-item-input" // Added className for consistent styling
-                        />
                     </div>
                     <div className="bug-item-row">
                         <label htmlFor="priority">Priority:</label>
@@ -169,10 +203,23 @@ function BugItem({
                     <div className="bug-item-info">
                         <p className="bug-item-status" style={{ backgroundColor: getStatusColor(status) }}>{status}</p>
                     </div>
-                    <div className="bug-item-info">
-                        <div className="bug-item-label">Assigned To:</div>
-                        <p className="bug-item-assigned">{assignedTo}</p>
-                    </div>
+
+                    {isAdmin ? (
+                        <div className="bug-item-info"> 
+                            <div className="bug-item-label">Assigned To:</div>
+                            <select name="assignedTo" className="bug-item-assigned-combobox" value={assignedToCoder} onChange={handleAssignmentChange} required>
+                                {Array.isArray(users) && users.map(user => (
+                                    <option key={user.userId} value={user.userName}>{user.userName}</option>
+                                ))}
+                            </select>
+                        </div>  
+                    ) : (
+                        <div className="bug-item-info"> 
+                            <div className="bug-item-label">Assigned To:</div>
+                            <p className="bug-item-assigned-p">{assignedTo}</p>
+                        </div> 
+                    )}
+    
                     <div className="bug-item-info">
                         <div className="bug-item-label">Priority:</div>
                         <p className="bug-item-priority">{priority}</p>

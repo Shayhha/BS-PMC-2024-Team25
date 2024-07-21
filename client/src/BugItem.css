@@ -48,7 +48,16 @@
     gap: 10px;
 }
 
-.bug-item-assigned,
+.bug-item-assigned-combobox {
+    font-size: 18px;
+    color: black;
+    background-color: white;
+    margin: 0;
+    cursor: pointer;
+    border: 1px solid #ccc;
+}
+
+.bug-item-assigned-p,
 .bug-item-priority,
 .bug-item-importance,
 .bug-item-creation-date,

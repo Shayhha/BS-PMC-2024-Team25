@@ -29,7 +29,6 @@ function Admin() {
         try {
             const response = await axios.post('http://localhost:8090/homePage/search', {searchResult : searchResult});
             setBugArray(response.data);
-            console.log('Data sent successfully:', response.data);
         }
         catch (error) {
             console.error('Error sending data:', error);
@@ -53,7 +52,7 @@ function Admin() {
                         title={bug.bugName}
                         description={bug.bugDesc}
                         status={bug.status}
-                        assignedTo={bug.assignedId}
+                        assignedTo={bug.assignedId} 
                         priority={bug.priority}
                         importance={bug.importance}
                         creationDate={bug.creationDate}
