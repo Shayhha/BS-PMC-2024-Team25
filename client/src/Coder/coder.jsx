@@ -38,9 +38,7 @@ function Coder() {
 
     const handleSave = async (updatedBug) => {
         try {
-            const response = await axios.post('http://localhost:8090/homePage/updateBug', updatedBug);
             setBugArray(bugArray.map(bug => (bug.bugId === updatedBug.bugId ? updatedBug : bug)));
-            console.log('Bug updated successfully');
         } catch (error) {
             console.error('Failed to update bug on backend:', error);
         }

@@ -128,9 +128,7 @@ function Tester() {
 
     const handleSave = async (updatedBug) => {
         try {
-            const response = await axios.post('http://localhost:8090/homePage/updateBug', updatedBug);
             setBugArray(bugArray.map(bug => (bug.bugId === updatedBug.bugId ? updatedBug : bug)));
-            console.log('Bug updated successfully');
         } catch (error) {
             console.error('Failed to update bug on backend:', error);
         }
@@ -199,14 +197,6 @@ function Tester() {
                                     <option value="option2">Option 2</option>
                                     <option value="option3">Option 3</option>
                                 </select>
-                            </label>
-                            <label>
-                                Priority:
-                                <input type="text" name="priority" value={formData.priority} onChange={handleChange} required/>
-                            </label>
-                            <label>
-                                Importance:
-                                <input type="text" name="importance" value={formData.importance} onChange={handleChange} required/>
                             </label>
                             <label>
                                 Creation Date:
