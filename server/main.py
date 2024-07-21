@@ -45,11 +45,11 @@ class SQLHelper(ABC):
     def sendQueryToGroq(self, text):
         # initalize client with api key
         client = Groq(
-            groqApiKey=os.environ.get("GROQ_API_KEY"),
+            api_key=os.environ.get("GROQ_API_KEY"),
         )
 
         # initialize chat with Groq and send http request
-        chatCompletion = client.chat.completions.create(
+        chat_completion = client.chat.completions.create(
             messages=[
                 {
                     "role": "user",
@@ -60,8 +60,8 @@ class SQLHelper(ABC):
         )
 
         # return Groq response 
-        return chatCompletion.choices[0].message.content
-
+        return chat_completion.choices[0].message.content
+    
 
     def searchUserByEmail(self, email):
         try:
@@ -521,7 +521,6 @@ class BugFixer(ABC):
             return jsonify({'error': 'Failed to update bug'})
 
 
-
 # ==================================================================================================================== #
 
 # =============================================HelperFunctions-Class================================================== #
@@ -631,7 +630,7 @@ if __name__ == '__main__':
     db = SQLHelper() 
     try:
         db.connect()
-        db.sendQueryToGroq('what is C programming?')
+        #print(db.sendQueryToGroq("what is C++?"))
         # execute the app and open website
         app.run(debug=True, port=8090)
         # close dabase connection after website closes
