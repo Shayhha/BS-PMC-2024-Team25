@@ -13,7 +13,12 @@ function Coder() {
     const [bugDateStatus, setBugDateStatus] = useState({});
 
     useEffect(() => {
-        fetchBugs();
+        // when the page loads fetch bugs and then fetch all Coder type users
+        const fetchData = async () => {
+            await fetchBugs();
+            await fetchCoderUsers();
+          };
+          fetchData();
     }, []);
 
     useEffect(() => {
@@ -98,6 +103,30 @@ function Coder() {
         }
     });
 
+    const [coders, setCoders] = useState([]);
+
+    //gets all users of type Coder from the database to later display their names on bugs where they are assigned
+    const fetchCoderUsers = async () => {
+        try {
+            const response = await axios.get('http://localhost:8090/bug/getAllCoders');
+            if (!response.data.error) {
+                setCoders(response.data);
+            } else {
+                console.error('Error fetching users:', response.data.message);
+            }
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
+
+    //helper function for splitting a string on the '-' character to get the username and userId on separate variables
+    const parseAssignedUserString = (assignedUserString) => {
+        const [username, userIdString] = assignedUserString.split(' - ');
+        const userId = parseInt(userIdString, 10); // Convert userId to an integer
+        return { selected_username: username.trim(), selected_userid: userId };
+    };  
+
+
     return (
         <div className="coder">
             <div className="coder_search_container">
@@ -129,7 +158,8 @@ function Coder() {
                         title={bug.bugName}
                         description={bug.bugDesc}
                         status={bug.status}
-                        assignedTo={bug.assignedId}
+                        assignedUserId={bug.assignedId} 
+                        assignedUsername={bug.assignedUsername} 
                         priority={bug.priority}
                         importance={bug.importance}
                         creationDate={bug.creationDate}
@@ -137,6 +167,7 @@ function Coder() {
                         isAdmin={false} // Adjust this based on actual admin check
                         onSave={handleSave}
                         dateStatus={bugDateStatus[bug.bugId] || 'none'}
+                        listOfCoders={coders}
                     />
                 ))}
             </div>

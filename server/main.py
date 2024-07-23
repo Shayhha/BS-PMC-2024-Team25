@@ -181,6 +181,15 @@ class SQLHelper(ABC):
             self.cursor.execute(query, ('%' + bugName + '%',))
             bugs = self.cursor.fetchall()
             bugDict = [dict(zip([column[0] for column in self.cursor.description], row)) for row in bugs]
+
+            #checking the return value of the assignedId and get the name of the user. this is needed later in the UI side of things...
+            for bug in bugDict:
+                if (bug['assignedId'] == None):
+                    bug['assignedUsername'] = "Unassigned"
+                    bug['assignedId'] = 0
+                else:
+                    bug['assignedUsername'] = self.getUsernameById(bug['assignedId'])
+
             return bugDict
         except Exception as e:
             print(f'Error: {e}')
@@ -194,8 +203,13 @@ class SQLHelper(ABC):
             bugs = db.cursor.fetchall()
             bugList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in bugs]
 
+            #checking the return value of the assignedId and get the name of the user. this is needed later in the UI side of things...
             for bug in bugList:
-                bug['assignedId'] = self.getUsernameById(bug['assignedId'])
+                if (bug['assignedId'] == None):
+                    bug['assignedUsername'] = "Unassigned"
+                    bug['assignedId'] = 0
+                else:
+                    bug['assignedUsername'] = self.getUsernameById(bug['assignedId'])
 
             print('Fetched bugs successfully from database')
             return jsonify(bugList)
@@ -507,18 +521,23 @@ class BugFixer(ABC):
     @app.route('/homePage/addBug', methods=['POST'])
     def createBug():
         data = request.json  
-        if not HelperFunctions.checkBugInfo(data):
-            return jsonify({'error': 'User entered invalid data'}), 500
 
         # get bug importance and priority rating from Groq AI
         bugImportance = HelperFunctions.handleBugImportance(data.get('title'), data.get('description'))
         bugPriority = HelperFunctions.handleBugPriority(data.get('title'),data.get('description'))
 
+        # add the priority and importance to the bug after the AI classification
+        data["priority"] = bugPriority
+        data["importance"] = bugImportance
+
+        if not HelperFunctions.checkBugInfo(data):
+            return jsonify({'error': 'User entered invalid data'}), 500
+        
         try:
             db.insertBug(data.get('title'), 
                 1, 
                 1,
-                3, 
+                data.get('assignedId'), 
                 data.get('description'), 
                 data.get('status'), 
                 bugPriority, 
@@ -586,8 +605,6 @@ class BugFixer(ABC):
     @app.route('/bug/assignUserToBug', methods=['POST'])
     def assignUserToBug():
         try:
-            if (request.json.get('selectedUserId') == None):
-                raise ValueError("No username found")
             response = db.assignUserToBug(request.json.get('bugId'), request.json.get('selectedUserId'))
             if (response == False):
                 raise ValueError("Could not update assigned user")
