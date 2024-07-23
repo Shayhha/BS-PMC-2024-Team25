@@ -714,7 +714,7 @@ if __name__ == '__main__':
     db = SQLHelper() 
     try:
         db.connect()
-        #print(db.sendQueryToGroq("what is C++?"))
+        #print(db.sendQueryToGroq("what is C++??"))
         # execute the app and open website
         app.run(debug=True, port=8090)
         # close dabase connection after website closes
