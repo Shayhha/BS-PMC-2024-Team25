@@ -484,3 +484,35 @@ def test_check_bug_priority_or_importance_invalid():
 #     finally:
 #         db.close()
 
+def test_handle_bug_importance_1():
+    title = 'Color of save button is blue istead of green'
+    desc = 'Color of save buttun is blue instead of green, but app works fine and it does not affact anything.'
+
+    groqResponse = int(HF.handleBugImportance(title, desc)) # send query to Groq and get the response
+    print(groqResponse)
+    try:
+        assert not groqResponse > 5
+    except Exception as e:
+        pytest.fail(f"handleBugImportance raised an exception: {e}")
+
+def test_handle_bug_importance_2():
+    title = 'User profile picture is incorrect'
+    desc = 'User profile picture is incorrect, but app works fine and it does not affact anything.'
+
+    groqResponse = int(HF.handleBugImportance(title, desc)) # send query to Groq and get the response
+    print(groqResponse)
+    try:
+        assert not groqResponse > 5
+    except Exception as e:
+        pytest.fail(f"handleBugImportance raised an exception: {e}")
+
+def test_handle_bug_importance_3():
+    title = 'User cannot login to website'
+    desc = 'User cannot login to website, user is unable to access his projects and tasks.'
+
+    groqResponse = int(HF.handleBugImportance(title, desc)) # send query to Groq and get the response
+    print(groqResponse)
+    try:
+        assert not groqResponse < 6
+    except Exception as e:
+        pytest.fail(f"handleBugImportance raised an exception: {e}")
