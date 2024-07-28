@@ -159,6 +159,15 @@ class SQLHelper(ABC):
             self.cursor.execute(query, ('%' + bugName + '%',))
             bugs = self.cursor.fetchall()
             bugDict = [dict(zip([column[0] for column in self.cursor.description], row)) for row in bugs]
+
+            #checking the return value of the assignedId and get the name of the user. this is needed later in the UI side of things...
+            for bug in bugDict:
+                if (bug['assignedId'] == None):
+                    bug['assignedUsername'] = "Unassigned"
+                    bug['assignedId'] = 0
+                else:
+                    bug['assignedUsername'] = self.getUsernameById(bug['assignedId'])
+
             return bugDict
         except Exception as e:
             print(f'Error: {e}')
@@ -170,11 +179,20 @@ class SQLHelper(ABC):
         try:
             db.cursor.execute('SELECT * FROM Bugs') 
             bugs = db.cursor.fetchall()
-            print('Connected successfully to database')
             bugList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in bugs]
+
+            #checking the return value of the assignedId and get the name of the user. this is needed later in the UI side of things...
+            for bug in bugList:
+                if (bug['assignedId'] == None):
+                    bug['assignedUsername'] = "Unassigned"
+                    bug['assignedId'] = 0
+                else:
+                    bug['assignedUsername'] = self.getUsernameById(bug['assignedId'])
+
+            print('Fetched bugs successfully from database')
             return jsonify(bugList)
         except:
-            return jsonify('Failed to connect to database.')
+            return jsonify('Failed to fetch bugs from database.')
 
 
     # insert given bug into the database     
@@ -272,7 +290,43 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return False
 
+    def getAllCoders(self):
+        try:
+            db.cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
+            users = db.cursor.fetchall()
+            print('Fetched data successfully from database')
+            userList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in users]
+            return userList
+        except:
+            return False
+        
+    def getUsernameById(self, userId): 
+        try:
+            db.cursor.execute('SELECT userName FROM Users WHERE userId = ?', (userId,))
+            row = db.cursor.fetchone()
+            if row is None:
+                print(f'No user found with userId: {userId}')
+                return None
+            userName = row[0]
+            return userName
+        except:
+            return False
+        
+    def assignUserToBug(self, bugId, userId):
+        try:
+            query = f"UPDATE Bugs SET assignedId = ? WHERE bugId = ?" 
 
+            db.cursor.execute(query, (userId, bugId,))
+            db.connection.commit()
+
+            if db.cursor.rowcount > 0:
+                return True
+            else:
+                return False
+        except:
+            return False
+    
+        
 # ==================================================================================================================== #
 
 # ======================================================User-Class==================================================== #
@@ -444,18 +498,23 @@ class BugFixer(ABC):
     @app.route('/homePage/addBug', methods=['POST'])
     def createBug():
         data = request.json  
-        if not HelperFunctions.checkBugInfo(data):
-            return jsonify({'error': 'User entered invalid data'}), 500
 
         # get bug importance and priority rating from Groq AI
         bugImportance = HelperFunctions.handleBugImportance(data.get('title'), data.get('description'))
         bugPriority = HelperFunctions.handleBugPriority(data.get('title'),data.get('description'))
 
+        # add the priority and importance to the bug after the AI classification
+        data["priority"] = bugPriority
+        data["importance"] = bugImportance
+
+        if not HelperFunctions.checkBugInfo(data):
+            return jsonify({'error': 'User entered invalid data'}), 500
+        
         try:
             db.insertBug(data.get('title'), 
                 1, 
                 1,
-                3, 
+                data.get('assignedId'), 
                 data.get('description'), 
                 data.get('status'), 
                 bugPriority, 
@@ -519,6 +578,26 @@ class BugFixer(ABC):
         else:
             return jsonify({'error': 'Failed to update bug'}), 500
 
+
+    @app.route('/bug/assignUserToBug', methods=['POST'])
+    def assignUserToBug():
+        try:
+            response = db.assignUserToBug(request.json.get('bugId'), request.json.get('selectedUserId'))
+            if (response == False):
+                raise ValueError("Could not update assigned user")
+            return jsonify({'message': 'User assigned to bug successfully'})
+        except Exception as e:
+            return jsonify({'error': 'Failed to perform database query', 'message': str(e)})
+
+    @app.route('/bug/getAllCoders', methods=['GET'])
+    def getAllCoders():
+        try:
+            coderList = db.getAllCoders()
+            if (coderList == None):
+                raise ValueError("No coders found")
+            return jsonify(coderList)
+        except Exception as e:
+            return jsonify({'error': 'Failed to perform database query', 'message': str(e)})
 
 # ==================================================================================================================== #
 
