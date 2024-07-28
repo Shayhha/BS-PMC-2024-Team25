@@ -42,28 +42,6 @@ class SQLHelper(ABC):
             self.connection.close()
 
 
-    # method for sending query to Groq AI and getting response
-    def sendQueryToGroq(self, text):
-        # initalize client with api key
-        client = Groq(
-            api_key=os.environ.get("GROQ_API_KEY"),
-        )
-
-        # initialize chat with Groq and send http request
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": text,
-                }
-            ],
-            model="llama3-8b-8192",
-        )
-
-        # return Groq response 
-        return chat_completion.choices[0].message.content
-    
-
     def searchUserByEmail(self, email):
         try:
             query = 'SELECT * FROM Users WHERE email = ?'
@@ -365,16 +343,15 @@ class User:
 
     # method for getting a dictionary representation of user object
     def toDict(self):
-         userDict = {
-             'userId': self.userId,
-             'email': self.email,
-             'userName': self.userName,
-             'fName': self.fName,
-             'lName': self.lName,
-             'userType': self.userType
-  
+        userDict = {
+            'userId': self.userId,
+            'email': self.email,
+            'userName': self.userName,
+            'fName': self.fName,
+            'lName': self.lName,
+            'userType': self.userType
         }
-         return userDict
+        return userDict
 
 
 # ==================================================================================================================== #
@@ -627,6 +604,30 @@ class BugFixer(ABC):
 # =============================================HelperFunctions-Class================================================== #
 # class for various helper function for testing into etc.
 class HelperFunctions(ABC):
+    # method for sending query to Groq AI and getting response
+    def sendQueryToGroq(text):
+        # load environment variables from env file
+        load_dotenv()
+        # initalize client with api key
+        client = Groq(
+            api_key=os.environ.get("GROQ_API_KEY"),
+        )
+
+        # initialize chat with Groq and send http request
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": text,
+                }
+            ],
+            model="llama3-8b-8192",
+        )
+
+        # return Groq response 
+        return chat_completion.choices[0].message.content
+    
+
     # function for hashing given password with sha-256, retuns hex representation
     def toSHA256(str):
         sha256Obj = hashlib.sha256()
@@ -634,6 +635,7 @@ class HelperFunctions(ABC):
         hexResult = sha256Obj.hexdigest()
         return hexResult
     
+
     # check username input from front end
     def checkUserName(username):
         pattern = re.compile(r'^[a-zA-Z0-9]*$')
@@ -641,6 +643,7 @@ class HelperFunctions(ABC):
             return True
         return False
     
+
     # check firstName input from front end
     def checkFname(fName):
         pattern = re.compile(r'^[a-zA-Z]*$') 
@@ -648,6 +651,7 @@ class HelperFunctions(ABC):
             return True
         return False
     
+
     # check lastName input from front end
     def checkLname(lName):
         pattern = re.compile(r'^[a-zA-Z]*$')
@@ -655,6 +659,7 @@ class HelperFunctions(ABC):
             return True
         return False
     
+
     # check password input from front end
     def checkPassword(password):
         pattern = re.compile(r'^(?=.*[A-Z])[^\s\'=]{6,24}$')
@@ -662,12 +667,14 @@ class HelperFunctions(ABC):
             return True
         return False
     
+
     #check email input from frontend
     def checkemail(email):
         pattern = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
         if pattern.fullmatch(email):
             return True
         return False
+
 
     # checking if all bug info is correct 
     def checkBugInfo(bugData):
@@ -680,6 +687,7 @@ class HelperFunctions(ABC):
             return False
         return True
     
+
     def checkBugCloseDate(OpenDate,CloseDate):
         if CloseDate==None:
                     return True
@@ -691,11 +699,13 @@ class HelperFunctions(ABC):
         else:
             return True
         
+
     def checkBugTitleOrDescription(title):
         pattern = re.compile(r'^[a-zA-Z0-9\-_!?(),.%+*/\'"|\[\]{};:<> \s]+$')
         if not pattern.fullmatch(title) or len(title) == 0:
             return False
         return True
+
 
     def checkBugPriorityOrImportance(priority):
         try:
@@ -706,6 +716,7 @@ class HelperFunctions(ABC):
         if priority_int < 0 or priority_int > 10:
             return False
         return True
+
 
     def checkBugOpenCreationDate(openDate, creationDate):
         open_datetime = datetime.strptime(openDate, '%d/%m/%Y')
@@ -735,7 +746,7 @@ class HelperFunctions(ABC):
 
         # loop and try to get a valid response from Groq AI
         for _ in range(0, 5):
-            groqResponse = db.sendQueryToGroq(groqQuery) # send query to Groq and get the response
+            groqResponse = HelperFunctions.sendQueryToGroq(groqQuery) # send query to Groq and get the response
             if groqResponse is not None and groqResponse.isdigit(): # if the response is a number we return valid response
                 return groqResponse
             
@@ -760,12 +771,13 @@ class HelperFunctions(ABC):
         )
         #loop and try to get a valid response from Groq AI
         for _ in range(0, 5):
-            groqResponse = db.sendQueryToGroq(priorityQuery) # send query to Groq and get the response
+            groqResponse = HelperFunctions.sendQueryToGroq(priorityQuery) # send query to Groq and get the response
             if groqResponse is not None and groqResponse.isdigit(): # if the response is a number we return valid response
                 return groqResponse
 
         #else if we falied to gain a valid response from Groq AI we return a random integer
         return randint(1, 10)
+
 
     # example function for testing Jenkins
     def add(a, b):
@@ -781,7 +793,7 @@ if __name__ == '__main__':
     db = SQLHelper() 
     try:
         db.connect()
-        #print(db.sendQueryToGroq("what is C++?"))
+        #print(db.sendQueryToGroq("what is C++??"))
         # execute the app and open website
         app.run(debug=True, port=8090)
         # close dabase connection after website closes

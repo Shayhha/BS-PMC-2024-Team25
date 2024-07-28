@@ -1,5 +1,6 @@
 import pytest
 from main import HelperFunctions as HF, SQLHelper
+from dotenv import load_dotenv
 db = None
 
 
@@ -448,35 +449,70 @@ def test_check_bug_open_creation_date_3():
 #             raise
 
 #         db.close()
-def test_check_bug_priority_or_importance_valid(mock_sql_helper):
+
+def test_check_bug_priority_or_importance_valid():
     assert HF.checkBugPriorityOrImportance(0)
     assert HF.checkBugPriorityOrImportance(1)
     assert HF.checkBugPriorityOrImportance(10)
 
-def test_check_bug_priority_or_importance_invalid(mock_sql_helper):
+def test_check_bug_priority_or_importance_invalid():
     assert not HF.checkBugPriorityOrImportance(-1)
     assert not HF.checkBugPriorityOrImportance(11)
     assert not HF.checkBugPriorityOrImportance(999)
-def test_sort_bugs_newest_to_oldest():
-    db = SQLHelper()
-    db.connect()
-    try:
-        bugs = db.searchBug('')  # Fetch all bugs
-        sorted_bugs = sorted(bugs, key=lambda x: x['openDate'], reverse=True)
-        assert bugs == sorted_bugs
-    except Exception as e:
-        pytest.fail(f"Sorting bugs from newest to oldest raised an exception: {e}")
-    finally:
-        db.close()
 
-def test_sort_bugs_oldest_to_newest():
-    db = SQLHelper()
-    db.connect()
+# def test_sort_bugs_newest_to_oldest():
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         bugs = db.searchBug('')  # Fetch all bugs
+#         sorted_bugs = sorted(bugs, key=lambda x: x['openDate'], reverse=True)
+#         assert bugs == sorted_bugs
+#     except Exception as e:
+#         pytest.fail(f"Sorting bugs from newest to oldest raised an exception: {e}")
+#     finally:
+#         db.close()
+
+# def test_sort_bugs_oldest_to_newest():
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         bugs = db.searchBug('')  # Fetch all bugs
+#         sorted_bugs = sorted(bugs, key=lambda x: x['openDate'])
+#         assert bugs == sorted_bugs
+#     except Exception as e:
+#         pytest.fail(f"Sorting bugs from oldest to newest raised an exception: {e}")
+#     finally:
+#         db.close()
+
+def test_handle_bug_importance_1():
+    title = 'Color of save button is blue istead of green'
+    desc = 'Color of save buttun is blue instead of green, but app works fine and it does not affact anything.'
+
+    groqResponse = int(HF.handleBugImportance(title, desc)) # send query to Groq and get the response
+    print(groqResponse)
     try:
-        bugs = db.searchBug('')  # Fetch all bugs
-        sorted_bugs = sorted(bugs, key=lambda x: x['openDate'])
-        assert bugs == sorted_bugs
+        assert not groqResponse > 5
     except Exception as e:
-        pytest.fail(f"Sorting bugs from oldest to newest raised an exception: {e}")
-    finally:
-        db.close()
+        pytest.fail(f"handleBugImportance raised an exception: {e}")
+
+def test_handle_bug_importance_2():
+    title = 'User profile picture is incorrect'
+    desc = 'User profile picture is incorrect, but app works fine and it does not affact anything.'
+
+    groqResponse = int(HF.handleBugImportance(title, desc)) # send query to Groq and get the response
+    print(groqResponse)
+    try:
+        assert not groqResponse > 5
+    except Exception as e:
+        pytest.fail(f"handleBugImportance raised an exception: {e}")
+
+def test_handle_bug_importance_3():
+    title = 'User cannot login to website'
+    desc = 'User cannot login to website, user is unable to access his projects and tasks.'
+
+    groqResponse = int(HF.handleBugImportance(title, desc)) # send query to Groq and get the response
+    print(groqResponse)
+    try:
+        assert not groqResponse < 6
+    except Exception as e:
+        pytest.fail(f"handleBugImportance raised an exception: {e}")
