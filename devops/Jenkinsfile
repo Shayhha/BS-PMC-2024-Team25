@@ -23,7 +23,8 @@ pipeline {
                     sh 'docker-compose -f server/docker-compose.yml up --build -d'
 
                     // Run tests inside the running container from the correct directory
-                    sh 'docker-compose -f server/docker-compose.yml run --rm web sh -c "cd /server && pytest --verbose --junit-xml /test-reports/results.xml test_main.py"'
+                    sh 'docker-compose -f server/docker-compose.yml run --rm web pytest --verbose --junit-xml /test-reports/results.xml server/test_main.py'
+
                 }
             }
             post {
