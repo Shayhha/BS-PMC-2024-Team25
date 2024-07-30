@@ -6,9 +6,9 @@ services:
     environment:
       - DB_HOST=bugfixer.database.windows.net
       - DB_PORT=1433
-      - DB_USER="shay"
-      - DB_PASSWORD="Bugfix1234\$"
-      - DB_NAME="BugFixer"
+      - DB_USER=shay
+      - DB_PASSWORD=Bugfix1234$
+      - DB_NAME=BugFixer
     depends_on:
       - db
   db:

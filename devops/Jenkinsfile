@@ -19,7 +19,7 @@ pipeline {
             }
             steps {
                 // Start services with Docker Compose
-                sh 'docker-compose -f server/docker-compose.yml up -d'
+                sh 'docker-compose -f server/docker-compose.yml up --build'
             }
             post {
                 always {
