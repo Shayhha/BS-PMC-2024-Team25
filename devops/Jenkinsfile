@@ -19,18 +19,11 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    // Start services with Docker Compose
-                    sh 'docker-compose up --build'
-                    // sh 'docker-compose -f server/docker-compose.yml up -d'
-
-                    // // Run tests
-                    // sh 'docker-compose -f server/docker-compose.yml exec web pytest --verbose --junit-xml test-reports/results.xml server/test_main.py'
-
-                    // // Stop services after tests
-                    // sh 'docker-compose -f server/docker-compose.yml down'
-                }
-                //sh 'py.test --verbose --junit-xml test-reports/results.xml server/test_main.py'
+                sh '''
+                        docker-compose -f server/docker-compose.yml up --build -d
+                        docker-compose -f server/docker-compose.yml exec web pytest --verbose --junit-xml /test-reports/results.xml server/test_main.py
+                        docker-compose -f server/docker-compose.yml down
+                    '''
             }
             post {
                 always {
