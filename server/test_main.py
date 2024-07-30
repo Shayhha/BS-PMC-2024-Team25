@@ -1,7 +1,44 @@
 import pytest
+import pyodbc
+import os
+
 from main import HelperFunctions as HF, SQLHelper
+
 from dotenv import load_dotenv
-db = None
+load_dotenv() # Load environment variables
+
+# setting up a database connection
+@pytest.fixture(scope='session')
+def db_connection():
+    db_host = os.getenv('DB_HOST')
+    db_port = os.getenv('DB_PORT')
+    db_user = os.getenv('DB_USER')
+    db_password = os.getenv('DB_PASSWORD')
+    db_name = os.getenv('DB_NAME')
+
+    connection_string = (
+        f"DRIVER={{ODBC Driver 18 for SQL Server}};"
+        f"SERVER={db_host},{db_port};"
+        f"DATABASE={db_name};"
+        f"UID={db_user};"
+        f"PWD={db_password};"
+    )
+
+    connection = pyodbc.connect(connection_string)
+    yield connection
+    connection.close() # Closing the connection after the cursor is already closed
+
+
+@pytest.fixture(scope='function')
+def sql_helper(db_connection):
+    helper = SQLHelper()
+    helper.connection = db_connection
+    helper.cursor = db_connection.cursor()
+    yield helper
+    helper.cursor.close() # Close ONLY the cursor, the connection will be closed separately
+
+
+
 
 
 def test_add_positive_numbers():
@@ -15,38 +52,38 @@ def test_add_zero():
     result = HF.add(0, 0)
     assert result == 0
 
-# def test_search_bug_1():
-#     db = SQLHelper()
-#     db.connect()
-#     try:
-#         if len(db.searchBug('bug')) == 0:
-#             raise
-#     except Exception as e:
-#         pytest.fail(f"searchBug raised an exception: {e}")
-#     finally:
-#         db.close()
+def test_search_bug_1(sql_helper):
+    # db = SQLHelper()
+    # db.connect()
+    try:
+        if len(sql_helper.searchBug('bug')) == 0:
+            raise
+    except Exception as e:
+        pytest.fail(f"searchBug raised an exception: {e}")
+    # finally:
+    #     db.close()
 
-# def test_search_bug_2():
-#     db = SQLHelper()
-#     db.connect()
-#     try:
-#         if len(db.searchBug('B')) == 0:
-#             raise
-#     except Exception as e:
-#         pytest.fail(f"searchBug raised an exception: {e}")
-#     finally:
-#         db.close()
+def test_search_bug_2(sql_helper):
+    # db = SQLHelper()
+    # db.connect()
+    try:
+        if len(sql_helper.searchBug('B')) == 0:
+            raise
+    except Exception as e:
+        pytest.fail(f"searchBug raised an exception: {e}")
+    # finally:
+    #     db.close()
 
-# def test_search_bug_3():
-#     db = SQLHelper()
-#     db.connect()
-#     try:
-#         if len(db.searchBug('aux')) is not 0:
-#             raise
-#     except Exception as e:
-#         pytest.fail(f"searchBug raised an exception: {e}")
-#     finally:
-#         db.close()
+def test_search_bug_3(sql_helper):
+    # db = SQLHelper()
+    # db.connect()
+    try:
+        if len(sql_helper.searchBug('aux')) != 0:
+            raise
+    except Exception as e:
+        pytest.fail(f"searchBug raised an exception: {e}")
+    # finally:
+    #     db.close()
 
 def test_to_sha256_1():
     try:
@@ -342,113 +379,113 @@ def test_check_bug_open_creation_date_3():
 
 
 
-# def test_insert_bug_1():
-#     db = SQLHelper()
-#     db.connect()
+def test_insert_bug_1(sql_helper):
+    # db = SQLHelper()
+    # db.connect()
 
-#     try:
-#         # Insert the bug into the database
-#         db.insertBug(
-#             "TESTING_BUG_TESTING",
-#             1,
-#             1,
-#             2,
-#             "This is the description for bug.",
-#             "New",
-#             1,
-#             2,
-#             0,
-#             "01/01/2024",
-#             "02/01/2024",
-#             "03/01/2024"
-#         )
+    try:
+        # Insert the bug into the database
+        sql_helper.insertBug(
+            "TESTING_BUG_TESTING",
+            1,
+            1,
+            33,
+            "This is the description for bug.",
+            "New",
+            1,
+            2,
+            0,
+            "01/01/2024",
+            "02/01/2024",
+            "03/01/2024"
+        )
 
-#         # Clean up: Delete the inserted bug from the database
-#         delete_sql = "DELETE FROM Bugs WHERE bugName = ?"
-#         db.cursor.execute(delete_sql, ("TESTING_BUG_TESTING",))
-#         db.connection.commit()
-#         print(f"Test bug was deleted successfully")
+        # Clean up: Delete the inserted bug from the database
+        delete_sql = "DELETE FROM Bugs WHERE bugName = ?"
+        sql_helper.cursor.execute(delete_sql, ("TESTING_BUG_TESTING",))
+        sql_helper.connection.commit()
+        print(f"Test bug was deleted successfully")
 
-#     except Exception as e:
-#         pytest.fail(f"insertBug raised an exception: {e}")
+    except Exception as e:
+        pytest.fail(f"insertBug raised an exception: {e}")
 
-#     finally:
-#         db.close()
+    # finally:
+    #     db.close()
 
 
-# def test_insert_bug_2():
-#     db = SQLHelper()
-#     db.connect2()
+def test_insert_bug_2(sql_helper):
+    # db = SQLHelper()
+    # db.connect2()
 
-#     try:
-#         # Insert the bug into the database
-#         db.insertBug(
-#             "TESTING_BUG_TESTING",
-#             1,
-#             1,
-#             2,
-#             "The description.",
-#             "Done",
-#             1,
-#             2,
-#             0,
-#             "01/01/2024",
-#             "03/01/2024",
-#             "06/01/2024"
-#         )
+    try:
+        # Insert the bug into the database
+        sql_helper.insertBug(
+            "TESTING_BUG_TESTING",
+            1,
+            1,
+            3,
+            "The description.",
+            "Done",
+            1,
+            2,
+            0,
+            "01/01/2024",
+            "03/01/2024",
+            "06/01/2024"
+        )
 
-#         # Clean up: Delete the inserted bug from the database
-#         delete_sql = "DELETE FROM Bugs WHERE bugName = ?"
-#         db.cursor.execute(delete_sql, ("TESTING_BUG_TESTING",))
-#         db.connection.commit()
-#         print(f"Test bug was deleted successfully")
+        # Clean up: Delete the inserted bug from the database
+        delete_sql = "DELETE FROM Bugs WHERE bugName = ?"
+        sql_helper.cursor.execute(delete_sql, ("TESTING_BUG_TESTING",))
+        sql_helper.connection.commit()
+        print(f"Test bug was deleted successfully")
 
-#     except Exception as e:
-#         pytest.fail(f"insertBug raised an exception: {e}")
+    except Exception as e:
+        pytest.fail(f"insertBug raised an exception: {e}")
 
-#     finally:
-#         db.close()
+    # finally:
+    #     db.close()
 
-# def test_insert_bug_3():
-#     db = SQLHelper() 
-#     db.connect2()
+def test_insert_bug_3(sql_helper):
+    # db = SQLHelper() 
+    # db.connect2()
 
-#     try:
-#         # Insert the bug into the database
-#         db.insertBug(
-#             "TESTING_BUG_TESTING",
-#             1,
-#             1,
-#             2,
-#             "This is the description for bug.",
-#             "New",
-#             1,
-#             "NOT GOOD",
-#             0,
-#             "01/01/2024",
-#             "02/01/2024",
-#             "03/01/2024"
-#         )
+    try:
+        # Insert the bug into the database
+        sql_helper.insertBug(
+            "TESTING_BUG_TESTING",
+            1,
+            1,
+            3,
+            "This is the description for bug.",
+            "New",
+            1,
+            "NOT GOOD",
+            0,
+            "01/01/2024",
+            "02/01/2024",
+            "03/01/2024"
+        )
      
-#         # If insertBug succeeds and doesn't raise an exception, fail the test
-#         pytest.fail("Expected insertBug to raise an exception but it succeeded")
+        # If insertBug succeeds and doesn't raise an exception, fail the test
+        pytest.fail("Expected insertBug to raise an exception but it succeeded")
 
-#     except Exception as e:
-#         # Check that the exception message indicates the expected data type conversion error
-#         assert "Conversion failed when converting the nvarchar value 'NOT GOOD' to data type int" in str(e)
+    except Exception as e:
+        # Check that the exception message indicates the expected data type conversion error
+        assert "Conversion failed when converting the nvarchar value 'NOT GOOD' to data type int" in str(e)
 
-#     finally:
-#         try:
-#             # Clean up: Delete the inserted bug from the database
-#             delete_sql = "DELETE FROM Bugs WHERE bugName = ?"
-#             db.cursor.execute(delete_sql, ("TESTING_BUG_TESTING",))
-#             db.connection.commit()
-#             print(f"Test bug was deleted successfully")
-#         except Exception as e:
-#             print(f"Error occurred while deleting test bug: {e}")
-#             raise
+    finally:
+        try:
+            # Clean up: Delete the inserted bug from the database
+            delete_sql = "DELETE FROM Bugs WHERE bugName = ?"
+            sql_helper.cursor.execute(delete_sql, ("TESTING_BUG_TESTING",))
+            sql_helper.connection.commit()
+            print(f"Test bug was deleted successfully")
+        except Exception as e:
+            print(f"Error occurred while deleting test bug: {e}")
+            raise
 
-#         db.close()
+        # db.close()
 
 def test_check_bug_priority_or_importance_valid():
     assert HF.checkBugPriorityOrImportance(0)
@@ -460,29 +497,29 @@ def test_check_bug_priority_or_importance_invalid():
     assert not HF.checkBugPriorityOrImportance(11)
     assert not HF.checkBugPriorityOrImportance(999)
 
-# def test_sort_bugs_newest_to_oldest():
-#     db = SQLHelper()
-#     db.connect()
+# def test_sort_bugs_newest_to_oldest(sql_helper):
+#     # db = SQLHelper()
+#     # db.connect()
 #     try:
-#         bugs = db.searchBug('')  # Fetch all bugs
+#         bugs = sql_helper.searchBug('')  # Fetch all bugs
 #         sorted_bugs = sorted(bugs, key=lambda x: x['openDate'], reverse=True)
 #         assert bugs == sorted_bugs
 #     except Exception as e:
 #         pytest.fail(f"Sorting bugs from newest to oldest raised an exception: {e}")
-#     finally:
-#         db.close()
+#     # finally:
+#     #     db.close()
 
-# def test_sort_bugs_oldest_to_newest():
-#     db = SQLHelper()
-#     db.connect()
+# def test_sort_bugs_oldest_to_newest(sql_helper):
+#     # db = SQLHelper()
+#     # db.connect()
 #     try:
-#         bugs = db.searchBug('')  # Fetch all bugs
+#         bugs = sql_helper.searchBug('')  # Fetch all bugs
 #         sorted_bugs = sorted(bugs, key=lambda x: x['openDate'])
 #         assert bugs == sorted_bugs
 #     except Exception as e:
 #         pytest.fail(f"Sorting bugs from oldest to newest raised an exception: {e}")
-#     finally:
-#         db.close()
+#     # finally:
+#     #     db.close()
 
 def test_handle_bug_importance_1():
     title = 'Color of save button is blue istead of green'
@@ -576,39 +613,31 @@ def test_handle_bug_priority_5():
         pytest.fail(f"handleBugPriority raised an exception: {e}")
 
 
-def test_get_username_by_id_1():
+
+
+
+def test_get_username_by_id_1(sql_helper):
     userId = 34
-    db = SQLHelper()
-    db.connect()
     try:
-        res = db.getUsernameById(userId)
+        res = sql_helper.getUsernameById(userId)
         assert res != True, f"Failed to find user with userId {userId}."
     except Exception as e:
         pytest.fail(f"Assigning the result has failed: {e}")
-    finally:
-        db.close()
 
-def test_get_username_by_id_2():
+def test_get_username_by_id_2(sql_helper):
     userId = 33
-    db = SQLHelper()
-    db.connect()
     try:
-        res = db.getUsernameById(userId)
+        res = sql_helper.getUsernameById(userId)
         assert res != True, f"Failed to assign userId {userId} to bugId "
     except Exception as e:
         pytest.fail(f"Assigning the result has failed: {e}")
-    finally:
-        db.close()
 
 
-def test_get_username_by_id_3():
+def test_get_username_by_id_3(sql_helper):
     userId = 5555
-    db = SQLHelper()
-    db.connect()
     try:
-        res = db.getUsernameById(userId)
+        res = sql_helper.getUsernameById(userId)
         assert res != True, f"Failed to assign userId {userId} to bugId "
     except Exception as e:
         pytest.fail(f"Assigning the result has failed: {e}")
-    finally:
-        db.close()
+
