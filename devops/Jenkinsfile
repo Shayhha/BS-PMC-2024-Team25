@@ -18,11 +18,20 @@ pipeline {
                 }
             }
             steps {
-                // Start services with Docker Compose
-                sh 'docker-compose -f server/docker-compose.yml up --build -d'
+                script {
+                    // Start services in detached mode
+                    sh 'docker-compose -f server/docker-compose.yml up --build -d'
+
+                    // Run tests inside the running container from the correct directory
+                    sh 'docker-compose -f server/docker-compose.yml exec -T web sh -c "cd /server && pytest --verbose --junit-xml /test-reports/results.xml test_main.py"'
+                }
             }
             post {
                 always {
+                    // Stop services after tests
+                    sh 'docker-compose -f server/docker-compose.yml down'
+
+                    // Publish test results
                     junit 'test-reports/results.xml'
                 }
             }
