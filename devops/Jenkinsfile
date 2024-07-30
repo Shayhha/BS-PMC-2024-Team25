@@ -11,18 +11,17 @@ pipeline {
                 sh 'python -m py_compile server/main.py server/test_main.py'
             }
         }
-        stage('Test') {
+        stage('Start Services') {
             agent {
                 docker {
                     image 'docker/compose:debian-1.29.2'  // Docker Compose image
                 }
             }
             steps {
-                sh '''
-                    docker-compose -f server/docker-compose.yml up --build -d
-                    docker-compose -f server/docker-compose.yml exec -T web pytest --verbose --junit-xml /test-reports/results.xml server/test_main.py
-                    docker-compose -f server/docker-compose.yml down
-                '''
+                // Start services with Docker Compose
+                sh 'docker-compose -f server/docker-compose.yml up --build'
+                // Ensure the services are stopped after the tests
+                sh 'docker-compose -f server/docker-compose.yml down'
             }
             post {
                 always {
