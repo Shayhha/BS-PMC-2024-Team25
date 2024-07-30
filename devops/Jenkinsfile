@@ -19,11 +19,7 @@ pipeline {
                 }
             }
             steps {
-                sh '''
-                        docker-compose -f server/docker-compose.yml up --build -d
-                        docker-compose -f server/docker-compose.yml exec web pytest --verbose --junit-xml /test-reports/results.xml server/test_main.py
-                        docker-compose -f server/docker-compose.yml down
-                    '''
+                sh 'py.test --verbose --junit-xml test-reports/results.xml server/test_main.py'
             }
             post {
                 always {
