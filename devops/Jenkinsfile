@@ -19,9 +19,7 @@ pipeline {
             }
             steps {
                 // Start services with Docker Compose
-                sh 'docker-compose -f server/docker-compose.yml up --build'
-                // Ensure the services are stopped after the tests
-                sh 'docker-compose -f server/docker-compose.yml down'
+                sh 'docker-compose -f server/docker-compose.yml up --build -d'
             }
             post {
                 always {
