@@ -37,7 +37,7 @@ pipeline {
                     // Run pytest tests inside the running container
                     sh 'docker-compose -f server/docker-compose.yml exec -T web pytest --verbose --junit-xml /test-reports/results.xml test_main.py'
                 }
-                }
+                
             }
             post {
                 always {
