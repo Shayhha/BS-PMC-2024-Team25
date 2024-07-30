@@ -22,8 +22,14 @@ pipeline {
                     // Start services in detached mode
                     sh 'docker-compose -f server/docker-compose.yml up --build -d'
 
-                    // Run tests inside the running container from the correct directory
-                    sh 'docker-compose -f server/docker-compose.yml exec -T web sh -c "cd /server && pytest --verbose --junit-xml /test-reports/results.xml test_main.py"'
+                    // Verify file structure inside the container
+                    sh 'docker-compose -f server/docker-compose.yml exec -T web ls /server'
+
+                    // Change to the appropriate directory
+                    sh 'docker-compose -f server/docker-compose.yml exec -T web sh -c "cd /server"'
+
+                    // Run pytest tests inside the running container
+                    sh 'docker-compose -f server/docker-compose.yml exec -T web pytest --verbose --junit-xml /test-reports/results.xml test_main.py'
                 }
             }
             post {
