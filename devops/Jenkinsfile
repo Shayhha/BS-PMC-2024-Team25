@@ -11,6 +11,24 @@ pipeline {
                 sh 'python -m py_compile server/main.py server/test_main.py'
             }
         }
+        stage('Start Services') {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile'
+                    dir 'server'
+                }
+            }
+            steps {
+                // Start services with Docker Compose
+                sh 'docker-compose -f server/docker-compose.yml up -d'
+            }
+            post {
+                always {
+                    // Ensure the services are stopped after the tests
+                    sh 'docker-compose -f server/docker-compose.yml down'
+                }
+            }
+        }
         stage('Test') {
             agent {
                 dockerfile {
