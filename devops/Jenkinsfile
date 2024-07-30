@@ -14,7 +14,7 @@ pipeline {
         stage('Start Services') {
             agent {
                 docker {
-                    image 'docker/compose:1.29.2'  // Docker Compose image
+                    image 'docker/compose:2.29.1'  // Docker Compose image
                 }
             }
             steps {
