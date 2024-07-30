@@ -13,9 +13,8 @@ pipeline {
         }
         stage('Start Services') {
             agent {
-                dockerfile {
-                    filename 'Dockerfile'
-                    dir 'server'
+                docker {
+                    image 'docker/compose:1.29.2'  // Docker Compose image
                 }
             }
             steps {
