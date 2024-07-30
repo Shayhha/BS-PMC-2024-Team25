@@ -1,0 +1,20 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=bugfixer.database.windows.net
+      - DB_PORT=1433
+      - DB_USER=shay
+      - DB_PASSWORD=Bugfix1234$
+      - DB_NAME=BugFixer
+    depends_on:
+      - db
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      SA_PASSWORD: "Bugfix1234$"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
