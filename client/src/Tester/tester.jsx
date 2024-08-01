@@ -71,6 +71,9 @@ function Tester() {
             } else if (sortOption === 'priority') {
                 return b.priority - a.priority;
             }
+            else if (sortOption === 'importance') {
+                return b.importance - a.importance;
+            }
         });
 
         setBugArray(sortedBugs);
@@ -225,6 +228,7 @@ function Tester() {
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
                     <option value="priority">Priority</option>
+                    <option value="importance">Importance</option>
                 </select>
 
                 <img
