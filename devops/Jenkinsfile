@@ -11,28 +11,18 @@ pipeline {
                 sh 'python -m py_compile server/main.py server/test_main.py'
             }
         }
-        stage('Start Services') {
+        stage('Test') {
             agent {
-                docker {
-                    image 'docker/compose:debian-1.29.2'  // Docker Compose image
+                dockerfile {
+                    filename 'Dockerfile'
+                    dir 'server'
                 }
             }
             steps {
-                script {
-                    // Start services in detached mode
-                    sh 'docker-compose -f server/docker-compose.yml up --build -d'
-
-                    // Run tests inside the running container from the correct directory
-                    sh 'docker-compose -f docker-compose.yml run --rm web pytest --verbose --junit-xml /test-reports/results.xml test_main.py'
-
-                }
+                sh 'py.test --verbose --junit-xml test-reports/results.xml server/test_main.py'
             }
             post {
                 always {
-                    // Stop services after tests
-                    sh 'docker-compose -f server/docker-compose.yml down'
-
-                    // Publish test results
                     junit 'test-reports/results.xml'
                 }
             }
