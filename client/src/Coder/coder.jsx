@@ -101,6 +101,9 @@ function Coder() {
             // Sort by priority, highest first
             return b.priority - a.priority;
         }
+        else if (sortOption === 'importance') {
+            return b.importance - a.importance;
+        }
     });
 
     const [coders, setCoders] = useState([]);
@@ -146,6 +149,7 @@ function Coder() {
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
                     <option value="priority">Priority</option>
+                    <option value="importance">Importance</option>
                 </select>
                 
             </div>
