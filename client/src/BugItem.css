@@ -58,11 +58,18 @@
 }
 
 .bug-item-assigned-p,
-.bug-item-priority,
-.bug-item-importance,
 .bug-item-creation-date,
 .bug-item-open-date {
     font-size: 18px;
+    color: #333;
+    margin: 0;
+    line-height: 1.2; /* Adjust line-height for better spacing */
+}
+
+.bug-item-priority,
+.bug-item-importance {
+    font-size: 18px;
+    font-weight: bold;
     color: #333;
     margin: 0;
     line-height: 1.2; /* Adjust line-height for better spacing */

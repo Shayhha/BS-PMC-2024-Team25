@@ -94,6 +94,19 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
         }
     };
 
+    // Function to determine the color based on the value
+    const getPriorityAndImportanceColor = (value) => {
+        if (value <= 4) {
+            return 'green';
+        } else if (value >= 5 && value <= 7) {
+            return 'orange';
+        } else if (value >= 8) {
+            return 'red';
+        } else {
+            return 'black'; // Default color if value is out of range
+        }
+    };
+
     //this variable holds the userId and the username of the user
     const [assignedToCoder, setAssignedToCoder] = useState({
         uid: 0,
@@ -236,11 +249,11 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
     
                     <div className="bug-item-info">
                         <div className="bug-item-label">Priority:</div>
-                        <p className="bug-item-priority">{priority}</p>
+                        <p className="bug-item-priority"  style={{ color: getPriorityAndImportanceColor(priority) }}>{priority}</p>
                     </div>
                     <div className="bug-item-info">
                         <div className="bug-item-label">Importance:</div>
-                        <p className="bug-item-importance">{importance}</p>
+                        <p className="bug-item-importance" style={{ color: getPriorityAndImportanceColor(importance) }}>{importance}</p>
                     </div>
                     <div className="bug-item-info">
                         <div className="bug-item-label">Creation Date:</div>
