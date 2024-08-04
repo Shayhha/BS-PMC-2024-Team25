@@ -23,6 +23,17 @@
     font-weight: bold;
 }
 
+.navbar_logo_text {
+    color: whitesmoke;
+    font-size: 34px;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.navbar_logo_text:hover {
+    color: #ffde59;
+}
+
 /* Welcome message style */
 .navbar_welcome {
     margin-left: 20px; /* Adjust margin as needed */
