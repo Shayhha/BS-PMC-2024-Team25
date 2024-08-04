@@ -601,6 +601,27 @@ class BugFixer(ABC):
             return jsonify({'error': 'Failed to update bug'}), 500
 
 
+    @app.route('/bug/assignUserToBug', methods=['POST'])
+    def assignUserToBug():
+        try:
+            response = db.assignUserToBug(request.json.get('bugId'), request.json.get('selectedUserId'))
+            if (response == False):
+                raise ValueError("Could not update assigned user")
+            return jsonify({'message': 'User assigned to bug successfully'})
+        except Exception as e:
+            return jsonify({'error': 'Failed to perform database query', 'message': str(e)})
+
+    @app.route('/bug/getAllCoders', methods=['GET'])
+    def getAllCoders():
+        try:
+            coderList = db.getAllCoders()
+            if (coderList == None):
+                raise ValueError("No coders found")
+            return jsonify(coderList)
+        except Exception as e:
+            return jsonify({'error': 'Failed to perform database query', 'message': str(e)})
+    
+
     # function for getting all users from database
     @app.route('/removeUsers/getUsers', methods=['GET'])
     def getUsers():

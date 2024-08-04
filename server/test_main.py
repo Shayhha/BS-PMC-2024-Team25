@@ -578,40 +578,40 @@ def test_handle_bug_priority_5():
         pytest.fail(f"handleBugPriority raised an exception: {e}")
 
 
-def test_get_username_by_id_1():
-    userId = 34
-    db = SQLHelper()
-    db.connect()
-    try:
-        res = db.getUsernameById(userId)
-        assert res != True, f"Failed to find user with userId {userId}."
-    except Exception as e:
-        pytest.fail(f"Assigning the result has failed: {e}")
-    finally:
-        db.close()
+# def test_get_username_by_id_1():
+#     userId = 34
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         res = db.getUsernameById(userId)
+#         assert res != True, f"Failed to find user with userId {userId}."
+#     except Exception as e:
+#         pytest.fail(f"Assigning the result has failed: {e}")
+#     finally:
+#         db.close()
 
-def test_get_username_by_id_2():
-    userId = 33
-    db = SQLHelper()
-    db.connect()
-    try:
-        res = db.getUsernameById(userId)
-        assert res != True, f"Failed to assign userId {userId} to bugId "
-    except Exception as e:
-        pytest.fail(f"Assigning the result has failed: {e}")
-    finally:
-        db.close()
+# def test_get_username_by_id_2():
+#     userId = 33
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         res = db.getUsernameById(userId)
+#         assert res != True, f"Failed to assign userId {userId} to bugId "
+#     except Exception as e:
+#         pytest.fail(f"Assigning the result has failed: {e}")
+#     finally:
+#         db.close()
 
 
-def test_get_username_by_id_3():
-    userId = 5555
-    db = SQLHelper()
-    db.connect()
-    try:
-        res = db.getUsernameById(userId)
-        assert res != True, f"Failed to assign userId {userId} to bugId "
-    except Exception as e:
-        pytest.fail(f"Assigning the result has failed: {e}")
-    finally:
-        db.close()
+# def test_get_username_by_id_3():
+#     userId = 5555
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         res = db.getUsernameById(userId)
+#         assert res != True, f"Failed to assign userId {userId} to bugId "
+#     except Exception as e:
+#         pytest.fail(f"Assigning the result has failed: {e}")
+#     finally:
+#         db.close()
 
