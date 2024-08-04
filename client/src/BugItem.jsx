@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './BugItem.css';
 import trashIcon from './assets/trashIcon.png';
 import axios from 'axios';
 
-function BugItem({bugId, title, description, status, assignedTo, priority, importance, creationDate, openDate, isAdmin, onSave}) {
+function BugItem({bugId, title, description, status, assignedUserId, assignedUsername, priority, importance, creationDate, openDate, isAdmin, onSave, listOfCoders}) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedBug, setEditedBug] = useState({
         bugId,
         bugName: title,
         bugDesc: description,
         status,
-        assignedId: assignedTo,
+        assignedId: assignedUserId,
+        assignedName: assignedUsername,
         priority,
         importance,
         creationDate,
@@ -56,8 +57,15 @@ function BugItem({bugId, title, description, status, assignedTo, priority, impor
         console.log(editedBug.bugDesc);
 
         try {
+            //adding additional information to the editedBug var before sending it to the database
+            editedBug['assignedName'] = assignedToCoder.uname;
+            editedBug['assignedId'] = assignedToCoder.uid === 0 ? null : assignedToCoder.uid;
+  
+            //then after the assignedId is updated we can update the bug safely 
             const response = await axios.post('http://localhost:8090/homePage/updateBug', editedBug);
             if (!response.data.error) {
+                response.data['assignedUsername'] = editedBug['assignedName'];
+                response.data['assignedId'] = editedBug['assignedId'] === null ? 0 : assignedToCoder.uid;
                 onSave(response.data); // Update locally in the frontend if backend update was successful
                 console.log('Bug updated successfully');
             } 
@@ -86,6 +94,56 @@ function BugItem({bugId, title, description, status, assignedTo, priority, impor
         }
     };
 
+    //this variable holds the userId and the username of the user
+    const [assignedToCoder, setAssignedToCoder] = useState({
+        uid: 0,
+        uname: ""
+    });
+
+    useEffect(() => {
+        // only assign the assignedToCoder variable if its the first time the component loads
+        if (assignedToCoder.uname === "" && listOfCoders) {
+            //findAndAssignCoder(assignedUserName);
+            setAssignedToCoder({
+                uid: assignedUserId,
+                uname: assignedUsername
+            });
+        }
+    }, [assignedUserId, assignedUsername, listOfCoders]);
+
+    //helper function for splitting a string on the '-' character to get the username and userId on separate variables
+    const parseAssignedUserString = (assignedUserString) => {
+        if (assignedUserString === "Unassigned") 
+            return { selected_username: "Unassigned", selected_userid: null };
+        
+        const [username, userIdString] = assignedUserString.split(' - ');
+        const userId = parseInt(userIdString, 10); // Convert userId to an integer
+        return { selected_username: username.trim(), selected_userid: userId };
+    };
+
+    // when the admin user assigns a user this function runs, updates the variables and the database
+    const handleAssignmentChange = (event) => {
+        const { selected_username, selected_userid } = parseAssignedUserString(event.target.value);
+        setAssignedToCoder({
+            uid: selected_userid,
+            uname: selected_username
+        });
+        assignUserInDatabase(selected_userid);
+    };
+    
+    // given a userId, assign the user to the current bug in the database
+    const assignUserInDatabase = async (userId) => {
+        try {
+            const response = await axios.post('http://localhost:8090/bug/assignUserToBug', { selectedUserId: userId, bugId: bugId });
+            if (response.data.error) {
+                console.error('Error assigning user:', response.data.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+
     return (
         <div className="bug-item-div" style={{ borderColor: getStatusColor(status) }}>
             {isEditing ? (
@@ -113,17 +171,6 @@ function BugItem({bugId, title, description, status, assignedTo, priority, impor
                                 <option key={option} value={option}>{option}</option>
                             ))}
                         </select>
-                    </div>
-                    <div className="bug-item-row">
-                        <label htmlFor="assignedId">Assigned To:</label>
-                        <input 
-                            type="text" 
-                            id="assignedId" 
-                            name="assignedId" 
-                            value={editedBug.assignedId} 
-                            onChange={handleInputChange} 
-                            className="bug-item-input" // Added className for consistent styling
-                        />
                     </div>
                     <div className="bug-item-row">
                         <label htmlFor="priority">Priority:</label>
@@ -169,10 +216,24 @@ function BugItem({bugId, title, description, status, assignedTo, priority, impor
                     <div className="bug-item-info">
                         <p className="bug-item-status" style={{ backgroundColor: getStatusColor(status) }}>{status}</p>
                     </div>
-                    <div className="bug-item-info">
-                        <div className="bug-item-label">Assigned To:</div>
-                        <p className="bug-item-assigned">{assignedTo}</p>
-                    </div>
+
+                    {(isAdmin && listOfCoders) ? (
+                        <div className="bug-item-info"> 
+                            <div className="bug-item-label">Assigned To:</div>
+                            <select name="assignedTo" className="bug-item-assigned-combobox" value={`${assignedToCoder.uname} - ${assignedToCoder.uid}`} onChange={handleAssignmentChange} required>
+                                <option value="Unassigned">Unassigned</option>
+                                {Array.isArray(listOfCoders) && listOfCoders.map(user => (
+                                    <option key={user.userId} value={`${user.userName} - ${user.userId}`}>{`${user.userName} - ${user.userId}`}</option>
+                                ))}
+                            </select>
+                        </div>  
+                    ) : (
+                        <div className="bug-item-info"> 
+                            <div className="bug-item-label">Assigned To:</div>
+                            <p className="bug-item-assigned-p">{assignedUserId === 0 ? `${assignedUsername}` : `${assignedUsername} - ${assignedUserId}`}</p> {/**`${assignedUsername} - ${assignedUserId}` */}
+                        </div> 
+                    )}
+    
                     <div className="bug-item-info">
                         <div className="bug-item-label">Priority:</div>
                         <p className="bug-item-priority">{priority}</p>
@@ -189,7 +250,7 @@ function BugItem({bugId, title, description, status, assignedTo, priority, impor
                         <div className="bug-item-label">Open Date:</div>
                         <p className="bug-item-open-date">{openDate}</p>
                     </div>
-                    {isAdmin ? (
+                    {(isAdmin && (status === "Done")) ? (
                         <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" ></img>
                     ) : (
                         <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>

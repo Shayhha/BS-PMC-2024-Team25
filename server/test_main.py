@@ -522,3 +522,96 @@ def test_handle_bug_importance_3():
 #         db.connection.commit()
 #         db.close()
 
+def test_handle_bug_priority_1():
+    title = 'Color of save button is blue instead of green'
+    desc = 'Color of save button is blue instead of green, but app works fine and it does not affect anything.'
+
+    groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
+    print(groqResponse)
+    try:
+        assert not groqResponse > 5
+    except Exception as e:
+        pytest.fail(f"handleBugPriority raised an exception: {e}")
+
+def test_handle_bug_priority_2():
+    title = 'User profile picture is incorrect'
+    desc = 'User profile picture is incorrect, but app works fine and it does not affect anything.'
+
+    groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
+    print(groqResponse)
+    try:
+        assert not groqResponse > 5
+    except Exception as e:
+        pytest.fail(f"handleBugPriority raised an exception: {e}")
+
+def test_handle_bug_priority_3():
+    title = 'User cannot login to website'
+    desc = 'User cannot login to website, user is unable to access his projects and tasks.'
+
+    groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
+    print(groqResponse)
+    try:
+        assert not groqResponse < 6
+    except Exception as e:
+        pytest.fail(f"handleBugPriority raised an exception: {e}")
+
+def test_handle_bug_priority_4():
+    title = 'Database backup failure'
+    desc = 'Database backup failed. There is a risk of data loss if an issue occurs.'
+
+    groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
+    print(groqResponse)
+    try:
+        assert not groqResponse < 7
+    except Exception as e:
+        pytest.fail(f"handleBugPriority raised an exception: {e}")
+
+def test_handle_bug_priority_5():
+    title = 'Typo in user welcome message'
+    desc = 'There is a typo in the user welcome message displayed on login. The app works fine'
+
+    groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
+    print(groqResponse)
+    try:
+        assert not groqResponse > 5
+    except Exception as e:
+        pytest.fail(f"handleBugPriority raised an exception: {e}")
+
+
+def test_get_username_by_id_1():
+    userId = 34
+    db = SQLHelper()
+    db.connect()
+    try:
+        res = db.getUsernameById(userId)
+        assert res != True, f"Failed to find user with userId {userId}."
+    except Exception as e:
+        pytest.fail(f"Assigning the result has failed: {e}")
+    finally:
+        db.close()
+
+def test_get_username_by_id_2():
+    userId = 33
+    db = SQLHelper()
+    db.connect()
+    try:
+        res = db.getUsernameById(userId)
+        assert res != True, f"Failed to assign userId {userId} to bugId "
+    except Exception as e:
+        pytest.fail(f"Assigning the result has failed: {e}")
+    finally:
+        db.close()
+
+
+def test_get_username_by_id_3():
+    userId = 5555
+    db = SQLHelper()
+    db.connect()
+    try:
+        res = db.getUsernameById(userId)
+        assert res != True, f"Failed to assign userId {userId} to bugId "
+    except Exception as e:
+        pytest.fail(f"Assigning the result has failed: {e}")
+    finally:
+        db.close()
+
