@@ -235,13 +235,6 @@ def test_check_bug_clsoe_4():
         pytest.fail(f"checkBugCloseDate raised an exception: close date is  not valid.")
 
 
-
-
-
-
-
-
-
 def test_check_bug_title_or_description_1():
     try:
         if not HF.checkBugTitleOrDescription('Bug 1'):
@@ -276,9 +269,6 @@ def test_check_bug_title_or_description_5():
             raise 
     except:
         pytest.fail(f"checkBugTitleOrDescription raised an exception.")
-
-
-
 
 def test_check_bug_priority_or_importance_1():
     try:
@@ -517,8 +507,20 @@ def test_handle_bug_importance_3():
     except Exception as e:
         pytest.fail(f"handleBugImportance raised an exception: {e}")
 
-
-
+# def test_delete_user():
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         db.addUser('test@test.com', 'test', 'test', 'test', 'Coder', 'Test123')
+#         user = db.searchUser('test@test.com', 'Test123')
+#         if not db.deleteUser(user.userId):
+#             raise RuntimeError('Failed to perform database query to delete user.')
+#     except Exception as e:
+#         pytest.fail(f"deleteUser raised an exception: {e}")
+#     finally:
+#         db.cursor.execute('DELETE FROM Users WHERE email = \'test@test.com\'') 
+#         db.connection.commit()
+#         db.close()
 
 def test_handle_bug_priority_1():
     title = 'Color of save button is blue instead of green'
@@ -612,3 +614,4 @@ def test_get_username_by_id_3():
         pytest.fail(f"Assigning the result has failed: {e}")
     finally:
         db.close()
+

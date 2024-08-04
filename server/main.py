@@ -59,7 +59,7 @@ class SQLHelper(ABC):
     # method for searching user in db, returns user obj if found else returns none
     def searchUser(self, email, password):
         try:
-            query = 'SELECT * FROM Users WHERE email = ? AND password = ?'
+            query = 'SELECT * FROM Users WHERE email = ? AND password = ? AND isDeleted = 0'
             passSha = HelperFunctions.toSHA256(password)
             self.cursor.execute(query, (email, passSha,))
             user = self.cursor.fetchone() # use fetchone to find single user 
@@ -191,8 +191,8 @@ class SQLHelper(ABC):
 
             print('Fetched bugs successfully from database')
             return jsonify(bugList)
-        except:
-            return jsonify('Failed to fetch bugs from database.')
+        except Exception as e:
+            return jsonify(f'Error: {e}')
 
 
     # insert given bug into the database     
@@ -289,6 +289,28 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return False
+
+
+    # fucntion for getting users from database
+    def getUsers(self):
+        try:
+            db.cursor.execute('SELECT * FROM Users WHERE userType <> \'Manager\' AND isDeleted = 0') 
+            users = db.cursor.fetchall()
+            userList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in users]
+            return jsonify(userList)
+        except Exception as e:
+            return jsonify(f'Error: {e}')
+        
+
+    # fucntion for deleting user from database
+    def deleteUser(self, userId):
+        try:
+            self.cursor.execute('UPDATE Users SET isDeleted = 1 WHERE userId = ?', (userId,)) 
+            self.connection.commit()
+            return True
+        except Exception as e:
+            return False
+        
 
     def getAllCoders(self):
         try:
@@ -424,9 +446,9 @@ class BugFixer(ABC):
         global globalUser
         if globalUser:
             globalUser = None
-            return jsonify({'message': 'Logged out successfully'})
+            return jsonify({'message': 'Logged out successfully'}), 200
         else:
-            return jsonify({'error': 'No user is logged in'})
+            return jsonify({'error': 'No user is logged in'}), 500
         
 
     # function to getting logged in user 
@@ -489,9 +511,9 @@ class BugFixer(ABC):
     def getBugs():
         try:
             bugList = db.getBugs()
-            return bugList
+            return bugList, 200
         except:
-            return jsonify({'error': 'Failed to perform database query'})
+            return jsonify({'error': 'Failed to perform database query'}), 500
 
 
     # function that gets from the user new bug data (and adds to the database)
@@ -579,26 +601,29 @@ class BugFixer(ABC):
             return jsonify({'error': 'Failed to update bug'}), 500
 
 
-    @app.route('/bug/assignUserToBug', methods=['POST'])
-    def assignUserToBug():
+    # function for getting all users from database
+    @app.route('/removeUsers/getUsers', methods=['GET'])
+    def getUsers():
         try:
-            response = db.assignUserToBug(request.json.get('bugId'), request.json.get('selectedUserId'))
-            if (response == False):
-                raise ValueError("Could not update assigned user")
-            return jsonify({'message': 'User assigned to bug successfully'})
-        except Exception as e:
-            return jsonify({'error': 'Failed to perform database query', 'message': str(e)})
+            userList = db.getUsers()
+            return userList, 200
+        except:
+            return jsonify({'error': 'Failed to perform database query'}), 500
+        
 
-    @app.route('/bug/getAllCoders', methods=['GET'])
-    def getAllCoders():
+    # function for deleting user from database
+    @app.route('/removeUsers/deleteUser', methods=['POST'])
+    def deleteUser():
+        data = request.json
         try:
-            coderList = db.getAllCoders()
-            if (coderList == None):
-                raise ValueError("No coders found")
-            return jsonify(coderList)
-        except Exception as e:
-            return jsonify({'error': 'Failed to perform database query', 'message': str(e)})
-
+            if db.deleteUser(data.get('id')):
+                return jsonify({'message': 'User removed successfully'}), 200
+            else:
+                raise
+        except:
+            return jsonify({'error': 'Failed to perform database query'}), 500
+        
+        
 # ==================================================================================================================== #
 
 # =============================================HelperFunctions-Class================================================== #
@@ -680,8 +705,8 @@ class HelperFunctions(ABC):
     def checkBugInfo(bugData):
         if (HelperFunctions.checkBugTitleOrDescription(bugData.get('title')) == False 
             or HelperFunctions.checkBugTitleOrDescription(bugData.get('description')) == False
-            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('priority')) == False
-            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('importance')) == False
+            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('priority')) == False 
+            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('importance')) == False 
             or HelperFunctions.checkBugOpenCreationDate(bugData.get('openDate'), bugData.get('creationDate')) == False
             or HelperFunctions.checkBugCloseDate(bugData.get('openDate'), bugData.get('closeDate'))==False):
             return False
