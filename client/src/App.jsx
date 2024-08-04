@@ -12,6 +12,7 @@ import Admin from './Admin/admin.jsx';
 import EditUser from './EditUser.jsx'; 
 import Coder from './Coder/coder.jsx'; 
 import Tester from './Tester/tester.jsx'; 
+import UsersListPage from './UsersListPage.jsx';
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
         <Route path="/coder" element={<Coder />} />
         <Route path="/homepage" element={<HomePage />} />
         <Route path="/editUser" element={<EditUser />} />
+        <Route path="/removeUser" element={<UsersListPage />} />
         {/* Add more routes as needed */}
       </Routes>
     </Router>
