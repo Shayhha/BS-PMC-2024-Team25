@@ -290,6 +290,28 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return False
 
+
+    # fucntion for getting users from database
+    def getUsers(self):
+        try:
+            db.cursor.execute('SELECT * FROM Users WHERE userType <> \'Manager\' AND isDeleted = 0') 
+            users = db.cursor.fetchall()
+            userList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in users]
+            return jsonify(userList)
+        except Exception as e:
+            return jsonify(f'Error: {e}')
+        
+
+    # fucntion for deleting user from database
+    def deleteUser(self, userId):
+        try:
+            self.cursor.execute('UPDATE Users SET isDeleted = 1 WHERE userId = ?', (userId,)) 
+            self.connection.commit()
+            return True
+        except Exception as e:
+            return False
+        
+
     def getAllCoders(self):
         try:
             db.cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
