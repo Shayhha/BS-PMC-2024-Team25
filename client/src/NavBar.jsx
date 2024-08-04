@@ -110,7 +110,9 @@ function NavBar() {
     return (
         <header className="navbar_header">
             <div className="navbar_logo">
-                <span>BugFixer</span>
+                <Link to="/" className="navbar_logo_text">
+                    BugFixer
+                </Link>
             </div>
             {isLoggedIn && location.pathname !== '/login' && location.pathname !== '/register' && (
                 <span className="navbar_welcome">Welcome, {userName}</span>

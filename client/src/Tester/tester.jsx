@@ -6,6 +6,9 @@ import BugItem from '../BugItem';
 import axios from 'axios';
 
 function Tester() {
+    // Get today's date in YYYY-MM-DD format
+    const todaysDate = new Date().toISOString().split('T')[0];
+
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const [bugArray, setBugArray] = useState([]);
     const [formData, setFormData] = useState({
@@ -15,14 +18,16 @@ function Tester() {
         assignedTo: '',
         priority: '',
         importance: '',
-        creationDate: '',
-        openDate: ''
+        creationDate: todaysDate,
+        openDate: todaysDate
     });
     const [searchResult, setSearchResult] = useState("");
     const [sortOption, setSortOption] = useState('newest');
     const [oldestDate, setOldestDate] = useState(null);
     const [newestDate, setNewestDate] = useState(null);
     const [bugDateStatus, setBugDateStatus] = useState({});
+
+    
 
     // Function to parse date string
     const parseDate = (dateStr) => {
@@ -292,11 +297,11 @@ function Tester() {
                             </label>
                             <label>
                                 Creation Date:
-                                <input type="date" name="creationDate" value={formData.creationDate} onChange={handleChange} required/>
+                                <input type="date" name="creationDate" value={formData.creationDate} onChange={handleChange} readOnly/>
                             </label>
                             <label>
                                 Open Date:
-                                <input type="date" name="openDate" value={formData.openDate} onChange={handleChange} required/>
+                                <input type="date" name="openDate" value={formData.openDate} onChange={handleChange} min={formData.creationDate} />
                             </label>
                             <button type="submit" className="tester_popup_submit_button">Submit</button>
                         </form>
