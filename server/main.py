@@ -368,7 +368,44 @@ class SQLHelper(ABC):
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
         
                 
-    
+    # Function for pushing notifications for a specific user
+    def pushNotificationToUser(self, userId, message):
+        sql_query = """
+            INSERT INTO Notifications (userId, message, creationDate, creationHour, [read]) 
+            VALUES (?, ?, CONVERT(VARCHAR(10), GETDATE(), 120), CONVERT(VARCHAR(8), GETDATE(), 108), 0);
+        """
+        try:
+            self.cursor.execute(sql_query, (userId, message, ))
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f"An error occurred while pushing a notification to user: {e}")
+            return False
+        
+
+    # Function for pushing notifications for all user
+    def pushNotificationsToAllUsers(self, message):
+        sql_query = """
+            INSERT INTO Notifications (userId, message, creationDate, creationHour, [read])
+            SELECT 
+                userId, 
+                ?, 
+                CONVERT(VARCHAR(10), GETDATE(), 120), 
+                CONVERT(VARCHAR(8), GETDATE(), 108),  
+                0 
+            FROM 
+                Users
+            WHERE 
+                isDeleted = 0; 
+        """
+        try:
+            self.cursor.execute(sql_query, (message, ))
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f"An error occurred while pushing notifications to all users: {e}")
+            return False
+        
         
 # ==================================================================================================================== #
 
@@ -657,9 +694,7 @@ class BugFixer(ABC):
     @app.route('/notifications/markNotificationsAsRead', methods=['POST'])
     def mark_notifications_as_read():
         try:
-            data = request.json
-            print(f"Received data: {data}")  # Log incoming data for debugging
-            
+            data = request.json            
             notification_id = data.get('notificationId')
             read_status = data.get('read')
 
@@ -677,7 +712,33 @@ class BugFixer(ABC):
             return jsonify({'error': 'Internal Server Error'}), 500
 
 
-    
+    # Function for pushing notifications to a specific user 
+    @app.route('/notifications/pushNotificationToUser', methods=['POST'])
+    def pushNotificationToUser():
+        data = request.json 
+        userId = data['userId']
+        message = data['message']
+        try:
+            response = db.pushNotificationToUser(userId, message) 
+            if response:
+                return jsonify({'message': 'Notification pushed successfully to one user'}), 200
+            raise ValueError("Could not push notification to one user")
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+    # Function for pushing notifications to ALL users in the database 
+    @app.route('/notifications/pushNotificationsToAllUsers', methods=['POST'])
+    def pushNotificationsToAllUsers():
+        data = request.json 
+        message = data['message']
+        try:
+            response = db.pushNotificationsToAllUsers(message) 
+            if response:
+                return jsonify({'message': 'Notifications pushed successfully to all users'}), 200
+            raise ValueError("Could not push notifications to all users")
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        
 
 # ==================================================================================================================== #
 

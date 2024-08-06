@@ -110,10 +110,6 @@ function NavBar() {
         }
     };
 
-    // useEffect(() => {
-    //     fetchUserInfo();
-    // }, []);
-
     useEffect(() => {
         fetchUserInfo();
         if (isLoggedIn) {

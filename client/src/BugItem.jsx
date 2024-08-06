@@ -72,8 +72,20 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
             else {
                 console.error('Failed to update bug on backend');
             }
+            pushNotificationsToAllUsers("The following bug has been updated: " + title);
         } catch (error) {
             console.error('Failed to update bug:', error);
+        }
+    };
+
+    const pushNotificationsToAllUsers = async (notification_message) => {
+        try {
+            const response = await axios.post('http://localhost:8090/notifications/pushNotificationsToAllUsers', { message: notification_message });
+            if (response.data.error) {
+                console.error('Error pushing notification to all users:', response.data.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
     };
 
