@@ -146,20 +146,27 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
         return { selected_username: username.trim(), selected_userid: userId };
     };
 
-    // when the admin user assigns a user this function runs, updates the variables and the database
-    const handleAssignmentChange = (event) => {
+   // when the admin user assigns a user this function runs, updates the variables and the database
+   const handleAssignmentChange = (event) => {
         const { selected_username, selected_userid } = parseAssignedUserString(event.target.value);
+        handleDatabaseUpdates(selected_userid);
         setAssignedToCoder({
             uid: selected_userid,
             uname: selected_username
         });
-        assignUserInDatabase(selected_userid);
     };
-    
+
+    // Function for assigning the user in the database and sending him a notification
+    const handleDatabaseUpdates = async (userId) => {
+        await assignUserInDatabase(userId);
+        await pushNotification(userId, "You have been assign to the following bug: " + title);
+        return true;
+    }
+
     // given a userId, assign the user to the current bug in the database
     const assignUserInDatabase = async (userId) => {
         try {
-            const response = await axios.post('http://localhost:8090/bug/assignUserToBug', { selectedUserId: userId, bugId: bugId });
+            const response = await axios.post('http://localhost:8090/bug/assignUserToBug', { selectedUserId: userId, bugId });
             if (response.data.error) {
                 console.error('Error assigning user:', response.data.error);
             }
@@ -167,6 +174,19 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
             console.error('Error:', error);
         }
     };
+
+    const pushNotification = async (user_id, notification_message) => {
+        try {
+            const response = await axios.post('http://localhost:8090/notifications/pushNotificationToUser', { userId: user_id, message: notification_message });
+            if (response.data.error) {
+                console.error('Error pushing notification to user:', response.data.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+
 
 
     return (
