@@ -23,17 +23,6 @@
     font-weight: bold;
 }
 
-.navbar_logo_text {
-    color: whitesmoke;
-    font-size: 34px;
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
-
-.navbar_logo_text:hover {
-    color: #ffde59;
-}
-
 /* Welcome message style */
 .navbar_welcome {
     margin-left: 20px; /* Adjust margin as needed */
@@ -170,4 +159,84 @@
 /* Show dropdown when profile icon is hovered */
 .navbar_profile-icon:hover .navbar_dropdown {
     display: block;
+}
+
+/* Notification icon */
+.notification-icon {
+    width: 40px; /* Adjust size as needed */
+    height: 40px;
+    font-size: 1.5em;
+    color: #e4dede; /* Adjust color as needed */
+    margin-right: 55px; /* Adjust spacing between icon and text */
+}
+
+/* Notification badge */
+.notification-badge {
+    position: absolute;
+    top: -20px;
+    right: 30px;
+    background-color: red;
+    color: rgb(249, 248, 248);
+    border-radius: 50%;
+    padding: 0.6em 1em; /* Adjust padding to accommodate larger text */
+    font-size: 0.9em; /* Increase font size for a bigger number */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* Notification dropdown */
+.notification-dropdown {
+    position: absolute;
+    right: 80px;
+    top: 100%;
+    background: rgb(243, 239, 239);
+    border: 2px solid #ccc;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    width: 330px;
+    max-height: 550px;
+    overflow-y: auto;
+    padding:5px ;
+
+}
+
+/* Notification item */
+.notification-item {
+    padding: 15px;
+    width: 100%;
+    border-bottom: 1px solid #eae3e3;
+    box-sizing: border-box;
+
+
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+/* Close button for notifications */
+.notification-close {
+    display: block;
+    margin: 10px auto;
+    padding: 5px 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.notification-close:hover {
+    background: #0056b3;
+}
+.notification-item.unread {
+    background-color: white;
+    color: rgb(57, 55, 55);
+}
+
+.notification-item.read {
+    background-color: rgb(134, 129, 129);
+    color: rgb(246, 242, 242);
 }

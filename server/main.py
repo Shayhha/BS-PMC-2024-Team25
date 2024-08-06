@@ -59,7 +59,7 @@ class SQLHelper(ABC):
     # method for searching user in db, returns user obj if found else returns none
     def searchUser(self, email, password):
         try:
-            query = 'SELECT * FROM Users WHERE email = ? AND password = ? AND isDeleted = 0'
+            query = 'SELECT * FROM Users WHERE email = ? AND password = ?'
             passSha = HelperFunctions.toSHA256(password)
             self.cursor.execute(query, (email, passSha,))
             user = self.cursor.fetchone() # use fetchone to find single user 
@@ -191,8 +191,8 @@ class SQLHelper(ABC):
 
             print('Fetched bugs successfully from database')
             return jsonify(bugList)
-        except Exception as e:
-            return jsonify(f'Error: {e}')
+        except:
+            return jsonify('Failed to fetch bugs from database.')
 
 
     # insert given bug into the database     
@@ -290,28 +290,6 @@ class SQLHelper(ABC):
             print(f'Error: {e}')
             return False
 
-
-    # fucntion for getting users from database
-    def getUsers(self):
-        try:
-            db.cursor.execute('SELECT * FROM Users WHERE userType <> \'Manager\' AND isDeleted = 0') 
-            users = db.cursor.fetchall()
-            userList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in users]
-            return jsonify(userList)
-        except Exception as e:
-            return jsonify(f'Error: {e}')
-        
-
-    # fucntion for deleting user from database
-    def deleteUser(self, userId):
-        try:
-            self.cursor.execute('UPDATE Users SET isDeleted = 1 WHERE userId = ?', (userId,)) 
-            self.connection.commit()
-            return True
-        except Exception as e:
-            return False
-        
-
     def getAllCoders(self):
         try:
             db.cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
@@ -347,6 +325,49 @@ class SQLHelper(ABC):
                 return False
         except:
             return False
+        
+
+    # Function for getting notifications for a specific user
+    def getNotifications(self, user_id):
+        try:
+            # Establish a new connection for this specific
+            load_dotenv()  
+            connectionString = os.getenv('DB_CONNECTION_STRING')
+            with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
+                with connection.cursor() as cursor:
+                    cursor.execute('SELECT * FROM Notifications WHERE userId = ?', (user_id,))
+                    notifications = cursor.fetchall()
+                    notificationsList = [dict(zip([column[0] for column in cursor.description], row)) for row in notifications]
+                    return jsonify(notificationsList)
+        except Exception as e:
+            print(f"An error occurred while fetching notifications: {e}")
+            return False
+
+
+    def markNotificationsAsRead(self,notification_id, read_status):
+        try:
+            load_dotenv()
+            connectionString = os.getenv('DB_CONNECTION_STRING')
+            
+            with pyodbc.connect(connectionString) as connection:
+                with connection.cursor() as cursor:
+                    query = """
+                    UPDATE Notifications
+                    SET [read] = 1
+                    WHERE id = ? AND [read] = 0
+                    """
+                    cursor.execute(query, (notification_id,))
+                    connection.commit()
+                    
+                    if cursor.rowcount > 0:
+                        return True
+                    else:
+                        return False
+        except Exception as e:
+            print(f"An error occurred while updating notifications: {e}")
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        
+                
     
         
 # ==================================================================================================================== #
@@ -446,9 +467,9 @@ class BugFixer(ABC):
         global globalUser
         if globalUser:
             globalUser = None
-            return jsonify({'message': 'Logged out successfully'}), 200
+            return jsonify({'message': 'Logged out successfully'})
         else:
-            return jsonify({'error': 'No user is logged in'}), 500
+            return jsonify({'error': 'No user is logged in'})
         
 
     # function to getting logged in user 
@@ -511,9 +532,9 @@ class BugFixer(ABC):
     def getBugs():
         try:
             bugList = db.getBugs()
-            return bugList, 200
+            return bugList
         except:
-            return jsonify({'error': 'Failed to perform database query'}), 500
+            return jsonify({'error': 'Failed to perform database query'})
 
 
     # function that gets from the user new bug data (and adds to the database)
@@ -615,36 +636,49 @@ class BugFixer(ABC):
     def getAllCoders():
         try:
             coderList = db.getAllCoders()
-            if (coderList == None):
+            if coderList is None:
                 raise ValueError("No coders found")
             return jsonify(coderList)
         except Exception as e:
-            return jsonify({'error': 'Failed to perform database query', 'message': str(e)})
+            return jsonify({'error': 'Failed to perform database query', 'message': str(e)}), 500
+
+        
+    @app.route('/notifications/getNotifications', methods=['POST'])
+    def get_notifications():
+        data = request.json 
+        user_id = data['userId']
+        try:
+            notifications = db.getNotifications(user_id)
+            return notifications
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+
+    @app.route('/notifications/markNotificationsAsRead', methods=['POST'])
+    def mark_notifications_as_read():
+        try:
+            data = request.json
+            print(f"Received data: {data}")  # Log incoming data for debugging
+            
+            notification_id = data.get('notificationId')
+            read_status = data.get('read')
+
+            if not notification_id or read_status is None:
+                return jsonify({'error': 'Notification ID and read status are required'}), 400
+
+            result = db.markNotificationsAsRead(notification_id, read_status)
+            
+            if result:
+                return jsonify({'success': True}), 200
+            else:
+                return jsonify({'error': 'Notification not found or already marked as read'}), 404
+        except Exception as e:
+            print(f"Error: {e}")  # Log the error for debugging
+            return jsonify({'error': 'Internal Server Error'}), 500
+
+
     
 
-    # function for getting all users from database
-    @app.route('/removeUsers/getUsers', methods=['GET'])
-    def getUsers():
-        try:
-            userList = db.getUsers()
-            return userList, 200
-        except:
-            return jsonify({'error': 'Failed to perform database query'}), 500
-        
-
-    # function for deleting user from database
-    @app.route('/removeUsers/deleteUser', methods=['POST'])
-    def deleteUser():
-        data = request.json
-        try:
-            if db.deleteUser(data.get('id')):
-                return jsonify({'message': 'User removed successfully'}), 200
-            else:
-                raise
-        except:
-            return jsonify({'error': 'Failed to perform database query'}), 500
-        
-        
 # ==================================================================================================================== #
 
 # =============================================HelperFunctions-Class================================================== #
@@ -726,8 +760,8 @@ class HelperFunctions(ABC):
     def checkBugInfo(bugData):
         if (HelperFunctions.checkBugTitleOrDescription(bugData.get('title')) == False 
             or HelperFunctions.checkBugTitleOrDescription(bugData.get('description')) == False
-            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('priority')) == False 
-            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('importance')) == False 
+            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('priority')) == False
+            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('importance')) == False
             or HelperFunctions.checkBugOpenCreationDate(bugData.get('openDate'), bugData.get('creationDate')) == False
             or HelperFunctions.checkBugCloseDate(bugData.get('openDate'), bugData.get('closeDate'))==False):
             return False

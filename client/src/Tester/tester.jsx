@@ -15,7 +15,7 @@ function Tester() {
         title: '',
         description: '',
         status: 'New',
-        assignedTo: '',
+        assignedTo: 'None',
         priority: '',
         importance: '',
         creationDate: todaysDate,
@@ -27,17 +27,15 @@ function Tester() {
     const [newestDate, setNewestDate] = useState(null);
     const [bugDateStatus, setBugDateStatus] = useState({});
 
-    
-
     // Function to parse date string
     const parseDate = (dateStr) => {
-        const [day, month, year] = dateStr.split('/').map(num => parseInt(num, 10));
+        const [year, month, day] = dateStr.split('-').map(num => parseInt(num, 10));
         return new Date(year, month - 1, day);
     };
 
     // Function to calculate date extremes
     const calculateDateExtremes = () => {
-        if (bugArray.length === 0) return;
+        if (!Array.isArray(bugArray) || bugArray.length === 0) return;
 
         const dates = bugArray.map(bug => parseDate(bug.creationDate));
         const minDate = new Date(Math.min(...dates));
@@ -64,33 +62,37 @@ function Tester() {
 
     // Function to fetch and sort bugs
     const fetchBugs = async () => {
-        const response = await axios.get('http://localhost:8090/homePage/getBugs');
-        const sortedBugs = [...response.data].sort((a, b) => {
-            const dateA = parseDate(a.creationDate);
-            const dateB = parseDate(b.creationDate);
+        try {
+            const response = await axios.get('http://localhost:8090/homePage/getBugs');
+            const sortedBugs = [...response.data].sort((a, b) => {
+                const dateA = parseDate(a.creationDate);
+                const dateB = parseDate(b.creationDate);
 
-            if (sortOption === 'newest') {
-                return dateB - dateA;
-            } else if (sortOption === 'oldest') {
-                return dateA - dateB;
-            } else if (sortOption === 'priority') {
-                return b.priority - a.priority;
-            }
-            else if (sortOption === 'importance') {
-                return b.importance - a.importance;
-            }
-        });
+                if (sortOption === 'newest') {
+                    return dateB - dateA;
+                } else if (sortOption === 'oldest') {
+                    return dateA - dateB;
+                } else if (sortOption === 'priority') {
+                    return b.priority - a.priority;
+                } else if (sortOption === 'importance') {
+                    return b.importance - a.importance;
+                }
+                return 0;
+            });
 
-        setBugArray(sortedBugs);
-        calculateDateExtremes(); // Recalculate date extremes after sorting
+            setBugArray(sortedBugs);
+            calculateDateExtremes(); // Recalculate date extremes after sorting
+        } catch (error) {
+            console.error('Error fetching bugs:', error);
+        }
     };
 
     useEffect(() => {
         const fetchData = async () => {
             await fetchBugs();
             await fetchCoderUsers();
-          };
-          fetchData();
+        };
+        fetchData();
     }, [sortOption]);
 
     const handleImageClick = () => {
@@ -106,8 +108,8 @@ function Tester() {
             assignedTo: 'None',
             priority: '',
             importance: '',
-            creationDate: '',
-            openDate: ''
+            creationDate: todaysDate,
+            openDate: todaysDate
         });
     };
 
@@ -144,7 +146,10 @@ function Tester() {
 
         console.log(formattedData);
         try {
+            setButtonBackgroundColor("tester_popup_submit_button", "orange");
             const response = await axios.post('http://localhost:8090/homePage/addBug', formattedData);
+            await pushNotificationsToAllUsers("New bug was added to the system: " + formData.title);
+            await pushNotificationToAssignedUser(formattedData.assignedId, "You have been assign to a new bug: " + formData.title);
             setFormData({
                 title: '',
                 description: '',
@@ -152,23 +157,49 @@ function Tester() {
                 assignedTo: 'None',
                 priority: '',
                 importance: '',
-                creationDate: '',
-                openDate: ''
+                creationDate: todaysDate,
+                openDate: todaysDate
             });
-            await fetchBugs();
+            window.location.reload(); // Refresh the page
         } catch (error) {
-            if (error.response) {
-                console.log('Error data:', error.response.data);
-                console.log('Error status:', error.response.status);
-            } else if (error.request) {
-                console.log('Error request:', error.request);
-            } else {
-                console.log('Error message:', error.message);
-            }
-
+            console.error('Error submitting bug:', error);
             alert(`Error: ${error.response ? error.response.data.error : 'Unknown error occurred'}`);
+        } finally {
+            setButtonBackgroundColor("tester_popup_submit_button", "#007bff");
         }
     };
+
+    const pushNotificationsToAllUsers = async (notification_message) => {
+        try {
+            const response = await axios.post('http://localhost:8090/notifications/pushNotificationsToAllUsers', { message: notification_message });
+            if (response.data.error) {
+                console.error('Error pushing notification to all users:', response.data.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const pushNotificationToAssignedUser = async (user_id, notification_message) => {
+        try {
+            const response = await axios.post('http://localhost:8090/notifications/pushNotificationToUser', { userId: user_id, message: notification_message });
+            if (response.data.error) {
+                console.error('Error pushing notification to assigned user:', response.data.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    function setButtonBackgroundColor(selector, color) {
+        // Get all elements matching the specified selector
+        const elements = document.querySelectorAll(`.${selector}`);
+        
+        // Iterate through the elements and set their background color
+        elements.forEach(element => {
+            element.style.backgroundColor = color;
+        });
+    }
 
     const handleSearchChange = (e) => {
         setSearchResult(e.target.value);
@@ -180,7 +211,7 @@ function Tester() {
             const response = await axios.post('http://localhost:8090/homePage/search', { searchResult });
             setBugArray(response.data);
         } catch (error) {
-            console.error('Error sending data:', error);
+            console.error('Error searching bugs:', error);
         }
     };
 
@@ -191,7 +222,6 @@ function Tester() {
             console.error('Failed to update bug on backend:', error);
         }
     };
-
 
     const [coders, setCoders] = useState([]);
 
@@ -243,7 +273,7 @@ function Tester() {
                     onClick={handleImageClick}
                 />
                 
-                {bugArray.map(bug => (
+                {Array.isArray(bugArray) && bugArray.map(bug => (
                     <BugItem
                         key={bug.bugId}
                         bugId={bug.bugId}

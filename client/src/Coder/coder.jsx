@@ -7,33 +7,19 @@ import axios from 'axios';
 function Coder() {
     const [bugArray, setBugArray] = useState([]);
     const [searchResult, setSearchResult] = useState("");
-    const [sortOption, setSortOption] = useState('newest'); // default to 'newest'
+    const [sortOption, setSortOption] = useState('newest');
     const [oldestDate, setOldestDate] = useState(null);
     const [newestDate, setNewestDate] = useState(null);
     const [bugDateStatus, setBugDateStatus] = useState({});
+    
 
-    useEffect(() => {
-        // when the page loads fetch bugs and then fetch all Coder type users
-        const fetchData = async () => {
-            await fetchBugs();
-            await fetchCoderUsers();
-          };
-          fetchData();
-    }, []);
-
-    useEffect(() => {
-        calculateDateExtremes();
-    }, [bugArray]);
-
-    const fetchBugs = async () => {
-        try {
-            const response = await axios.get('http://localhost:8090/homePage/getBugs');
-            setBugArray(response.data);
-        } catch (error) {
-            console.error('Error fetching bugs:', error);
-        }
+    // Function to parse date string
+    const parseDate = (dateStr) => {
+        const [day, month, year] = dateStr.split('/').map(num => parseInt(num, 10));
+        return new Date(year, month - 1, day);
     };
 
+    // Function to calculate date extremes
     const calculateDateExtremes = () => {
         if (bugArray.length === 0) return;
 
@@ -60,11 +46,36 @@ function Coder() {
         setBugDateStatus(statusMap);
     };
 
-    const parseDate = (dateStr) => {
-        // Convert DD/MM/YYYY to YYYY-MM-DD
-        const [day, month, year] = dateStr.split('/').map(num => parseInt(num, 10));
-        return new Date(year, month - 1, day);
+    // Function to fetch and sort bugs
+    const fetchBugs = async () => {
+        const response = await axios.get('http://localhost:8090/homePage/getBugs');
+        const sortedBugs = [...response.data].sort((a, b) => {
+            const dateA = parseDate(a.creationDate);
+            const dateB = parseDate(b.creationDate);
+
+            if (sortOption === 'newest') {
+                return dateB - dateA;
+            } else if (sortOption === 'oldest') {
+                return dateA - dateB;
+            } else if (sortOption === 'priority') {
+                return b.priority - a.priority;
+            }
+            else if (sortOption === 'importance') {
+                return b.importance - a.importance;
+            }
+        });
+
+        setBugArray(sortedBugs);
+        calculateDateExtremes(); // Recalculate date extremes after sorting
     };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchBugs();
+            await fetchCoderUsers();
+        };
+        fetchData();
+    }, [sortOption]);
 
     const handleSearchChange = (e) => {
         setSearchResult(e.target.value);
@@ -89,23 +100,6 @@ function Coder() {
         }
     };
 
-    const sortedBugs = [...bugArray].sort((a, b) => {
-        const dateA = parseDate(a.creationDate);
-        const dateB = parseDate(b.creationDate);
-
-        if (sortOption === 'newest') {
-            return dateB - dateA;
-        } else if (sortOption === 'oldest') {
-            return dateA - dateB;
-        } else if (sortOption === 'priority') {
-            // Sort by priority, highest first
-            return b.priority - a.priority;
-        }
-        else if (sortOption === 'importance') {
-            return b.importance - a.importance;
-        }
-    });
-
     const [coders, setCoders] = useState([]);
 
     //gets all users of type Coder from the database to later display their names on bugs where they are assigned
@@ -122,27 +116,17 @@ function Coder() {
         }
     };
 
-    //helper function for splitting a string on the '-' character to get the username and userId on separate variables
-    const parseAssignedUserString = (assignedUserString) => {
-        const [username, userIdString] = assignedUserString.split(' - ');
-        const userId = parseInt(userIdString, 10); // Convert userId to an integer
-        return { selected_username: username.trim(), selected_userid: userId };
-    };  
-
-
     return (
         <div className="coder">
-            <div className="coder_search_container">
-                <input 
-                    type="text" 
-                    className="coder_search_input" 
-                    placeholder="Search..." 
-                    value={searchResult} 
-                    onChange={handleSearchChange}
-                />
-                
+            <div className="tester_search_container">
+                <input type="text" className="tester_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
+                <img src={searchIcon} className="tester_search_icon" alt="Search" onClick={handleSearch}/>
+            </div>
+
+            <div className="tester_inner_container">
+                {/* Combo Box for Sorting */}
                 <select 
-                    className="coder_sort_select" 
+                    className="tester_sort_select" 
                     value={sortOption} 
                     onChange={(e) => setSortOption(e.target.value)}
                 >
@@ -151,11 +135,8 @@ function Coder() {
                     <option value="priority">Priority</option>
                     <option value="importance">Importance</option>
                 </select>
-                
-            </div>
 
-            <div className="coder_inner_container">
-                {sortedBugs.map(bug => (
+                {bugArray.map(bug => (
                     <BugItem
                         key={bug.bugId}
                         bugId={bug.bugId}
@@ -170,7 +151,7 @@ function Coder() {
                         openDate={bug.openDate}
                         isAdmin={false} // Adjust this based on actual admin check
                         onSave={handleSave}
-                        dateStatus={bugDateStatus[bug.bugId] || 'none'}
+                        dateStatus={bugDateStatus[bug.bugId]}
                         listOfCoders={coders}
                     />
                 ))}
