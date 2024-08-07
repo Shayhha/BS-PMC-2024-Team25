@@ -558,12 +558,6 @@ class BugFixer(ABC):
             globalUser.userName = data.get('userName') # update globalUser's userName
             globalUser.fName = data.get('fName') # update globalUser's fName
             globalUser.lName = data.get('lName') # update globalUser's lName
-            if 'email' in data:
-                if db.updateUserEmail(globalUser.userId, data.get('email')):
-                    globalUser.email = data.get('email')  # update globalUser's email
-                    return jsonify({'success': 'Changed user info and email successfully'}), 200
-                else:
-                    return jsonify({'error': 'Failed to update email'}), 500
             return jsonify({'success': 'Changed user info successfully'}), 200
         else:
             return jsonify({'error': 'Failed to perform database query'}), 500
