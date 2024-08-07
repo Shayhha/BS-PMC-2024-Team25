@@ -14,6 +14,7 @@ function NavBar() {
     });
     const [showEditUser, setShowEditUser] = useState(false);
     const [userName, setUserName] = useState('');
+    const [userType, setUserType] = useState(''); 
     const [userId, setUserId] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [notifications, setNotifications] = useState([]);
@@ -68,6 +69,7 @@ function NavBar() {
             } else if (response.ok) {
                 const data = await response.json();
                 setUserName(data.userName);
+                setUserType(data.userType); 
                 setUserId(data.userId);
                 setShowEditUser(true);
                 setIsLoggedIn(true);
@@ -227,6 +229,11 @@ function NavBar() {
                                         {showEditUser && (
                                             <Link to="/edituser" className="navbar_dropdown-button" role="menuitem">
                                                 Edit User
+                                            </Link>
+                                        )}
+                                        {userType === 'Manager' && (
+                                            <Link to="/removeUser" className="navbar_dropdown-button" role="menuitem">
+                                                Remove User
                                             </Link>
                                         )}
                                     </div>
