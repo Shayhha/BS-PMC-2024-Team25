@@ -133,7 +133,7 @@ function EditUser() {
 
         try {
             const response = await axios.post('http://localhost:8090/userSettings/changeUserInfo', leftFormData);
-            setOldData(leftFormData) //set our oldData to be newly set data
+            setOldData(leftFormData); //set our oldData to be newly set data
             console.log('User info updated successfully:', response.data);
             alert(`User info updated successfully.`);
         } 

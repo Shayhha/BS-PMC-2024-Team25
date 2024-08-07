@@ -473,9 +473,12 @@ class BugFixer(ABC):
         if not HelperFunctions.checkUserName(data.get('userName')) or not HelperFunctions.checkFname(data.get('fName')) or not HelperFunctions.checkLname(data.get('lName')):
             return jsonify({'error': 'User info parameters are invalid.'}), 500 
         if db.updateUserInfo(globalUser.userId, data.get('userName'), data.get('fName'), data.get('lName')):
+            globalUser.userName = data.get('userName') # update globalUser's userName
+            globalUser.fName = data.get('fName') # update globalUser's fName
+            globalUser.lName = data.get('lName') # update globalUser's lName
             if 'email' in data:
                 if db.updateUserEmail(globalUser.userId, data.get('email')):
-                    globalUser.email = data.get('email')  # Update globalUser object
+                    globalUser.email = data.get('email')  # update globalUser's email
                     return jsonify({'success': 'Changed user info and email successfully'}), 200
                 else:
                     return jsonify({'error': 'Failed to update email'}), 500
