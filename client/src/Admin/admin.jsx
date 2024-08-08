@@ -10,6 +10,7 @@ function Admin() {
     const [coders, setCoders] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [sortOption, setSortOption] = useState('newest');
 
     const retryFetch = async (fetchFunction, retries = 3) => {
         let lastError = null;
@@ -46,11 +47,29 @@ function Admin() {
                 }
             }
         };
-    
+
         setLoading(true);
         try {
             const bugs = await fetchFunction(); // Fetch bugs with retry
-            setBugArray(bugs);
+
+            // Sort bugs based on the selected sort option
+            const sortedBugs = [...bugs].sort((a, b) => {
+                const dateA = new Date(a.creationDate);
+                const dateB = new Date(b.creationDate);
+
+                if (sortOption === 'newest') {
+                    return dateB - dateA;
+                } else if (sortOption === 'oldest') {
+                    return dateA - dateB;
+                } else if (sortOption === 'priority') {
+                    return b.priority - a.priority;
+                } else if (sortOption === 'importance') {
+                    return b.importance - a.importance;
+                }
+                return 0;
+            });
+
+            setBugArray(sortedBugs);
             setError(null); // Clear error on success
         } catch (error) {
             console.error('Error fetching bugs:', error);
@@ -59,8 +78,7 @@ function Admin() {
         } finally {
             setLoading(false);
         }
-    }, []);
-    
+    }, [sortOption]);
 
     const fetchCoderUsers = useCallback(async () => {
         const fetchFunction = async () => {
@@ -94,7 +112,8 @@ function Admin() {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8090/homePage/search', { searchResult });            if (Array.isArray(response.data)) {
+            const response = await axios.post('http://localhost:8090/homePage/search', { searchResult });
+            if (Array.isArray(response.data)) {
                 setBugArray(response.data);
             } else {
                 console.error('Response is not an array:', response.data);
@@ -109,20 +128,6 @@ function Admin() {
         }
     }, [searchResult]);
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         setLoading(true);
-    //         try {
-    //             await Promise.all([fetchBugs(), fetchCoderUsers()]);
-    //         } catch (error) {
-    //             console.error('Error during initial data fetch:', error);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-    //     fetchData();
-    // }, [fetchBugs, fetchCoderUsers]);
-
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
@@ -130,7 +135,7 @@ function Admin() {
             await fetchCoderUsers();
         };
         fetchData();
-    }, []);
+    }, [fetchBugs, fetchCoderUsers]);
 
     return (
         <div className="admin">
@@ -146,6 +151,19 @@ function Admin() {
                     <img src={searchIcon} className="admin_search_icon" alt="Search" />
                 </button>
             </form>
+
+            <div className="admin_sort_container">
+                <select 
+                    className="admin_sort_select" 
+                    value={sortOption} 
+                    onChange={(e) => setSortOption(e.target.value)}
+                >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="priority">Priority</option>
+                    <option value="importance">Importance</option>
+                </select>
+            </div>
 
             {loading && <div>Loading...</div>}
             {error && <div className="error">{error}</div>}
