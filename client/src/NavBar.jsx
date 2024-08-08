@@ -36,7 +36,7 @@ function NavBar() {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch('http://localhost:5000/homepage/logout', {
+            const response = await fetch('http://localhost:8090/homepage/logout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -44,8 +44,17 @@ function NavBar() {
             });
             if (response.ok) {
                 setIsLoggedIn(false);
+                setUserName('');
+                setUserType('');
+                setUserId('');
                 setDropdownVisible({ login: false, settings: false, logout: false, notifications: false });
+                
+                // Manipulate browser history and redirect
+                for (let i = 0; i < history.length; i++) {
+                    history.pushState(null, null, '/login');
+                }
                 window.location.href = '/login';
+                
             } else {
                 console.error('Failed to logout:', response.statusText);
             }
@@ -138,9 +147,26 @@ function NavBar() {
     return (
         <header className="navbar_header">
             <div className="navbar_logo">
-                <Link to="/" className="navbar_logo_text">
-                    BugFixer
-                 </Link>
+                {isLoggedIn && userType === "Coder" && (
+                    <Link to="/coder" className="navbar_logo_text">
+                        BugFixer
+                    </Link>
+                )}
+                {isLoggedIn && userType === "Tester" && (
+                    <Link to="/tester" className="navbar_logo_text">
+                        BugFixer
+                    </Link>
+                )}
+                {isLoggedIn && userType === "Manager" && (
+                    <Link to="/admin" className="navbar_logo_text">
+                        BugFixer
+                    </Link>
+                )}
+                {!isLoggedIn && (
+                    <Link to="/" className="navbar_logo_text">
+                        BugFixer
+                    </Link>
+                )}
             </div>
             {isLoggedIn && location.pathname !== '/login' && location.pathname !== '/register' && (
                 <span className="navbar_welcome">Welcome, {userName}</span>
@@ -251,14 +277,9 @@ function NavBar() {
                                 />
                                 {dropdownVisible.logout && (
                                     <div className="navbar_dropdown" role="menu">
-                                        <a
-                                            href="/login"
-                                            className="navbar_dropdown-button"
-                                            role="menuitem"
-                                            onClick={handleLogout}
-                                        >
+                                        <Link onClick={handleLogout} to="/login" className="navbar_dropdown-button" role="menuitem" >
                                             Logout
-                                        </a>
+                                        </Link>
                                     </div>
                                 )}
                             </div>
