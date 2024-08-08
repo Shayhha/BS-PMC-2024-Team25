@@ -3,7 +3,7 @@ import './BugItem.css';
 import trashIcon from './assets/trashIcon.png';
 import axios from 'axios';
 
-function BugItem({bugId, title, description, status, assignedUserId, assignedUsername, priority, importance, creationDate, openDate, isAdmin, onSave, listOfCoders}) {
+function BugItem({bugId, title, description, status, assignedUserId, assignedUsername, priority, importance, creationDate, openDate, isAdmin, onSave, listOfCoders, update_counter, update_dates}) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedBug, setEditedBug] = useState({
         bugId,
@@ -18,6 +18,9 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
         openDate, 
         isDescChanged: '0'
     });
+
+    const [updateCounter, setUpdateCounter] = useState(update_counter || 0);
+    const [updateDates, setUpdateDates] = useState(update_dates || []);
 
     const statusOptions = ["In Progress", "New", "Done"]; // Options for status dropdown
 
@@ -47,29 +50,27 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
     const handleSaveClick = async () => {
         setIsEditing(false);
 
-        //check if the description has changed
         if (editedBug.bugDesc !== description) 
-            editedBug.isDescChanged = '1'; //indicate that description has been changed
+            editedBug.isDescChanged = '1'; 
         else
-            editedBug.isDescChanged = '0'; //indicate that description hasn't changed
-
-        console.log(editedBug.isDescChanged);
-        console.log(editedBug.bugDesc);
+            editedBug.isDescChanged = '0'; 
 
         try {
-            //adding additional information to the editedBug var before sending it to the database
             editedBug['assignedName'] = assignedToCoder.uname;
             editedBug['assignedId'] = assignedToCoder.uid === 0 ? null : assignedToCoder.uid;
-  
-            //then after the assignedId is updated we can update the bug safely 
+            
+            editedBug.update_counter = updateCounter + 1;
+            editedBug.update_dates = [...updateDates, new Date().toISOString()];
+
             const response = await axios.post('http://localhost:8090/homePage/updateBug', editedBug);
             if (!response.data.error) {
                 response.data['assignedUsername'] = editedBug['assignedName'];
                 response.data['assignedId'] = editedBug['assignedId'] === null ? 0 : assignedToCoder.uid;
-                onSave(response.data); // Update locally in the frontend if backend update was successful
+                onSave(response.data); 
+                setUpdateCounter(updateCounter + 1);
+                setUpdateDates([...updateDates, new Date().toISOString()]);
                 console.log('Bug updated successfully');
-            } 
-            else {
+            } else {
                 console.error('Failed to update bug on backend');
             }
             pushNotificationsToAllUsers("The following bug has been updated: " + title);
@@ -89,7 +90,7 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
         }
     };
 
-    const handleCancelClick = async () => {
+    const handleCancelClick = () => {
         setIsEditing(false);
     };
 
@@ -106,7 +107,6 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
         }
     };
 
-    // Function to determine the color based on the value
     const getPriorityAndImportanceColor = (value) => {
         if (value <= 4) {
             return 'green';
@@ -119,16 +119,13 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
         }
     };
 
-    //this variable holds the userId and the username of the user
     const [assignedToCoder, setAssignedToCoder] = useState({
         uid: 0,
         uname: ""
     });
 
     useEffect(() => {
-        // only assign the assignedToCoder variable if its the first time the component loads
         if (assignedToCoder.uname === "" && listOfCoders) {
-            //findAndAssignCoder(assignedUserName);
             setAssignedToCoder({
                 uid: assignedUserId,
                 uname: assignedUsername
@@ -136,18 +133,16 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
         }
     }, [assignedUserId, assignedUsername, listOfCoders]);
 
-    //helper function for splitting a string on the '-' character to get the username and userId on separate variables
     const parseAssignedUserString = (assignedUserString) => {
         if (assignedUserString === "Unassigned") 
             return { selected_username: "Unassigned", selected_userid: null };
         
         const [username, userIdString] = assignedUserString.split(' - ');
-        const userId = parseInt(userIdString, 10); // Convert userId to an integer
+        const userId = parseInt(userIdString, 10);
         return { selected_username: username.trim(), selected_userid: userId };
     };
 
-   // when the admin user assigns a user this function runs, updates the variables and the database
-   const handleAssignmentChange = (event) => {
+    const handleAssignmentChange = (event) => {
         const { selected_username, selected_userid } = parseAssignedUserString(event.target.value);
         handleDatabaseUpdates(selected_userid);
         setAssignedToCoder({
@@ -156,14 +151,12 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
         });
     };
 
-    // Function for assigning the user in the database and sending him a notification
     const handleDatabaseUpdates = async (userId) => {
         await assignUserInDatabase(userId);
-        await pushNotification(userId, "You have been assign to the following bug: " + title);
+        await pushNotification(userId, "You have been assigned to the following bug: " + title);
         return true;
     }
 
-    // given a userId, assign the user to the current bug in the database
     const assignUserInDatabase = async (userId) => {
         try {
             const response = await axios.post('http://localhost:8090/bug/assignUserToBug', { selectedUserId: userId, bugId });
@@ -186,9 +179,6 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
         }
     };
 
-
-
-
     return (
         <div className="bug-item-div" style={{ borderColor: getStatusColor(status) }}>
             {isEditing ? (
@@ -210,8 +200,7 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
                             name="status" 
                             value={editedBug.status} 
                             onChange={handleInputChange} 
-                            className="bug-item-select" // Added className for consistent styling
-                        >
+                            className="bug-item-select">
                             {statusOptions.map(option => (
                                 <option key={option} value={option}>{option}</option>
                             ))}
@@ -225,8 +214,7 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
                             name="priority" 
                             value={editedBug.priority} 
                             onChange={handleInputChange} 
-                            className="bug-item-input" // Added className for consistent styling
-                        />
+                            className="bug-item-input" />
                     </div>
                     <div className="bug-item-row">
                         <label htmlFor="importance">Importance:</label>
@@ -236,8 +224,7 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
                             name="importance" 
                             value={editedBug.importance} 
                             onChange={handleInputChange} 
-                            className="bug-item-input" // Added className for consistent styling
-                        />
+                            className="bug-item-input" />
                     </div>
                     <div className="bug-item-row">
                         <div className="bug-item-label">Creation Date:</div>
@@ -275,13 +262,13 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
                     ) : (
                         <div className="bug-item-info"> 
                             <div className="bug-item-label">Assigned To:</div>
-                            <p className="bug-item-assigned-p">{assignedUserId === 0 ? `${assignedUsername}` : `${assignedUsername} - ${assignedUserId}`}</p> {/**`${assignedUsername} - ${assignedUserId}` */}
+                            <p className="bug-item-assigned-p">{assignedUserId === 0 ? `${assignedUsername}` : `${assignedUsername} - ${assignedUserId}`}</p>
                         </div> 
                     )}
     
                     <div className="bug-item-info">
                         <div className="bug-item-label">Priority:</div>
-                        <p className="bug-item-priority"  style={{ color: getPriorityAndImportanceColor(priority) }}>{priority}</p>
+                        <p className="bug-item-priority" style={{ color: getPriorityAndImportanceColor(priority) }}>{priority}</p>
                     </div>
                     <div className="bug-item-info">
                         <div className="bug-item-label">Importance:</div>
@@ -295,11 +282,25 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
                         <div className="bug-item-label">Open Date:</div>
                         <p className="bug-item-open-date">{openDate}</p>
                     </div>
-                    {(isAdmin && (status === "Done")) ? (
-                        <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" ></img>
-                    ) : (
-                        <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>
-                    )}
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Update Count:</div>
+                        <p>{updateCounter}</p>
+                    </div>
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Update Dates:</div>
+                        <ul>
+                            {updateDates.slice(-5).map((date, index) => (
+                                <li key={index}>{new Date(date).toLocaleString()}</li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="button-container">
+                        {(isAdmin && (status === "Done")) ? (
+                            <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" ></img>
+                        ) : (
+                            <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
