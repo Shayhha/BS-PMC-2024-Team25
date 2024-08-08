@@ -314,11 +314,16 @@ class SQLHelper(ABC):
 
     def getAllCoders(self):
         try:
-            db.cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
-            users = db.cursor.fetchall()
-            print('Fetched data successfully from database')
-            userList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in users]
-            return userList
+            # Establish a new connection for this specific
+            load_dotenv()  
+            connectionString = os.getenv('DB_CONNECTION_STRING')
+            with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
+                with connection.cursor() as cursor:
+                    cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
+                    users = cursor.fetchall()
+                    print('Fetched data successfully from database')
+                    userList = [dict(zip([column[0] for column in cursor.description], row)) for row in users]
+                    return userList
         except:
             return False
         
