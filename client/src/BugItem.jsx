@@ -99,7 +99,7 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
             case 'Done':
                 return 'green';
             case 'In Progress':
-                return 'yellow';
+                return 'purple';
             case 'New':
                 return 'red';
             default:
@@ -179,8 +179,10 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
         }
     };
 
+    const cardClass = (priority > 7 || importance > 7) ? 'bug-item-div high-priority' : 'bug-item-div';
+
     return (
-        <div className="bug-item-div" style={{ borderColor: getStatusColor(status) }}>
+        <div className={cardClass}>
             {isEditing ? (
                 <div className="bug-item-editing">
                     <div className="bug-item-row-textarea">

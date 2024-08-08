@@ -10,7 +10,11 @@
     margin: 30px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-radius: 8px;
-    position: relative; /* to position the remove button */
+    position: relative;
+}
+
+.high-priority {
+    border-color: red; /* קו גבול אדום עבור עדיפות גבוהה/חשיבות גבוהה */
 }
 
 .bug-item-title {
