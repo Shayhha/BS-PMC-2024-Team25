@@ -1,7 +1,7 @@
 /* Container for the entire navbar */
 .navbar_header {
     display: flex;
-    justify-content: space-between;
+    justify-content: start;
     align-items: center;
     background-color: #3c3567;
     padding: 5px 20px;
@@ -45,45 +45,16 @@
     font-size: 30px;   /* Optional: Adjust font size if needed */
 }
 
-
-
 /* Centering navigation links */
 .navbar_nav {
     flex: 1;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: start;
+    align-items: start;
 }
 
-/* Navigation links */
-.navbar_nav a {
-    position: relative;
-    color: white;
-    margin: 0 15px;
-    padding: 0 15px;
-    text-decoration: none;
-    font-size: 18px;
-    transition: color 0.3s ease;
-}
-
-/* Underline effect on hover */
-.navbar_nav a::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -2px;
-    height: 2px;
-    background: transparent;
-    transition: background-color 0.3s ease;
-}
-
-.navbar_nav a:hover {
-    color: #ffde59;
-}
-
-.navbar_nav a:hover::after {
-    background-color: #ffde59;
+.navbar_profile {
+    margin-left: auto;
 }
 
 /* Profile icons container */
