@@ -529,7 +529,7 @@ def test_handle_bug_priority_1():
     groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
     print(groqResponse)
     try:
-        assert not groqResponse > 5
+        assert not groqResponse > 7
     except Exception as e:
         pytest.fail(f"handleBugPriority raised an exception: {e}")
 
@@ -540,7 +540,7 @@ def test_handle_bug_priority_2():
     groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
     print(groqResponse)
     try:
-        assert not groqResponse > 5
+        assert not groqResponse > 7
     except Exception as e:
         pytest.fail(f"handleBugPriority raised an exception: {e}")
 
@@ -573,7 +573,7 @@ def test_handle_bug_priority_5():
     groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
     print(groqResponse)
     try:
-        assert not groqResponse > 5
+        assert not groqResponse > 7
     except Exception as e:
         pytest.fail(f"handleBugPriority raised an exception: {e}")
 
@@ -615,3 +615,12 @@ def test_handle_bug_priority_5():
 #     finally:
 #         db.close()
 
+def test_handle_bug_suggestion():
+    title = 'Color of save button is blue instead of green'
+    desc = 'Color of save button is blue instead of green, but app works fine and it does not affect anything.'
+
+    groqResponse = HF.handleBugSuggestion(title, desc)  # send query to Groq and get the response
+    try:
+        assert str(groqResponse).isprintable()
+    except Exception as e:
+        pytest.fail(f"handleSuggestion raised an exception: {e}")

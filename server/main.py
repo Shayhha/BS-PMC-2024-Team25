@@ -196,18 +196,16 @@ class SQLHelper(ABC):
 
 
     # insert given bug into the database     
-    from datetime import datetime
-
-    def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate):
+    def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest):
         try:
             # SQL insert statement
             insert_sql = """
-            INSERT INTO Bugs (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO Bugs (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
 
             # Execute the insert statement
-            self.cursor.execute(insert_sql, (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate))
+            self.cursor.execute(insert_sql, (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest))
 
             # Commit the transaction
             self.connection.commit()
@@ -215,11 +213,6 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f"Error occurred: {e}")
             raise
-
-
-  
-
-
 
 
     #updating email in edituser
@@ -248,7 +241,8 @@ class SQLHelper(ABC):
              raise
 
 
-    def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None):
+    def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None, category=None, bugSuggest=None):
+
         try:
             fields = []
             values = []
@@ -276,6 +270,14 @@ class SQLHelper(ABC):
             if assignedId is not None:
                 fields.append("assignedId = ?")
                 values.append(assignedId)
+
+            if category is not None:
+                fields.append("category = ?")
+                values.append(category)
+
+            if bugSuggest is not None:
+                fields.append("bugSuggest = ?")
+                values.append(bugSuggest)
 
             values.append(bug_id)
 
@@ -616,6 +618,8 @@ class BugFixer(ABC):
         # get bug importance and priority rating from Groq AI
         bugImportance = HelperFunctions.handleBugImportance(data.get('title'), data.get('description'))
         bugPriority = HelperFunctions.handleBugPriority(data.get('title'),data.get('description'))
+        bugSuggestion = HelperFunctions.handleBugSuggestion(data.get('title'),data.get('description'))
+        print(bugSuggestion)
 
         # add the priority and importance to the bug after the AI classification
         data["priority"] = bugPriority
@@ -636,14 +640,15 @@ class BugFixer(ABC):
                 0, 
                 data.get('creationDate'), 
                 data.get('openDate'), 
-                data.get('closeDate')
-                )
+                None,
+                'Functionality', #! remebr to remove
+                bugSuggestion)
             
             return jsonify({'message': 'Bug data received successfully'}), 200
         except Exception as e:
             print(f"Error occurred: {e}")
             return jsonify({'error': 'Failed to perform database query'}), 500
-        
+
 
     # function for removing bugs, used only by Manager type users
     @app.route('/homePage/removeBug', methods=['POST'])
@@ -657,7 +662,7 @@ class BugFixer(ABC):
             return jsonify({'error': 'failed to perform database query'}), 500
 
 
-    # function for updating bugs information using AI
+        # function for updating bugs information using AI
     @app.route('/homePage/updateBug', methods=['POST'])
     def updateBug():
         data = request.json  
@@ -671,15 +676,16 @@ class BugFixer(ABC):
         assignedId = data.get('assignedId')
         creationDate = data.get('creationDate')
         openDate = data.get('openDate')
-        closeDate=data.get('closeDate')
+        category = 'Functionality' #! remember to remove
 
         # get bug importance and priority rating from Groq AI
         if data.get('isDescChanged') == '1':
             importance = HelperFunctions.handleBugImportance(bugName, bugDesc)
             priority = HelperFunctions.handleBugPriority(bugName, bugDesc)
+            bugSuggestion = HelperFunctions.handleBugSuggestion(data.get('title'),data.get('description'))
 
         # update database with new values
-        if db.updateBug(bugId, bugName, bugDesc, status, importance, priority, assignedId):
+        if db.updateBug(bugId, bugName, bugDesc, status, importance, priority, assignedId, category, bugSuggestion):
              return jsonify({
                 'bugId': bugId,
                 'bugName': bugName,
@@ -690,7 +696,8 @@ class BugFixer(ABC):
                 'importance': importance,
                 'creationDate': creationDate,
                 'openDate': openDate,
-                'closeDate':closeDate
+                'category': category, 
+                'bugSuggest': bugSuggestion
                 }), 200
         else:
             return jsonify({'error': 'Failed to update bug'}), 500
@@ -788,9 +795,6 @@ class BugFixer(ABC):
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
 
   
-    
-
-
     # Function for pushing notifications to ALL users in the database 
     @app.route('/notifications/pushNotificationsToAllUsers', methods=['POST'])
     def pushNotificationsToAllUsers():
@@ -995,6 +999,26 @@ class HelperFunctions(ABC):
         #else if we falied to gain a valid response from Groq AI we return a random integer
         return randint(1, 10)
 
+    
+        #function for receving suggestion for bugs by using Groq AI
+    def handleBugSuggestion(title, description):
+        groqResponse = None
+        # query for Groq AI 
+        suggestQuery = (
+            f'Your task is to suggest a solution to fixing a bug in a certin application. '
+            f'Please respond with a text no longer then 2 sentences. '
+            f'Please provide a direct answer without any introductory or closing remarks.\n\n'
+            f'Bug Title: {title}\n'
+            f'Description: {description}\n\n'
+            f'Response: Suggest how the coder can fix this certin bug.\n'
+        )
+
+        groqResponse = HelperFunctions.sendQueryToGroq(suggestQuery) # send query to Groq and get the response
+        if groqResponse is not None: # if the response valid 
+            return groqResponse
+        else: #else we return empty string
+            return ''
+        
 
     # example function for testing Jenkins
     def add(a, b):

@@ -20,7 +20,8 @@ function Tester() {
         importance: '',
         creationDate: todaysDate,
         openDate: todaysDate,
-        closeDate:todaysDate
+        closeDate:todaysDate,
+        suggestion: ''
     });
     const [searchResult, setSearchResult] = useState("");
     const [sortOption, setSortOption] = useState('newest');
@@ -111,7 +112,8 @@ function Tester() {
             importance: '',
             creationDate: todaysDate,
             openDate: todaysDate,
-            closeDate:todaysDate
+            closeDate:todaysDate, 
+            suggestion: ''
         });
     };
 
@@ -163,7 +165,8 @@ function Tester() {
                 importance: '',
                 creationDate: todaysDate,
                 openDate: todaysDate,
-                closeDate:todaysDate
+                closeDate:todaysDate,
+                suggestion: ''
             });
             window.location.reload(); // Refresh the page
         } catch (error) {
@@ -284,6 +287,7 @@ function Tester() {
                         bugId={bug.bugId}
                         title={bug.bugName}
                         description={bug.bugDesc}
+                        suggestion={bug.bugSuggest}
                         status={bug.status}
                         assignedUserId={bug.assignedId} 
                         assignedUsername={bug.assignedUsername} 
