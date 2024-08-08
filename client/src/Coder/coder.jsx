@@ -142,6 +142,7 @@ function Coder() {
                         bugId={bug.bugId}
                         title={bug.bugName}
                         description={bug.bugDesc}
+                        suggestion={bug.bugSuggest}
                         status={bug.status}
                         assignedUserId={bug.assignedId} 
                         assignedUsername={bug.assignedUsername} 

@@ -4,7 +4,7 @@ import trashIcon from './assets/trashIcon.png';
 import axios from 'axios';
 
 function BugItem({
-    bugId, title, description, status, assignedUserId, assignedUsername, 
+    bugId, title, description, suggestion, status, assignedUserId, assignedUsername, 
     priority, importance, creationDate, openDate, closeDate, isAdmin, onSave, 
     listOfCoders, update_counter, update_dates
 }) {
@@ -208,7 +208,7 @@ function BugItem({
             {isEditing ? (
                 <div className="bug-item-editing">
                     <div className="bug-item-row-textarea">
-                        <label htmlFor="bugDesc">Bug Description:</label>
+                        <label htmlFor="bugDesc">Description:</label>
                         <textarea 
                             id="bugDesc" 
                             name="bugDesc"  
@@ -271,70 +271,75 @@ function BugItem({
                         <p className="bug-item-title">{title}</p>
                     </div>
                     <div className="bug-item-info">
+                    <div className="bug-item-label">Description:</div>
                         <p className="bug-item-description">{description}</p>
                     </div>
                     <div className="bug-item-info">
+                    <div className="bug-item-label">Suggestion:</div>
+                        <p className="bug-item-description">{suggestion}</p>
+                    </div>
+                    <div className="bug-item-info">
                         <p className="bug-item-status" style={{ backgroundColor: getStatusColor(status) }}>{status}</p>
-                    </div>
-
-                    {(isAdmin && listOfCoders) ? (
-                        <div className="bug-item-info"> 
-                            <div className="bug-item-label">Assigned To:</div>
-                            <select name="assignedTo" className="bug-item-assigned-combobox" value={`${assignedToCoder.uname} - ${assignedToCoder.uid}`} onChange={handleAssignmentChange} required>
-                                <option value="Unassigned">Unassigned</option>
-                                {listOfCoders.map(user => (
-                                    <option key={user.userId} value={`${user.userName} - ${user.userId}`}>{`${user.userName} - ${user.userId}`}</option>
-                                ))}
-                            </select>
-                        </div>  
-                    ) : (
-                        <div className="bug-item-info"> 
-                            <div className="bug-item-label">Assigned To:</div>
-                            <p className="bug-item-assigned-p">{assignedUserId === 0 ? `${assignedUsername}` : `${assignedUsername} - ${assignedUserId}`}</p>
-                        </div> 
-                    )}
-    
-                    <div className="bug-item-info">
-                        <div className="bug-item-label">Priority:</div>
-                        <p className="bug-item-priority" style={{ color: getPriorityAndImportanceColor(priority) }}>{priority}</p>
-                    </div>
-                    <div className="bug-item-info">
-                        <div className="bug-item-label">Importance:</div>
-                        <p className="bug-item-importance" style={{ color: getPriorityAndImportanceColor(importance) }}>{importance}</p>
-                    </div>
-                    <div className="bug-item-info">
-                        <div className="bug-item-label">Creation Date:</div>
-                        <p className="bug-item-creation-date">{creationDate}</p>
-                    </div>
-                    <div className="bug-item-info">
-                        <div className="bug-item-label">Open Date:</div>
-                        <p className="bug-item-open-date">{openDate}</p>
-                    </div>
-                    <div className="bug-item-info">
-                        <div className="bug-item-label">Deadline:</div>
-                        <p className="bug-item-open-date">{closeDate}</p>
-                    </div>
-                    <div className="bug-item-info">
-                        <div className="bug-item-label">Update Count:</div>
-                        <p>{updateCounter}</p>
-                    </div>
-                    <div className="bug-item-info">
-                        <div className="bug-item-label">Update Dates:</div>
-                        <ul>
-                            {updateDates.slice(-5).map((date, index) => (
-                                <li key={index}>{new Date(date).toLocaleString()}</li>
-                            ))}
-                        </ul>
-                    </div>
-                    <div className="button-container">
-                        {(isAdmin && (status === "Done")) ? (
-                            <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" />
-                        ) : (
-                            <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>
-                        )}
-                    </div>
                 </div>
-            )}
+
+                {(isAdmin && listOfCoders) ? (
+                    <div className="bug-item-info"> 
+                        <div className="bug-item-label">Assigned To:</div>
+                        <select name="assignedTo" className="bug-item-assigned-combobox" value={`${assignedToCoder.uname} - ${assignedToCoder.uid}`} onChange={handleAssignmentChange} required>
+                            <option value="Unassigned">Unassigned</option>
+                            {listOfCoders.map(user => (
+                                <option key={user.userId} value={`${user.userName} - ${user.userId}`}>{`${user.userName} - ${user.userId}`}</option>
+                            ))}
+                        </select>
+                    </div>  
+                ) : (
+                    <div className="bug-item-info"> 
+                        <div className="bug-item-label">Assigned To:</div>
+                        <p className="bug-item-assigned-p">{assignedUserId === 0 ? `${assignedUsername}` : `${assignedUsername} - ${assignedUserId}`}</p>
+                    </div> 
+                )}
+
+                <div className="bug-item-info">
+                    <div className="bug-item-label">Priority:</div>
+                    <p className="bug-item-priority" style={{ color: getPriorityAndImportanceColor(priority) }}>{priority}</p>
+                </div>
+                <div className="bug-item-info">
+                    <div className="bug-item-label">Importance:</div>
+                    <p className="bug-item-importance" style={{ color: getPriorityAndImportanceColor(importance) }}>{importance}</p>
+                </div>
+                <div className="bug-item-info">
+                    <div className="bug-item-label">Creation Date:</div>
+                    <p className="bug-item-creation-date">{creationDate}</p>
+                </div>
+                <div className="bug-item-info">
+                    <div className="bug-item-label">Open Date:</div>
+                    <p className="bug-item-open-date">{openDate}</p>
+                </div>
+                <div className="bug-item-info">
+                    <div className="bug-item-label">Deadline:</div>
+                    <p className="bug-item-open-date">{closeDate}</p>
+                </div>
+                <div className="bug-item-info">
+                    <div className="bug-item-label">Update Count:</div>
+                    <p>{updateCounter}</p>
+                </div>
+                <div className="bug-item-info">
+                    <div className="bug-item-label">Update Dates:</div>
+                    <ul>
+                        {updateDates.slice(-5).map((date, index) => (
+                            <li key={index}>{new Date(date).toLocaleString()}</li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="button-container">
+                    {(isAdmin && (status === "Done")) ? (
+                        <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" />
+                    ) : (
+                        <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>
+                    )}
+                </div>
+            </div>
+        )}
         </div>
     );
 }
