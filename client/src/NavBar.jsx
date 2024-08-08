@@ -169,8 +169,11 @@ function NavBar() {
                 )}
             </div>
             {isLoggedIn && location.pathname !== '/login' && location.pathname !== '/register' && (
-                <span className="navbar_welcome">Welcome, {userName}</span>
-            )}
+                    <span className="navbar_welcome">
+                        Welcome, <span className="navbar_userName">{userName}</span>
+                    </span>
+                )}
+
 
             <nav className="navbar_nav">
                 <a href="#solutions">Solutions</a>

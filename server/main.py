@@ -196,6 +196,8 @@ class SQLHelper(ABC):
 
 
     # insert given bug into the database     
+    from datetime import datetime
+
     def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate):
         try:
             # SQL insert statement
@@ -203,16 +205,21 @@ class SQLHelper(ABC):
             INSERT INTO Bugs (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
-            
+
             # Execute the insert statement
             self.cursor.execute(insert_sql, (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate))
-            
+
             # Commit the transaction
             self.connection.commit()
             print("\nData inserted successfully")
         except Exception as e:
             print(f"Error occurred: {e}")
             raise
+
+
+  
+
+
 
 
     #updating email in edituser
@@ -436,6 +443,7 @@ class SQLHelper(ABC):
             return False
         
         
+        
 # ==================================================================================================================== #
 
 # ======================================================User-Class==================================================== #
@@ -628,7 +636,8 @@ class BugFixer(ABC):
                 0, 
                 data.get('creationDate'), 
                 data.get('openDate'), 
-                None)
+                data.get('closeDate')
+                )
             
             return jsonify({'message': 'Bug data received successfully'}), 200
         except Exception as e:
@@ -662,6 +671,7 @@ class BugFixer(ABC):
         assignedId = data.get('assignedId')
         creationDate = data.get('creationDate')
         openDate = data.get('openDate')
+        closeDate=data.get('closeDate')
 
         # get bug importance and priority rating from Groq AI
         if data.get('isDescChanged') == '1':
@@ -679,7 +689,8 @@ class BugFixer(ABC):
                 'priority': priority,
                 'importance': importance,
                 'creationDate': creationDate,
-                'openDate': openDate
+                'openDate': openDate,
+                'closeDate':closeDate
                 }), 200
         else:
             return jsonify({'error': 'Failed to update bug'}), 500
@@ -772,9 +783,12 @@ class BugFixer(ABC):
             response = db.pushNotificationToUser(userId, message) 
             if response:
                 return jsonify({'message': 'Notification pushed successfully to one user'}), 200
-            raise ValueError("Could not push notification to one user")
+            return jsonify({'error': 'Could not push notification to one user'}), 500
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+  
+    
 
 
     # Function for pushing notifications to ALL users in the database 
@@ -908,6 +922,17 @@ class HelperFunctions(ABC):
         if priority_int < 0 or priority_int > 10:
             return False
         return True
+    
+    def checkBugCloseDate(openDate, closeDate):
+        if closeDate is None:
+            return True
+
+        openDate = datetime.strptime(openDate, '%d/%m/%Y')
+        closeDate = datetime.strptime(closeDate, '%d/%m/%Y') 
+        if closeDate < openDate:
+            return False
+        else:
+            return True
 
 
     def checkBugOpenCreationDate(openDate, creationDate):
