@@ -6,7 +6,7 @@ import axios from 'axios';
 function BugItem({
     bugId, title, description, status, assignedUserId, assignedUsername, 
     priority, importance, creationDate, openDate, closeDate, isAdmin, onSave, 
-    listOfCoders
+    listOfCoders, update_counter, update_dates
 }) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedBug, setEditedBug] = useState({
@@ -14,6 +14,9 @@ function BugItem({
         assignedName: assignedUsername, priority, importance, creationDate, openDate, closeDate,
         isDescChanged: '0'
     });
+
+    const [updateCounter, setUpdateCounter] = useState(update_counter || 0);
+    const [updateDates, setUpdateDates] = useState(update_dates || []);
     const [assignedToCoder, setAssignedToCoder] = useState({ uid: 0, uname: "" });
     const [notificationSent, setNotificationSent] = useState(false);
 
@@ -89,17 +92,21 @@ function BugItem({
         editedBug.isDescChanged = editedBug.bugDesc !== description ? '1' : '0';
 
         try {
-            editedBug.assignedName = assignedToCoder.uname;
-            editedBug.assignedId = assignedToCoder.uid || null;
+            editedBug['assignedName'] = assignedToCoder.uname;
+            editedBug['assignedId'] = assignedToCoder.uid === 0 ? null : assignedToCoder.uid;
+            
+            editedBug.update_counter = updateCounter + 1;
+            editedBug.update_dates = [...updateDates, new Date().toISOString()];
 
             const response = await axios.post('http://localhost:8090/homePage/updateBug', editedBug);
             if (!response.data.error) {
-                response.data.assignedUsername = editedBug.assignedName;
-                response.data.assignedId = editedBug.assignedId || 0;
-                onSave(response.data);
+                response.data['assignedUsername'] = editedBug['assignedName'];
+                response.data['assignedId'] = editedBug['assignedId'] === null ? 0 : assignedToCoder.uid;
+                onSave(response.data); 
+                setUpdateCounter(updateCounter + 1);
+                setUpdateDates([...updateDates, new Date().toISOString()]);
                 console.log('Bug updated successfully');
-                await pushNotificationsToAllUsers(`The following bug has been updated: ${title}`);
-            } else {
+                await pushNotificationsToAllUsers(`The following bug has been updated: ${title}`);} else {
                 console.error('Failed to update bug on backend:', response.data.error);
             }
         } catch (error) {
@@ -120,27 +127,51 @@ function BugItem({
         }
     };
 
-    const handleCancelClick = () => setIsEditing(false);
+    const handleCancelClick = () => {
+        setIsEditing(false);
+    };
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'Done': return 'green';
-            case 'In Progress': return 'yellow';
-            case 'New': return 'red';
-            default: return 'gray';
+            case 'Done':
+                return 'green';
+            case 'In Progress':
+                return 'purple';
+            case 'New':
+                return 'red';
+            default:
+                return 'gray'; // Default or unknown status
         }
     };
 
     const getPriorityAndImportanceColor = (value) => {
-        if (value <= 4) return 'green';
-        if (value <= 7) return 'orange';
-        return 'red';
+        if (value <= 4) {
+            return 'green';
+        } else if (value >= 5 && value <= 7) {
+            return 'orange';
+        } else if (value >= 8) {
+            return 'red';
+        } else {
+            return 'black'; // Default color if value is out of range
+        }
     };
+
+    
+
+    useEffect(() => {
+        if (assignedToCoder.uname === "" && listOfCoders) {
+            setAssignedToCoder({
+                uid: assignedUserId,
+                uname: assignedUsername
+            });
+        }
+    }, [assignedUserId, assignedUsername, listOfCoders]);
 
     const parseAssignedUserString = (assignedUserString) => {
         if (assignedUserString === "Unassigned") return { selected_username: "Unassigned", selected_userid: null };
         const [username, userIdString] = assignedUserString.split(' - ');
-        return { selected_username: username.trim(), selected_userid: parseInt(userIdString, 10) };
+        const userId = parseInt(userIdString, 10);
+        return { selected_username: username.trim(), selected_userid: userId };
     };
 
     const handleAssignmentChange = async (event) => {
@@ -151,8 +182,9 @@ function BugItem({
 
     const handleDatabaseUpdates = async (userId) => {
         await assignUserInDatabase(userId);
-        await pushNotification(userId, `You have been assigned to the following bug: ${title}`);
-    };
+        await pushNotification(userId, "You have been assigned to the following bug: " + title);
+        return true;
+    }
 
     const assignUserInDatabase = async (userId) => {
         try {
@@ -167,8 +199,12 @@ function BugItem({
         }
     };
 
+   
+
+    const cardClass = (priority > 7 || importance > 7) ? 'bug-item-div high-priority' : 'bug-item-div';
+
     return (
-        <div className="bug-item-div" style={{ borderColor: getStatusColor(status) }}>
+        <div className={cardClass}>
             {isEditing ? (
                 <div className="bug-item-editing">
                     <div className="bug-item-row-textarea">
@@ -260,7 +296,7 @@ function BugItem({
     
                     <div className="bug-item-info">
                         <div className="bug-item-label">Priority:</div>
-                        <p className="bug-item-priority"  style={{ color: getPriorityAndImportanceColor(priority) }}>{priority}</p>
+                        <p className="bug-item-priority" style={{ color: getPriorityAndImportanceColor(priority) }}>{priority}</p>
                     </div>
                     <div className="bug-item-info">
                         <div className="bug-item-label">Importance:</div>
@@ -278,11 +314,25 @@ function BugItem({
                         <div className="bug-item-label">Deadline:</div>
                         <p className="bug-item-open-date">{closeDate}</p>
                     </div>
-                    {(isAdmin && (status === "Done")) ? (
-                        <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" />
-                    ) : (
-                        <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>
-                    )}
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Update Count:</div>
+                        <p>{updateCounter}</p>
+                    </div>
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Update Dates:</div>
+                        <ul>
+                            {updateDates.slice(-5).map((date, index) => (
+                                <li key={index}>{new Date(date).toLocaleString()}</li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="button-container">
+                        {(isAdmin && (status === "Done")) ? (
+                            <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" />
+                        ) : (
+                            <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
