@@ -350,7 +350,9 @@ def test_check_bug_open_creation_date_3():
 #             0,
 #             "01/01/2024",
 #             "02/01/2024",
-#             "03/01/2024"
+#             "03/01/2024",
+#             "Ui",
+#             "these are some suggestions: 1,2,3"
 #         )
 
 #         # Clean up: Delete the inserted bug from the database
@@ -368,7 +370,7 @@ def test_check_bug_open_creation_date_3():
 
 # def test_insert_bug_2():
 #     db = SQLHelper()
-#     db.connect2()
+#     db.connect()
 
 #     try:
 #         # Insert the bug into the database
@@ -384,7 +386,9 @@ def test_check_bug_open_creation_date_3():
 #             0,
 #             "01/01/2024",
 #             "03/01/2024",
-#             "06/01/2024"
+#             "06/01/2024",
+#             "Performance",
+#             "these are some suggestions: 1,2,3"
 #         )
 
 #         # Clean up: Delete the inserted bug from the database
@@ -401,7 +405,7 @@ def test_check_bug_open_creation_date_3():
 
 # def test_insert_bug_3():
 #     db = SQLHelper() 
-#     db.connect2()
+#     db.connect()
 
 #     try:
 #         # Insert the bug into the database
@@ -417,7 +421,9 @@ def test_check_bug_open_creation_date_3():
 #             0,
 #             "01/01/2024",
 #             "02/01/2024",
-#             "03/01/2024"
+#             "03/01/2024",
+#             "Performance",
+#             "these are some suggestions: 1,2,3"
 #         )
      
 #         # If insertBug succeeds and doesn't raise an exception, fail the test
