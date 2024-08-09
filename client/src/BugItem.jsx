@@ -3,7 +3,6 @@ import './BugItem.css';
 import trashIcon from './assets/trashIcon.png';
 import axios from 'axios';
 
-
 function BugItem({
     bugId, title, description, suggestion, status, category, assignedUserId, assignedUsername, 
     priority, importance, creationDate, openDate, closeDate, isAdmin, onSave, 
@@ -27,20 +26,16 @@ function BugItem({
     useEffect(() => {
         const checkAndNotify = async () => {
             if (closeDate && assignedUserId !== 0) {
-                // Get today's date without time
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-    
-                // Get the close date and reset time
+
                 const closeDateObject = new Date(closeDate);
                 closeDateObject.setHours(0, 0, 0, 0);
-    
-                // Compare dates
+
                 if (today.getTime() === closeDateObject.getTime()) {
                     const lastNotificationDateStr = localStorage.getItem('lastNotificationDate');
                     const lastNotificationDate = lastNotificationDateStr ? new Date(lastNotificationDateStr) : null;
-    
-                    // Check if notification has already been sent today
+
                     if (!lastNotificationDate || today.getTime() !== new Date(lastNotificationDate).getTime()) {
                         const notificationMessage = `The deadline is today for the bug: ${title}!!!`;
                         try {
@@ -54,7 +49,7 @@ function BugItem({
                 }
             }
         };
-    
+
         checkAndNotify();
     }, [closeDate, assignedUserId, title]);
 
@@ -97,8 +92,8 @@ function BugItem({
             editedBug['assignedName'] = assignedToCoder.uname;
             editedBug['assignedId'] = assignedToCoder.uid === 0 ? null : assignedToCoder.uid;
             
-            editedBug.update_counter = updateCounter + 1;
-            editedBug.update_dates = [...updateDates, new Date().toISOString()];
+            editedBug.updateCounter = updateCounter + 1;
+            editedBug.updateDates = [...updateDates, new Date().toISOString()];
 
             const response = await axios.post('http://localhost:8090/homePage/updateBug', editedBug);
             
@@ -110,7 +105,8 @@ function BugItem({
                 setUpdateCounter(updateCounter + 1);
                 setUpdateDates([...updateDates, new Date().toISOString()]);
                 console.log('Bug updated successfully');
-                await pushNotificationsToAllUsers(`The following bug has been updated: ${title}`);} else {
+                await pushNotificationsToAllUsers(`The following bug has been updated: ${title}`);
+            } else {
                 console.error('Failed to update bug on backend:', response.data.error);
             }
         } catch (error) {
@@ -144,7 +140,7 @@ function BugItem({
             case 'New':
                 return 'red';
             default:
-                return 'gray'; // Default or unknown status
+                return 'gray';
         }
     };
 
@@ -156,11 +152,9 @@ function BugItem({
         } else if (value >= 8) {
             return 'red';
         } else {
-            return 'black'; // Default color if value is out of range
+            return 'black';
         }
     };
-
-    
 
     useEffect(() => {
         if (assignedToCoder.uname === "" && listOfCoders) {
@@ -169,7 +163,12 @@ function BugItem({
                 uname: assignedUsername
             });
         }
-    }, [assignedUserId, assignedUsername, listOfCoders]);
+
+        // Convert updateDates from string to array if necessary
+        if (typeof updateDates === 'string') {
+            setUpdateDates(updateDates.split(',').map(dateStr => new Date(dateStr.trim())));
+        }
+    }, [assignedUserId, assignedUsername, listOfCoders, updateDates]);
 
     const parseAssignedUserString = (assignedUserString) => {
         if (assignedUserString === "Unassigned") return { selected_username: "Unassigned", selected_userid: null };
@@ -239,8 +238,7 @@ function BugItem({
                             name="category" 
                             value={editedBug.category} 
                             onChange={handleInputChange} 
-                            className="bug-item-select" // Added className for consistent styling
-                        >
+                            className="bug-item-select">
                             {categoryOptions.map(option => (
                                 <option key={option} value={option}>{option}</option>
                             ))}
@@ -296,73 +294,73 @@ function BugItem({
                     </div>
                     <div className="bug-item-info">
                         <p className="bug-item-status" style={{ backgroundColor: getStatusColor(status) }}>{status}</p>
-                </div>
+                    </div>
 
-                {(isAdmin && listOfCoders) ? (
-                    <div className="bug-item-info"> 
-                        <div className="bug-item-label">Assigned To:</div>
-                        <select name="assignedTo" className="bug-item-assigned-combobox" value={`${assignedToCoder.uname} - ${assignedToCoder.uid}`} onChange={handleAssignmentChange} required>
-                            <option value="Unassigned">Unassigned</option>
-                            {listOfCoders.map(user => (
-                                <option key={user.userId} value={`${user.userName} - ${user.userId}`}>{`${user.userName} - ${user.userId}`}</option>
+                    {(isAdmin && listOfCoders) ? (
+                        <div className="bug-item-info"> 
+                            <div className="bug-item-label">Assigned To:</div>
+                            <select name="assignedTo" className="bug-item-assigned-combobox" value={`${assignedToCoder.uname} - ${assignedToCoder.uid}`} onChange={handleAssignmentChange} required>
+                                <option value="Unassigned">Unassigned</option>
+                                {listOfCoders.map(user => (
+                                    <option key={user.userId} value={`${user.userName} - ${user.userId}`}>{`${user.userName} - ${user.userId}`}</option>
+                                ))}
+                            </select>
+                        </div>  
+                    ) : (
+                        <div className="bug-item-info"> 
+                            <div className="bug-item-label">Assigned To:</div>
+                            <p className="bug-item-assigned-p">{assignedUserId === 0 ? `${assignedUsername}` : `${assignedUsername} - ${assignedUserId}`}</p>
+                        </div> 
+                    )}
+
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Category:</div>
+                        <p className="bug-item-label">{category}</p>
+                    </div>
+
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Priority:</div>
+                        <p className="bug-item-priority" style={{ color: getPriorityAndImportanceColor(priority) }}>{priority}</p>
+                    </div>
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Importance:</div>
+                        <p className="bug-item-importance" style={{ color: getPriorityAndImportanceColor(importance) }}>{importance}</p>
+                    </div>
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Creation Date:</div>
+                        <p className="bug-item-creation-date">{creationDate}</p>
+                    </div>
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Open Date:</div>
+                        <p className="bug-item-open-date">{openDate}</p>
+                    </div>
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Deadline:</div>
+                        <p className="bug-item-open-date">{closeDate}</p>
+                    </div>
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Update Count:</div>
+                        <p>{updateCounter}</p>
+                    </div>
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Update Dates:</div>
+                        <ul>
+                            {Array.isArray(updateDates) && updateDates.slice(-5).map((date, index) => (
+                                <li key={index}>{new Date(date).toLocaleString()}</li>
                             ))}
-                        </select>
-                    </div>  
-                ) : (
-                    <div className="bug-item-info"> 
-                        <div className="bug-item-label">Assigned To:</div>
-                        <p className="bug-item-assigned-p">{assignedUserId === 0 ? `${assignedUsername}` : `${assignedUsername} - ${assignedUserId}`}</p>
-                    </div> 
-                )}
+                        </ul>
+                    </div>
+                    <div className="button-container">
+                        {(isAdmin && (status === "Done")) && (
+                            <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" ></img>
+                        )}
 
-                <div className="bug-item-info">
-                    <div className="bug-item-label">Category:</div>
-                    <p className="bug-item-label">{category}</p>
+                        {!isAdmin && ( 
+                            <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>
+                        )}
+                    </div>
                 </div>
-
-                <div className="bug-item-info">
-                    <div className="bug-item-label">Priority:</div>
-                    <p className="bug-item-priority" style={{ color: getPriorityAndImportanceColor(priority) }}>{priority}</p>
-                </div>
-                <div className="bug-item-info">
-                    <div className="bug-item-label">Importance:</div>
-                    <p className="bug-item-importance" style={{ color: getPriorityAndImportanceColor(importance) }}>{importance}</p>
-                </div>
-                <div className="bug-item-info">
-                    <div className="bug-item-label">Creation Date:</div>
-                    <p className="bug-item-creation-date">{creationDate}</p>
-                </div>
-                <div className="bug-item-info">
-                    <div className="bug-item-label">Open Date:</div>
-                    <p className="bug-item-open-date">{openDate}</p>
-                </div>
-                <div className="bug-item-info">
-                    <div className="bug-item-label">Deadline:</div>
-                    <p className="bug-item-open-date">{closeDate}</p>
-                </div>
-                <div className="bug-item-info">
-                    <div className="bug-item-label">Update Count:</div>
-                    <p>{updateCounter}</p>
-                </div>
-                <div className="bug-item-info">
-                    <div className="bug-item-label">Update Dates:</div>
-                    <ul>
-                        {updateDates.slice(-5).map((date, index) => (
-                            <li key={index}>{new Date(date).toLocaleString()}</li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="button-container">
-                    {(isAdmin && (status === "Done")) && (
-                        <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" ></img>
-                    )}
-
-                    {!isAdmin && ( 
-                        <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>
-                    )}
-                </div>
-            </div>
-        )}
+            )}
         </div>
     );
 }

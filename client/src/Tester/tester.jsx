@@ -334,9 +334,11 @@ function Tester() {
                         onSave={handleSave}
                         dateStatus={bugDateStatus[bug.bugId]} // Pass the date status
                         listOfCoders={coders}
+                        update_counter={bug.updateCounter}       // הוסף את שדה ה-updateCounter
+                        update_dates={bug.updateDates}  
                     />
                 ))}
-            </div>
+           </div>
 
             {isPopupVisible && (
                 <div className="tester_popup_overlay">
