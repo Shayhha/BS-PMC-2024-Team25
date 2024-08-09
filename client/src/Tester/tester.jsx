@@ -129,7 +129,7 @@ function Tester() {
             importance: '',
             creationDate: todaysDate,
             openDate: todaysDate,
-            closeDate:todaysDate, 
+            closeDate: todaysDate, 
             bugSuggest: ''
         });
     };
@@ -183,7 +183,7 @@ function Tester() {
                 importance: '',
                 creationDate: todaysDate,
                 openDate: todaysDate,
-                closeDate:todaysDate,
+                closeDate: todaysDate,
                 bugSuggest: ''
             });
             window.location.reload(); // Refresh the page
@@ -315,6 +315,13 @@ function Tester() {
                 </div>
             </div>
 
+            <img
+                src={plusIcon}
+                className="tester_add_new_bug_button"
+                alt="Add New Bug"
+                onClick={handleImageClick}
+            />
+
             <div className="tester_inner_container">
                 {Array.isArray(bugArray) && bugArray.map(bug => (
                     <BugItem
@@ -346,7 +353,7 @@ function Tester() {
                 <div className="tester_popup_overlay">
                     <div className="tester_popup">
                         <span className="tester_close_button" onClick={handleCloseClick}>&times;</span>
-                        <h1>New Bug</h1>
+                        <h2 className="tester_popup_header">New Bug</h2>
                         <form onSubmit={handleSubmit}>
                             <label>
                                 Title:
@@ -393,11 +400,11 @@ function Tester() {
                             </label>
                             <label>
                                 Open Date:
-                                <input type="date" name="openDate" value={formData.openDate} onChange={handleChange} min={formData.creationDate} />
+                                <input type="date" name="openDate" value={formData.openDate} onChange={handleChange} min={formData.creationDate} required />
                             </label>
                             <label>
                                 Deadline:
-                                <input type="date" name="closeDate" value={formData.closeDate} onChange={handleChange} min={formData.creationDate} />
+                                <input type="date" name="closeDate" value={formData.closeDate} onChange={handleChange} min={formData.creationDate} required />
                             </label>
                             <button type="submit" className="tester_popup_submit_button">Submit</button>
                         </form>

@@ -187,7 +187,7 @@
 
 .tester_popup_overlay {
     position: fixed;
-    top: 0;
+    top: 10%;
     left: 0;
     width: 100%;
     height: 100%;
@@ -205,7 +205,7 @@
     justify-content: space-around;
     background-color: white;
     color: black;
-    padding: 50px;
+    padding: 30px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     width: 70%; /* Adjust width as needed */
@@ -213,6 +213,7 @@
     min-height: 400px;
     text-align: center;
 }
+
 
 .tester_close_button {
     position: absolute;
@@ -227,7 +228,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    font-size: 20px;
+    font-size: 18px;
 
 }
 
@@ -235,12 +236,12 @@
     display: flex;
     flex-direction: column;
     text-align: left;
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .tester_popup input[type="text"] {
     padding: 10px; /* Adjust padding for input fields */
-    font-size: 18px; /* Adjust font size for input fields */
+    font-size: 16px; /* Adjust font size for input fields */
     width: 100%; /* Adjust width to fit within container */
     box-sizing: border-box; /* Ensure padding is included in the width */
     border-radius: 8px;
@@ -251,7 +252,7 @@
 
 .tester_popup input[type="date"] {
     padding: 10px; /* Adjust padding for input fields */
-    font-size: 18px; /* Adjust font size for input fields */
+    font-size: 16px; /* Adjust font size for input fields */
     width: 100%; /* Adjust width to fit within container */
     box-sizing: border-box; /* Ensure padding is included in the width */
     border-radius: 8px;
@@ -267,7 +268,7 @@
     color: black;
     padding: 10px; 
     padding-top: 7px;
-    font-size: 18px;
+    font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 8px;
     height: 150px; /* Adjust the height as needed */
@@ -282,7 +283,7 @@
     color: black;
     border: 1px solid #ccc;
     padding: 10px; /* Adjust padding for select boxes */
-    font-size: 22px; /* Adjust font size for select boxes */
+    font-size: 18px; /* Adjust font size for select boxes */
     width: 100%; /* Adjust width to fit within container */
     box-sizing: border-box; /* Ensure padding is included in the width */
 }
@@ -298,11 +299,15 @@
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    font-size: 26px;
+    font-size: 22px;
 }
 
 .tester_popup_submit_button:hover {
     background-color: #0056b3;
+}
+
+.tester_popup_header {
+    font-size: 30px;
 }
 
 

@@ -638,11 +638,11 @@ class BugFixer(ABC):
                 0, 
                 data.get('creationDate'), 
                 data.get('openDate'), 
-                None,
+                data.get('closeDate'),
                 data.get('category'),
                 bugSuggestion,
                 0,  #initial the counter to 0 
-                []
+                ""
             )
             return jsonify({'message': 'Bug data received successfully'}), 200
         except Exception as e:
