@@ -15,6 +15,7 @@ function Tester() {
         title: '',
         description: '',
         status: 'New',
+        category: 'Functionality',
         assignedTo: 'None',
         priority: '',
         importance: '',
@@ -23,9 +24,12 @@ function Tester() {
     });
     const [searchResult, setSearchResult] = useState("");
     const [sortOption, setSortOption] = useState('newest');
+    const [filterOption, setFilterOption] = useState('Functionality');
     const [oldestDate, setOldestDate] = useState(null);
     const [newestDate, setNewestDate] = useState(null);
     const [bugDateStatus, setBugDateStatus] = useState({});
+
+    const categoryOptions = ["Ui", "Functionality", "Performance", "Usability", "Security"]; // Options for category dropdown
 
     // Function to parse date string
     const parseDate = (dateStr) => {
@@ -60,6 +64,18 @@ function Tester() {
         setBugDateStatus(statusMap);
     };
 
+    const filterBugs = async (newValue) => {
+        setFilterOption(newValue);
+        await fetchBugs();
+        // Update the bug array state based on the new filter option
+        setBugArray(prevBugArray => {
+            // Filter based on the new filter option
+            return newValue && categoryOptions.includes(newValue)
+                ? prevBugArray.filter(bug => bug.category === newValue)
+                : prevBugArray;
+        });
+    }
+
     // Function to fetch and sort bugs
     const fetchBugs = async () => {
         try {
@@ -76,7 +92,7 @@ function Tester() {
                     return b.priority - a.priority;
                 } else if (sortOption === 'importance') {
                     return b.importance - a.importance;
-                }
+                } 
                 return 0;
             });
 
@@ -105,6 +121,7 @@ function Tester() {
             title: '',
             description: '',
             status: 'New',
+            category: 'Functionality',
             assignedTo: 'None',
             priority: '',
             importance: '',
@@ -154,6 +171,7 @@ function Tester() {
                 title: '',
                 description: '',
                 status: 'New',
+                category: 'Functionality',
                 assignedTo: 'None',
                 priority: '',
                 importance: '',
@@ -266,6 +284,20 @@ function Tester() {
                     <option value="importance">Importance</option>
                 </select>
 
+                <div className="bug-categories-container">
+                    <select 
+                        className="bug-categories"
+                        value={filterOption} 
+                        onChange={(e) => filterBugs(e.target.value)}
+                    >
+                        <option value="Ui">Ui</option>
+                        <option value="Functionality">Functionality</option>
+                        <option value="Performance">Performance</option>
+                        <option value="Usability">Usability</option>
+                        <option value="Security">Security</option>
+                    </select>
+                </div>
+
                 <img
                     src={plusIcon}
                     className="tester_add_new_bug_button"
@@ -280,6 +312,7 @@ function Tester() {
                         title={bug.bugName}
                         description={bug.bugDesc}
                         status={bug.status}
+                        category={bug.category}
                         assignedUserId={bug.assignedId} 
                         assignedUsername={bug.assignedUsername} 
                         priority={bug.priority}
@@ -314,6 +347,20 @@ function Tester() {
                                     <option value="New">New</option>
                                     <option value="In Progress">In Progress</option>
                                     <option value="Done">Done</option>
+                                </select>
+                            </label>
+                            <label>
+                                Category:
+                                <select 
+                                    id="category" 
+                                    name="category" 
+                                    value={formData.category} 
+                                    onChange={handleChange}  
+                                    required
+                                >
+                                    {categoryOptions.map(option => (
+                                        <option key={option} value={option}>{option}</option>
+                                    ))}
                                 </select>
                             </label>
                             <label>

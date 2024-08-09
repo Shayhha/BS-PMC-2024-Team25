@@ -24,7 +24,7 @@
     position: fixed;
     top: 150px;
     left: 50%;
-    transform: translateX(-45%);
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -51,6 +51,24 @@
     width: 30px;
     height: 30px;
     cursor: pointer;
+}
+
+.bug-categories-container {
+    margin-left: 15px; /* Space between the input/search icon and the combobox */
+}
+
+.bug-categories {
+    border: 2px solid #333;
+    border-radius: 25px;
+    padding: 5px 10px;
+    background-color: whitesmoke;
+    color: #333;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.bug-categories option {
+    padding: 10px;
 }
 
 .tester_bug_item_container {
@@ -226,3 +244,4 @@
     background-color: white;
     color: black;
 }
+

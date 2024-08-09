@@ -196,16 +196,17 @@ class SQLHelper(ABC):
 
 
     # insert given bug into the database     
-    def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate):
+    def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest):
         try:
+            bugSuggest = "test"
             # SQL insert statement
             insert_sql = """
-            INSERT INTO Bugs (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO Bugs (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
             
             # Execute the insert statement
-            self.cursor.execute(insert_sql, (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate))
+            self.cursor.execute(insert_sql, (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest))
             
             # Commit the transaction
             self.connection.commit()
@@ -241,7 +242,7 @@ class SQLHelper(ABC):
              raise
 
 
-    def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None):
+    def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None, category=None):
         try:
             fields = []
             values = []
@@ -269,6 +270,10 @@ class SQLHelper(ABC):
             if assignedId is not None:
                 fields.append("assignedId = ?")
                 values.append(assignedId)
+
+            if category is not None:
+                fields.append("category = ?")
+                values.append(category)
 
             values.append(bug_id)
 
@@ -608,6 +613,7 @@ class BugFixer(ABC):
         # get bug importance and priority rating from Groq AI
         bugImportance = HelperFunctions.handleBugImportance(data.get('title'), data.get('description'))
         bugPriority = HelperFunctions.handleBugPriority(data.get('title'),data.get('description'))
+        bugSuggest = "test"
 
         # add the priority and importance to the bug after the AI classification
         data["priority"] = bugPriority
@@ -628,7 +634,9 @@ class BugFixer(ABC):
                 0, 
                 data.get('creationDate'), 
                 data.get('openDate'), 
-                None)
+                None,
+                data.get('category'),
+                bugSuggest)
             
             return jsonify({'message': 'Bug data received successfully'}), 200
         except Exception as e:
@@ -657,6 +665,7 @@ class BugFixer(ABC):
         bugName = data.get('bugName')
         bugDesc = data.get('bugDesc')
         status = data.get('status')
+        category = data.get('category')
         importance = data.get('importance')
         priority = data.get('priority')
         assignedId = data.get('assignedId')
@@ -669,12 +678,13 @@ class BugFixer(ABC):
             priority = HelperFunctions.handleBugPriority(bugName, bugDesc)
 
         # update database with new values
-        if db.updateBug(bugId, bugName, bugDesc, status, importance, priority, assignedId):
+        if db.updateBug(bugId, bugName, bugDesc, status, importance, priority, assignedId, category):
              return jsonify({
                 'bugId': bugId,
                 'bugName': bugName,
                 'bugDesc': bugDesc,
                 'status': status,
+                'category': category,
                 'assignedId': assignedId,
                 'priority': priority,
                 'importance': importance,

@@ -3,13 +3,14 @@ import './BugItem.css';
 import trashIcon from './assets/trashIcon.png';
 import axios from 'axios';
 
-function BugItem({bugId, title, description, status, assignedUserId, assignedUsername, priority, importance, creationDate, openDate, isAdmin, onSave, listOfCoders}) {
+function BugItem({bugId, title, description, status, category, assignedUserId, assignedUsername, priority, importance, creationDate, openDate, isAdmin, onSave, listOfCoders}) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedBug, setEditedBug] = useState({
         bugId,
         bugName: title,
         bugDesc: description,
         status,
+        category,
         assignedId: assignedUserId,
         assignedName: assignedUsername,
         priority,
@@ -20,6 +21,7 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
     });
 
     const statusOptions = ["In Progress", "New", "Done"]; // Options for status dropdown
+    const categoryOptions = ["Ui", "Functionality", "Performance", "Usability", "Security"]; // Options for category dropdown
 
     const handleDeleteBug = async () => {
         if (status !== "Done") return;
@@ -187,8 +189,6 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
     };
 
 
-
-
     return (
         <div className="bug-item-div" style={{ borderColor: getStatusColor(status) }}>
             {isEditing ? (
@@ -213,6 +213,20 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
                             className="bug-item-select" // Added className for consistent styling
                         >
                             {statusOptions.map(option => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="bug-item-row">
+                        <label htmlFor="category">Category:</label>
+                        <select 
+                            id="category" 
+                            name="category" 
+                            value={editedBug.category} 
+                            onChange={handleInputChange} 
+                            className="bug-item-select" // Added className for consistent styling
+                        >
+                            {categoryOptions.map(option => (
                                 <option key={option} value={option}>{option}</option>
                             ))}
                         </select>
@@ -278,6 +292,11 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
                             <p className="bug-item-assigned-p">{assignedUserId === 0 ? `${assignedUsername}` : `${assignedUsername} - ${assignedUserId}`}</p> {/**`${assignedUsername} - ${assignedUserId}` */}
                         </div> 
                     )}
+
+                    <div className="bug-item-info">
+                        <div className="bug-item-label">Category:</div>
+                        <p className="bug-item-label">{category}</p>
+                    </div>
     
                     <div className="bug-item-info">
                         <div className="bug-item-label">Priority:</div>
@@ -295,9 +314,12 @@ function BugItem({bugId, title, description, status, assignedUserId, assignedUse
                         <div className="bug-item-label">Open Date:</div>
                         <p className="bug-item-open-date">{openDate}</p>
                     </div>
-                    {(isAdmin && (status === "Done")) ? (
+
+                    {(isAdmin && (status === "Done")) && (
                         <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" ></img>
-                    ) : (
+                    )}
+
+                    {!isAdmin && (
                         <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>
                     )}
                 </div>
