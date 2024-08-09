@@ -167,18 +167,12 @@ function NavBar() {
                         BugFixer
                     </Link>
                 )}
+                {isLoggedIn && location.pathname !== '/login' && location.pathname !== '/register' && (
+                    <span className="navbar_welcome">
+                        Welcome, <span className="navbar_userName">{userName}</span>
+                    </span>
+                )}
             </div>
-            {isLoggedIn && location.pathname !== '/login' && location.pathname !== '/register' && (
-                <span className="navbar_welcome">Welcome, {userName}</span>
-            )}
-
-            <nav className="navbar_nav">
-                <a href="#solutions">Solutions</a>
-                <a href="#community">Community</a>
-                <a href="#resources">Resources</a>
-                <a href="#contact">Contact</a>
-            </nav>
-
             <div className="navbar_profile">
                 <div className="navbar_profile-icons">
                     {(location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/') && (

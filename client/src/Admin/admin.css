@@ -1,4 +1,3 @@
-
 .admin {
     padding-top: 330px;
     position: relative;
@@ -31,6 +30,14 @@
     color: black;
     width: 550px;
     height: 50px;
+    margin-top: 20px;
+}
+
+.admin_search_button{
+    background-color: transparent;
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 25px;
 }
 
 .admin_search_input {
@@ -42,14 +49,86 @@
     padding-left: 15px;
     margin-right: 15px;
     font-size: 20px;
-    background-color: black;
-    color: white;
+    background-color: whitesmoke;
+    color: #333;
+    border: 2.5px solid #333;
 }
 
 .admin_search_icon {
     width: 30px;
     height: 30px;
     cursor: pointer;
+
 }
 
+.admin_sort_select {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px 17px;
+    font-size: 16px;
+    margin-right: 15px;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+}
 
+.admin_add_new_bug_button {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.admin_popup_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin_popup {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative; /* Ensure the close button is positioned correctly */
+}
+
+.admin_popup_close_button {
+    font-size: 24px;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.admin_popup_submit_button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.admin_popup_submit_button:hover {
+    background-color: #0056b3;
+}
+
+/* Optional: Add styling for error messages and loading indicators */
+.error {
+    color: red;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.loading {
+    font-size: 16px;
+    margin-top: 10px;
+}

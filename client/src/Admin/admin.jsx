@@ -10,6 +10,7 @@ function Admin() {
     const [coders, setCoders] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [sortOption, setSortOption] = useState('newest');
     const [filterOption, setFilterOption] = useState('Functionality');
 
     const categoryOptions = ["Ui", "Functionality", "Performance", "Usability", "Security"]; // Options for category dropdown
@@ -61,11 +62,29 @@ function Admin() {
                 }
             }
         };
-    
+
         setLoading(true);
         try {
             const bugs = await fetchFunction(); // Fetch bugs with retry
-            setBugArray(bugs);
+
+            // Sort bugs based on the selected sort option
+            const sortedBugs = [...bugs].sort((a, b) => {
+                const dateA = new Date(a.creationDate);
+                const dateB = new Date(b.creationDate);
+
+                if (sortOption === 'newest') {
+                    return dateB - dateA;
+                } else if (sortOption === 'oldest') {
+                    return dateA - dateB;
+                } else if (sortOption === 'priority') {
+                    return b.priority - a.priority;
+                } else if (sortOption === 'importance') {
+                    return b.importance - a.importance;
+                }
+                return 0;
+            });
+
+            setBugArray(sortedBugs);
             setError(null); // Clear error on success
         } catch (error) {
             console.error('Error fetching bugs:', error);
@@ -74,8 +93,7 @@ function Admin() {
         } finally {
             setLoading(false);
         }
-    }, []);
-    
+    }, [sortOption]);
 
     const fetchCoderUsers = useCallback(async () => {
         const fetchFunction = async () => {
@@ -125,20 +143,6 @@ function Admin() {
         }
     }, [searchResult]);
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         setLoading(true);
-    //         try {
-    //             await Promise.all([fetchBugs(), fetchCoderUsers()]);
-    //         } catch (error) {
-    //             console.error('Error during initial data fetch:', error);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-    //     fetchData();
-    // }, [fetchBugs, fetchCoderUsers]);
-
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
@@ -146,7 +150,7 @@ function Admin() {
             await fetchCoderUsers();
         };
         fetchData();
-    }, []);
+    }, [fetchBugs, fetchCoderUsers]);
 
     return (
         <div className="admin">
@@ -162,6 +166,19 @@ function Admin() {
                     <img src={searchIcon} className="admin_search_icon" alt="Search" />
                 </button>
             </form>
+
+            <div className="admin_sort_container">
+                <select 
+                    className="admin_sort_select" 
+                    value={sortOption} 
+                    onChange={(e) => setSortOption(e.target.value)}
+                >
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="priority">Priority</option>
+                    <option value="importance">Importance</option>
+                </select>
+            </div>
 
             <div className="bug-categories-container">
                 <select 
@@ -188,6 +205,7 @@ function Admin() {
                             bugId={bug.bugId}
                             title={bug.bugName}
                             description={bug.bugDesc}
+                            suggestion={bug.bugSuggest}
                             status={bug.status}
                             category={bug.category}
                             assignedUserId={bug.assignedId}

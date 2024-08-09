@@ -170,6 +170,7 @@ function Coder() {
                         bugId={bug.bugId}
                         title={bug.bugName}
                         description={bug.bugDesc}
+                        suggestion={bug.bugSuggest}
                         status={bug.status}
                         category={bug.category}
                         assignedUserId={bug.assignedId} 
@@ -178,6 +179,7 @@ function Coder() {
                         importance={bug.importance}
                         creationDate={bug.creationDate}
                         openDate={bug.openDate}
+                        closeDate={bug.closeDate}
                         isAdmin={false} // Adjust this based on actual admin check
                         onSave={handleSave}
                         dateStatus={bugDateStatus[bug.bugId]}

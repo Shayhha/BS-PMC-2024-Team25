@@ -20,7 +20,9 @@ function Tester() {
         priority: '',
         importance: '',
         creationDate: todaysDate,
-        openDate: todaysDate
+        openDate: todaysDate,
+        closeDate:todaysDate,
+        bugSuggest: ''
     });
     const [searchResult, setSearchResult] = useState("");
     const [sortOption, setSortOption] = useState('newest');
@@ -126,7 +128,9 @@ function Tester() {
             priority: '',
             importance: '',
             creationDate: todaysDate,
-            openDate: todaysDate
+            openDate: todaysDate,
+            closeDate:todaysDate, 
+            bugSuggest: ''
         });
     };
 
@@ -158,6 +162,8 @@ function Tester() {
             ...formData,
             creationDate: formData.creationDate ? formatDate(formData.creationDate) : '',
             openDate: formData.openDate ? formatDate(formData.openDate) : '',
+            closeDate: formData.closeDate ? formatDate(formData.closeDate) : '',
+
             assignedId: selected_userid
         };
 
@@ -176,7 +182,9 @@ function Tester() {
                 priority: '',
                 importance: '',
                 creationDate: todaysDate,
-                openDate: todaysDate
+                openDate: todaysDate,
+                closeDate:todaysDate,
+                bugSuggest: ''
             });
             window.location.reload(); // Refresh the page
         } catch (error) {
@@ -234,6 +242,7 @@ function Tester() {
     };
 
     const handleSave = async (updatedBug) => {
+        console.log(updatedBug.suggestion);
         try {
             setBugArray(bugArray.map(bug => (bug.bugId === updatedBug.bugId ? updatedBug : bug)));
         } catch (error) {
@@ -311,6 +320,7 @@ function Tester() {
                         bugId={bug.bugId}
                         title={bug.bugName}
                         description={bug.bugDesc}
+                        suggestion={bug.bugSuggest}
                         status={bug.status}
                         category={bug.category}
                         assignedUserId={bug.assignedId} 
@@ -319,6 +329,7 @@ function Tester() {
                         importance={bug.importance}
                         creationDate={bug.creationDate}
                         openDate={bug.openDate}
+                        closeDate={bug.closeDate}
                         isAdmin={false} // Adjust this based on actual admin check
                         onSave={handleSave}
                         dateStatus={bugDateStatus[bug.bugId]} // Pass the date status
@@ -379,6 +390,10 @@ function Tester() {
                             <label>
                                 Open Date:
                                 <input type="date" name="openDate" value={formData.openDate} onChange={handleChange} min={formData.creationDate} />
+                            </label>
+                            <label>
+                                Deadline:
+                                <input type="date" name="closeDate" value={formData.closeDate} onChange={handleChange} min={formData.creationDate} />
                             </label>
                             <button type="submit" className="tester_popup_submit_button">Submit</button>
                         </form>
