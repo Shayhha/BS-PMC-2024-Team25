@@ -1,27 +1,36 @@
-/* Container for the Coder component */
 .coder {
-    padding-top: 340px;
-    position: relative;
-    max-width: 900px; /* Example: Adjust as needed */
-    min-width: 900px; 
-    min-height: calc(100vh - 100px);
-    margin: 0 auto;
+    position: fixed;
+    top: calc(100vh - calc(100vh - 150px));
+    left: 0;
+    width: 100vw; 
+    height: calc(100vh - 150px);
+    padding-top: 5%;
     border: 3px solid #ccc;
     border-radius: 10px;
     background-color: #f9f9f9;
+    overflow-y: auto;
+    
 }
 
-/* Inner container for scrolling bugs */
-.coder_inner_container {
-    max-height: calc(100vh - 100px);
-    overflow-y: scroll; /* Enables vertical scrolling */
+.coder_search_and_sort_area {
+    position: fixed;
+    top: 100px;
+    left: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    z-index: 500;
+    width: 100%;
+    height: 170px;
+    background-color: #f9f9f9;
 }
 
-.coder_inner_container::-webkit-scrollbar {
-    display: none; /* For Chrome, Safari, and Opera */
+.coder_sort_and_filter_container {
+    padding-top: 120px;
+    gap: 30px;
 }
 
-/* Search container styling */
 .coder_search_container {
     position: fixed;
     top: 150px;
@@ -33,9 +42,19 @@
     color: black;
     width: 550px;
     height: 50px;
+    margin-top: 20px;
 }
 
-/* Search input styling */
+.coder_search_button{
+    background-color: transparent;
+}
+
+.coder_search_icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
 .coder_search_input {
     border: none;
     outline: none;
@@ -50,15 +69,7 @@
     border: 2.5px solid #333;
 }
 
-/* Search icon styling */
-.coder_search_icon {
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-}
-
-/* Combo Box Styles */
-.coder_sort_select {
+.coder_sort_select { 
     border: 1px solid #ccc;
     border-radius: 25px;
     padding: 10px;
@@ -86,14 +97,67 @@
     display: none; /* Hide default arrow for Internet Explorer */
 }
 
-/* Style for dropdown arrow */
 .coder_sort_select::after {
-    content: "▼"; /* Add a down arrow */
+    content: "▼"; 
     font-size: 12px;
     color: #333;
     position: absolute;
     right: 10px;
     top: 50%;
     transform: translateY(-50%);
-    pointer-events: none; /* So the arrow doesn't interfere with dropdown */
+    pointer-events: none; 
+}
+
+
+
+.coder_filter_select { 
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #ffffff;
+    color: #333;
+    margin-left: 10px;
+    cursor: pointer;
+    outline: none;
+    width: 150px; /* Adjust width as needed */
+    transition: border-color 0.3s ease;
+    position: relative; /* To place the custom arrow */
+}
+
+.coder_filter_select:focus {
+    border-color: #666;
+}
+
+.coder_filter_select option {
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+.coder_filter_select::-ms-expand {
+    display: none; /* Hide default arrow for Internet Explorer */
+}
+
+.coder_filter_select::after {
+    content: "▼"; 
+    font-size: 12px;
+    color: #333;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; 
+}
+
+
+.coder_sort_and_filter_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.coder_inner_container {
+    padding: 0 18vh;
+    padding-bottom: 150px;
+    margin-top: 10vh;
 }

@@ -132,27 +132,34 @@ function Coder() {
 
     return (
         <div className="coder">
-            <div className="tester_search_container">
-                <input type="text" className="tester_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
-                <img src={searchIcon} className="tester_search_icon" alt="Search" onClick={handleSearch}/>
-            </div>
+            <div className='coder_search_and_sort_area'>
+                <form className="coder_search_container" onSubmit={handleSearch}>
+                    <input 
+                        type="text" 
+                        className="coder_search_input" 
+                        placeholder="Search..." 
+                        value={searchResult} 
+                        onChange={handleSearchChange} 
+                    />
+                    <button type="submit" className="coder_search_button">
+                        <img src={searchIcon} className="coder_search_icon" alt="Search" />
+                    </button>
+                </form>
 
-            <div className="tester_inner_container">
-                {/* Combo Box for Sorting */}
-                <select 
-                    className="tester_sort_select" 
-                    value={sortOption} 
-                    onChange={(e) => setSortOption(e.target.value)}
-                >
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="priority">Priority</option>
-                    <option value="importance">Importance</option>
-                </select>
-
-                <div className="bug-categories-container">
+                <div className='coder_sort_and_filter_container'>
                     <select 
-                        className="bug-categories"
+                        className="coder_sort_select" 
+                        value={sortOption} 
+                        onChange={(e) => setSortOption(e.target.value)}
+                    >
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="priority">Priority</option>
+                        <option value="importance">Importance</option>
+                    </select>
+                
+                    <select 
+                        className="coder_filter_select"
                         value={filterOption} 
                         onChange={(e) => filterBugs(e.target.value)}
                     >
@@ -162,8 +169,10 @@ function Coder() {
                         <option value="Usability">Usability</option>
                         <option value="Security">Security</option>
                     </select>
-                </div>
+                </div> 
+            </div>
 
+            <div className="coder_inner_container">
                 {bugArray.map(bug => (
                     <BugItem
                         key={bug.bugId}

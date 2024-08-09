@@ -154,44 +154,44 @@ function Admin() {
 
     return (
         <div className="admin">
-            <form className="admin_search_container" onSubmit={handleSearch}>
-                <input 
-                    type="text" 
-                    className="admin_search_input" 
-                    placeholder="Search..." 
-                    value={searchResult} 
-                    onChange={handleSearchChange} 
-                />
-                <button type="submit" className="admin_search_button">
-                    <img src={searchIcon} className="admin_search_icon" alt="Search" />
-                </button>
-            </form>
+            <div className='admin_search_and_sort_area'>
+                <form className="admin_search_container" onSubmit={handleSearch}>
+                    <input 
+                        type="text" 
+                        className="admin_search_input" 
+                        placeholder="Search..." 
+                        value={searchResult} 
+                        onChange={handleSearchChange} 
+                    />
+                    <button type="submit" className="admin_search_button">
+                        <img src={searchIcon} className="admin_search_icon" alt="Search" />
+                    </button>
+                </form>
 
-            <div className="admin_sort_container">
-                <select 
-                    className="admin_sort_select" 
-                    value={sortOption} 
-                    onChange={(e) => setSortOption(e.target.value)}
-                >
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="priority">Priority</option>
-                    <option value="importance">Importance</option>
-                </select>
-            </div>
-
-            <div className="bug-categories-container">
-                <select 
-                    className="bug-categories"
-                    value={filterOption} 
-                    onChange={(e) => filterBugs(e.target.value)}
-                >
-                    <option value="Ui">Ui</option>
-                    <option value="Functionality">Functionality</option>
-                    <option value="Performance">Performance</option>
-                    <option value="Usability">Usability</option>
-                    <option value="Security">Security</option>
-                </select>
+                <div className='admin_sort_and_filter_container'>
+                    <select 
+                        className="admin_sort_select" 
+                        value={sortOption} 
+                        onChange={(e) => setSortOption(e.target.value)}
+                    >
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="priority">Priority</option>
+                        <option value="importance">Importance</option>
+                    </select>
+                
+                    <select 
+                        className="admin_filter_select"
+                        value={filterOption} 
+                        onChange={(e) => filterBugs(e.target.value)}
+                    >
+                        <option value="Ui">Ui</option>
+                        <option value="Functionality">Functionality</option>
+                        <option value="Performance">Performance</option>
+                        <option value="Usability">Usability</option>
+                        <option value="Security">Security</option>
+                    </select>
+                </div>
             </div>
 
             {loading && <div>Loading...</div>}

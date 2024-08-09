@@ -275,27 +275,34 @@ function Tester() {
 
     return (
         <div className="tester">
-            <div className="tester_search_container">
-                <input type="text" className="tester_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
-                <img src={searchIcon} className="tester_search_icon" alt="Search" onClick={handleSearch}/>
-            </div>
+            <div className='tester_search_and_sort_area'>
+                <form className="tester_search_container" onSubmit={handleSearch}>
+                    <input 
+                        type="text" 
+                        className="tester_search_input" 
+                        placeholder="Search..." 
+                        value={searchResult} 
+                        onChange={handleSearchChange} 
+                    />
+                    <button type="submit" className="tester_search_button">
+                        <img src={searchIcon} className="tester_search_icon" alt="Search" />
+                    </button>
+                </form>
 
-            <div className="tester_inner_container">
-                {/* Combo Box for Sorting */}
-                <select 
-                    className="tester_sort_select" 
-                    value={sortOption} 
-                    onChange={(e) => setSortOption(e.target.value)}
-                >
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                    <option value="priority">Priority</option>
-                    <option value="importance">Importance</option>
-                </select>
-
-                <div className="bug-categories-container">
+                <div className='tester_sort_and_filter_container'>
                     <select 
-                        className="bug-categories"
+                        className="tester_sort_select" 
+                        value={sortOption} 
+                        onChange={(e) => setSortOption(e.target.value)}
+                    >
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="priority">Priority</option>
+                        <option value="importance">Importance</option>
+                    </select>
+                
+                    <select 
+                        className="tester_filter_select"
                         value={filterOption} 
                         onChange={(e) => filterBugs(e.target.value)}
                     >
@@ -306,14 +313,9 @@ function Tester() {
                         <option value="Security">Security</option>
                     </select>
                 </div>
+            </div>
 
-                <img
-                    src={plusIcon}
-                    className="tester_add_new_bug_button"
-                    alt="Add New Bug"
-                    onClick={handleImageClick}
-                />
-                
+            <div className="tester_inner_container">
                 {Array.isArray(bugArray) && bugArray.map(bug => (
                     <BugItem
                         key={bug.bugId}

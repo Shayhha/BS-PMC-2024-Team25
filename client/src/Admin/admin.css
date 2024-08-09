@@ -1,22 +1,34 @@
 .admin {
-    padding-top: 330px;
-    position: relative;
-    max-width: 1200px; 
-    min-width: 900px; 
-    min-height: calc(100vh - 100px);
-    margin: 0 auto;
+    position: fixed;
+    top: calc(100vh - calc(100vh - 150px));
+    left: 0;
+    width: 100vw; 
+    height: calc(100vh - 150px);
+    padding-top: 5%;
     border: 3px solid #ccc;
     border-radius: 10px;
     background-color: #f9f9f9;
+    overflow-y: auto;
+    
 }
 
-.admin_inner_container {
-    max-height: calc(100vh - 100px);
-    overflow-y: scroll; /* Enables vertical scrolling */
+.admin_search_and_sort_area {
+    position: fixed;
+    top: 100px;
+    left: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    z-index: 500;
+    width: 100%;
+    height: 170px;
+    background-color: #f9f9f9;
 }
 
-.admin_inner_container::-webkit-scrollbar {
-    display: none; /* For Chrome, Safari, and Opera */
+.admin_sort_and_filter_container {
+    padding-top: 120px;
+    gap: 30px;
 }
 
 .admin_search_container {
@@ -35,9 +47,12 @@
 
 .admin_search_button{
     background-color: transparent;
-    padding: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 25px;
+}
+
+.admin_search_icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
 }
 
 .admin_search_input {
@@ -54,72 +69,98 @@
     border: 2.5px solid #333;
 }
 
-.admin_search_icon {
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-
-}
-
-.admin_sort_select {
+.admin_sort_select { 
     border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px 17px;
+    border-radius: 25px;
+    padding: 10px;
     font-size: 16px;
-    margin-right: 15px;
-    background-color: white;
-    color: black;
+    background-color: #ffffff;
+    color: #333;
+    margin-left: 10px;
     cursor: pointer;
+    outline: none;
+    width: 150px; /* Adjust width as needed */
+    transition: border-color 0.3s ease;
+    position: relative; /* To place the custom arrow */
 }
 
-.admin_add_new_bug_button {
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
+.admin_sort_select:focus {
+    border-color: #666;
 }
 
-.admin_popup_overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+.admin_sort_select option {
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+.admin_sort_select::-ms-expand {
+    display: none; /* Hide default arrow for Internet Explorer */
+}
+
+.admin_sort_select::after {
+    content: "▼"; 
+    font-size: 12px;
+    color: #333;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; 
+}
+
+
+.admin_filter_select { 
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    padding: 10px;
+    font-size: 16px;
+    background-color: #ffffff;
+    color: #333;
+    margin-left: 10px;
+    cursor: pointer;
+    outline: none;
+    width: 150px; /* Adjust width as needed */
+    transition: border-color 0.3s ease;
+    position: relative; /* To place the custom arrow */
+}
+
+.admin_filter_select:focus {
+    border-color: #666;
+}
+
+.admin_filter_select option {
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+.admin_filter_select::-ms-expand {
+    display: none; /* Hide default arrow for Internet Explorer */
+}
+
+.admin_filter_select::after {
+    content: "▼"; 
+    font-size: 12px;
+    color: #333;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; 
+}
+
+
+.admin_sort_and_filter_container {
     display: flex;
-    align-items: center;
+    flex-direction: row;
     justify-content: center;
 }
 
-.admin_popup {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 80%;
-    max-width: 600px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    position: relative; /* Ensure the close button is positioned correctly */
+.admin_inner_container {
+    padding: 0 18vh;
+    padding-bottom: 150px;
+    margin-top: 10vh;
 }
 
-.admin_popup_close_button {
-    font-size: 24px;
-    cursor: pointer;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-.admin_popup_submit_button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.admin_popup_submit_button:hover {
-    background-color: #0056b3;
-}
 
 /* Optional: Add styling for error messages and loading indicators */
 .error {
@@ -132,3 +173,4 @@
     font-size: 16px;
     margin-top: 10px;
 }
+

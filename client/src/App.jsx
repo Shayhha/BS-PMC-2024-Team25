@@ -17,21 +17,23 @@ import UsersListPage from './UsersListPage.jsx';
 function App() {
 
   return (
-    <Router>
-      <NavBar />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/tester" element={<Tester />} />
-        <Route path="/coder" element={<Coder />} />
-        <Route path="/homepage" element={<HomePage />} />
-        <Route path="/editUser" element={<EditUser />} />
-        <Route path="/removeUser" element={<UsersListPage />} />
-        {/* Add more routes as needed */}
-      </Routes>
-    </Router>
+    <div className='app_main_div'>
+      <Router>
+        <NavBar />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/tester" element={<Tester />} />
+          <Route path="/coder" element={<Coder />} />
+          <Route path="/homepage" element={<HomePage />} />
+          <Route path="/editUser" element={<EditUser />} />
+          <Route path="/removeUser" element={<UsersListPage />} />
+          {/* Add more routes as needed */}
+        </Routes>
+      </Router>
+    </div>
   );
 }
 
