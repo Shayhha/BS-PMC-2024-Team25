@@ -216,6 +216,8 @@ function Admin() {
                             openDate={bug.openDate}
                             isAdmin={true}
                             listOfCoders={coders}
+                            update_counter={bug.updateCounter}       // הוסף את שדה ה-updateCounter
+                            update_dates={bug.updateDates} 
                         />
                     ))}
                 </div>

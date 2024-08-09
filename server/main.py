@@ -195,24 +195,21 @@ class SQLHelper(ABC):
             return jsonify(f'Error: {e}')
 
 
-    # insert given bug into the database     
-    def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest):
+        # insert given bug into the database     
+    def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest, updateCounter, updateDates):
         try:
-            # SQL insert statement
             insert_sql = """
-            INSERT INTO Bugs (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO Bugs (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest, updateCounter, updateDates)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
 
-            # Execute the insert statement
-            self.cursor.execute(insert_sql, (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest))
-
-            # Commit the transaction
+            self.cursor.execute(insert_sql, (bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest, updateCounter, updateDates))
             self.connection.commit()
             print("\nData inserted successfully")
         except Exception as e:
             print(f"Error occurred: {e}")
             raise
+
 
 
     #updating email in edituser
@@ -241,7 +238,7 @@ class SQLHelper(ABC):
              raise
 
 
-    def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None, category=None, bugSuggest=None):
+    def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None, category=None, bugSuggest=None, updateCounter=None, updateDates=None):
         try:
             fields = []
             values = []
@@ -278,9 +275,17 @@ class SQLHelper(ABC):
                 fields.append("bugSuggest = ?")
                 values.append(bugSuggest)
 
+            if updateCounter is not None:
+                fields.append("updateCounter = ?")
+                values.append(updateCounter)
+
+            if updateDates is not None:
+                fields.append("updateDates = ?")
+                temp=','.join(updateDates)
+                values.append(temp)  # שמירת תאריכים כטקסט מופרד בפסיקים
+
             values.append(bug_id)
 
-            # If there are no fields to update, exit the function
             if not fields:
                 return False
 
@@ -290,15 +295,10 @@ class SQLHelper(ABC):
             self.cursor.execute(query, values)
             self.connection.commit()
 
-            if self.cursor.rowcount > 0:
-                return True
-            else:
-                return False
+            return self.cursor.rowcount > 0
         except Exception as e:
             print(f'Error: {e}')
             return False
-
-
     # fucntion for getting users from database
     def getUsers(self):
         try:
@@ -640,9 +640,10 @@ class BugFixer(ABC):
                 data.get('openDate'), 
                 None,
                 data.get('category'),
-                bugSuggestion)
-
-            
+                bugSuggestion,
+                0,  #initial the counter to 0 
+                []
+            )
             return jsonify({'message': 'Bug data received successfully'}), 200
         except Exception as e:
             print(f"Error occurred: {e}")
@@ -677,15 +678,15 @@ class BugFixer(ABC):
         creationDate = data.get('creationDate')
         openDate = data.get('openDate')
         bugSuggestion = data.get('suggestion')
-
+        updateCounter = data.get('updateCounter')
+        updateDates = data.get('updateDates')
         # get bug importance and priority rating from Groq AI
         if data.get('isDescChanged') == '1':
             importance = HelperFunctions.handleBugImportance(bugName, bugDesc)
             priority = HelperFunctions.handleBugPriority(bugName, bugDesc)
             bugSuggestion = HelperFunctions.handleBugSuggestion(data.get('title'),data.get('description'))
-
         # update database with new values
-        if db.updateBug(bugId, bugName, bugDesc, status, importance, priority, assignedId, category, bugSuggestion):
+        if db.updateBug(bugId, bugName, bugDesc, status, importance, priority, assignedId, category, bugSuggestion,updateCounter,updateDates):
              return jsonify({
                 'bugId': bugId,
                 'bugName': bugName,
@@ -697,7 +698,11 @@ class BugFixer(ABC):
                 'importance': importance,
                 'creationDate': creationDate,
                 'openDate': openDate,
-                'bugSuggest': bugSuggestion
+                'bugSuggest': bugSuggestion,
+                'updateCounter': updateCounter,
+                'updateDates': updateDates
+                
+
                 }), 200
         else:
             return jsonify({'error': 'Failed to update bug'}), 500

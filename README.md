@@ -79,6 +79,8 @@ The application is developed as a course project using the SCRUM methodology, wi
 - User-friendly interface: Intuitive UI that makes it easy to manage and prioritize bugs.
 
 
+
+
 ## License
 tbd
 

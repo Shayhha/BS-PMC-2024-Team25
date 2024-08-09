@@ -1,6 +1,8 @@
 import pytest
 from main import HelperFunctions as HF, SQLHelper
 from dotenv import load_dotenv
+from datetime import datetime
+
 db = None
 
 
@@ -630,3 +632,12 @@ def test_handle_bug_suggestion():
         assert str(groqResponse).isprintable()
     except Exception as e:
         pytest.fail(f"handleSuggestion raised an exception: {e}")
+
+def should_send_notification(close_date_str, last_notification_date_str):
+    today = datetime.now().date()
+    close_date = datetime.strptime(close_date_str, '%Y-%m-%d').date()
+    last_notification_date = datetime.strptime(last_notification_date_str, '%Y-%m-%d').date() if last_notification_date_str else None
+    
+    if close_date == today and (last_notification_date is None or last_notification_date != today):
+        return True
+    return False        
