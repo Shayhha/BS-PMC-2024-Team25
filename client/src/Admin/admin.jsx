@@ -11,6 +11,21 @@ function Admin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [sortOption, setSortOption] = useState('newest');
+    const [filterOption, setFilterOption] = useState('Functionality');
+
+    const categoryOptions = ["Ui", "Functionality", "Performance", "Usability", "Security"]; // Options for category dropdown
+
+    const filterBugs = async (newValue) => {
+        setFilterOption(newValue);
+        await fetchBugs();
+        // Update the bug array state based on the new filter option
+        setBugArray(prevBugArray => {
+            // Filter based on the new filter option
+            return newValue && categoryOptions.includes(newValue)
+                ? prevBugArray.filter(bug => bug.category === newValue)
+                : prevBugArray;
+        });
+    }
 
     const retryFetch = async (fetchFunction, retries = 3) => {
         let lastError = null;
@@ -112,7 +127,7 @@ function Admin() {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8090/homePage/search', { searchResult });
+            const response = await axios.post('http://localhost:8090/homePage/search', { searchResult });            
             if (Array.isArray(response.data)) {
                 setBugArray(response.data);
             } else {
@@ -165,6 +180,20 @@ function Admin() {
                 </select>
             </div>
 
+            <div className="bug-categories-container">
+                <select 
+                    className="bug-categories"
+                    value={filterOption} 
+                    onChange={(e) => filterBugs(e.target.value)}
+                >
+                    <option value="Ui">Ui</option>
+                    <option value="Functionality">Functionality</option>
+                    <option value="Performance">Performance</option>
+                    <option value="Usability">Usability</option>
+                    <option value="Security">Security</option>
+                </select>
+            </div>
+
             {loading && <div>Loading...</div>}
             {error && <div className="error">{error}</div>}
 
@@ -178,6 +207,7 @@ function Admin() {
                             description={bug.bugDesc}
                             suggestion={bug.bugSuggest}
                             status={bug.status}
+                            category={bug.category}
                             assignedUserId={bug.assignedId}
                             assignedUsername={bug.assignedUsername}
                             priority={bug.priority}

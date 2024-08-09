@@ -242,7 +242,6 @@ class SQLHelper(ABC):
 
 
     def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None, category=None, bugSuggest=None):
-
         try:
             fields = []
             values = []
@@ -619,7 +618,6 @@ class BugFixer(ABC):
         bugImportance = HelperFunctions.handleBugImportance(data.get('title'), data.get('description'))
         bugPriority = HelperFunctions.handleBugPriority(data.get('title'),data.get('description'))
         bugSuggestion = HelperFunctions.handleBugSuggestion(data.get('title'),data.get('description'))
-        print(bugSuggestion)
 
         # add the priority and importance to the bug after the AI classification
         data["priority"] = bugPriority
@@ -641,8 +639,9 @@ class BugFixer(ABC):
                 data.get('creationDate'), 
                 data.get('openDate'), 
                 None,
-                'Functionality', #! remebr to remove
+                data.get('category'),
                 bugSuggestion)
+
             
             return jsonify({'message': 'Bug data received successfully'}), 200
         except Exception as e:
@@ -671,12 +670,13 @@ class BugFixer(ABC):
         bugName = data.get('bugName')
         bugDesc = data.get('bugDesc')
         status = data.get('status')
+        category = data.get('category')
         importance = data.get('importance')
         priority = data.get('priority')
         assignedId = data.get('assignedId')
         creationDate = data.get('creationDate')
         openDate = data.get('openDate')
-        category = 'Functionality' #! remember to remove
+        bugSuggestion = data.get('suggestion')
 
         # get bug importance and priority rating from Groq AI
         if data.get('isDescChanged') == '1':
@@ -691,12 +691,12 @@ class BugFixer(ABC):
                 'bugName': bugName,
                 'bugDesc': bugDesc,
                 'status': status,
+                'category': category,
                 'assignedId': assignedId,
                 'priority': priority,
                 'importance': importance,
                 'creationDate': creationDate,
                 'openDate': openDate,
-                'category': category, 
                 'bugSuggest': bugSuggestion
                 }), 200
         else:

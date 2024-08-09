@@ -3,14 +3,15 @@ import './BugItem.css';
 import trashIcon from './assets/trashIcon.png';
 import axios from 'axios';
 
+
 function BugItem({
-    bugId, title, description, suggestion, status, assignedUserId, assignedUsername, 
+    bugId, title, description, suggestion, status, category, assignedUserId, assignedUsername, 
     priority, importance, creationDate, openDate, closeDate, isAdmin, onSave, 
     listOfCoders, update_counter, update_dates
 }) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedBug, setEditedBug] = useState({
-        bugId, bugName: title, bugDesc: description, status, assignedId: assignedUserId,
+        bugId, bugName: title, bugDesc: description, suggestion: suggestion, status, category, assignedId: assignedUserId,
         assignedName: assignedUsername, priority, importance, creationDate, openDate, closeDate,
         isDescChanged: '0'
     });
@@ -20,7 +21,8 @@ function BugItem({
     const [assignedToCoder, setAssignedToCoder] = useState({ uid: 0, uname: "" });
     const [notificationSent, setNotificationSent] = useState(false);
 
-    const statusOptions = ["In Progress", "New", "Done"];
+    const statusOptions = ["In Progress", "New", "Done"]; // Options for status dropdown
+    const categoryOptions = ["Ui", "Functionality", "Performance", "Usability", "Security"]; // Options for category dropdown
 
     useEffect(() => {
         const checkAndNotify = async () => {
@@ -99,10 +101,12 @@ function BugItem({
             editedBug.update_dates = [...updateDates, new Date().toISOString()];
 
             const response = await axios.post('http://localhost:8090/homePage/updateBug', editedBug);
+            
             if (!response.data.error) {
                 response.data['assignedUsername'] = editedBug['assignedName'];
                 response.data['assignedId'] = editedBug['assignedId'] === null ? 0 : assignedToCoder.uid;
                 onSave(response.data); 
+                editedBug.suggestion = response.data.bugSuggest;
                 setUpdateCounter(updateCounter + 1);
                 setUpdateDates([...updateDates, new Date().toISOString()]);
                 console.log('Bug updated successfully');
@@ -199,8 +203,6 @@ function BugItem({
         }
     };
 
-   
-
     const cardClass = (priority > 7 || importance > 7) ? 'bug-item-div high-priority' : 'bug-item-div';
 
     return (
@@ -226,6 +228,20 @@ function BugItem({
                             onChange={handleInputChange} 
                             className="bug-item-select">
                             {statusOptions.map(option => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="bug-item-row">
+                        <label htmlFor="category">Category:</label>
+                        <select 
+                            id="category" 
+                            name="category" 
+                            value={editedBug.category} 
+                            onChange={handleInputChange} 
+                            className="bug-item-select" // Added className for consistent styling
+                        >
+                            {categoryOptions.map(option => (
                                 <option key={option} value={option}>{option}</option>
                             ))}
                         </select>
@@ -271,11 +287,11 @@ function BugItem({
                         <p className="bug-item-title">{title}</p>
                     </div>
                     <div className="bug-item-info">
-                    <div className="bug-item-label">Description:</div>
+                        <div className="bug-item-label">Description:</div>
                         <p className="bug-item-description">{description}</p>
                     </div>
                     <div className="bug-item-info">
-                    <div className="bug-item-label">Suggestion:</div>
+                        <div className="bug-item-label">Suggestion:</div>
                         <p className="bug-item-description">{suggestion}</p>
                     </div>
                     <div className="bug-item-info">
@@ -298,6 +314,11 @@ function BugItem({
                         <p className="bug-item-assigned-p">{assignedUserId === 0 ? `${assignedUsername}` : `${assignedUsername} - ${assignedUserId}`}</p>
                     </div> 
                 )}
+
+                <div className="bug-item-info">
+                    <div className="bug-item-label">Category:</div>
+                    <p className="bug-item-label">{category}</p>
+                </div>
 
                 <div className="bug-item-info">
                     <div className="bug-item-label">Priority:</div>
@@ -332,9 +353,11 @@ function BugItem({
                     </ul>
                 </div>
                 <div className="button-container">
-                    {(isAdmin && (status === "Done")) ? (
-                        <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" />
-                    ) : (
+                    {(isAdmin && (status === "Done")) && (
+                        <img src={trashIcon} className="bug-item-remove-button" onClick={handleDeleteBug} alt="Remove Bug Icon" ></img>
+                    )}
+
+                    {!isAdmin && ( 
                         <button onClick={handleEditClick} className="bug-item-edit-button">Edit</button>
                     )}
                 </div>

@@ -8,10 +8,24 @@ function Coder() {
     const [bugArray, setBugArray] = useState([]);
     const [searchResult, setSearchResult] = useState("");
     const [sortOption, setSortOption] = useState('newest');
+    const [filterOption, setFilterOption] = useState('Functionality');
     const [oldestDate, setOldestDate] = useState(null);
     const [newestDate, setNewestDate] = useState(null);
     const [bugDateStatus, setBugDateStatus] = useState({});
     
+    const categoryOptions = ["Ui", "Functionality", "Performance", "Usability", "Security"]; // Options for category dropdown
+
+    const filterBugs = async (newValue) => {
+        setFilterOption(newValue);
+        await fetchBugs();
+        // Update the bug array state based on the new filter option
+        setBugArray(prevBugArray => {
+            // Filter based on the new filter option
+            return newValue && categoryOptions.includes(newValue)
+                ? prevBugArray.filter(bug => bug.category === newValue)
+                : prevBugArray;
+        });
+    }
 
     // Function to parse date string
     const parseDate = (dateStr) => {
@@ -136,6 +150,20 @@ function Coder() {
                     <option value="importance">Importance</option>
                 </select>
 
+                <div className="bug-categories-container">
+                    <select 
+                        className="bug-categories"
+                        value={filterOption} 
+                        onChange={(e) => filterBugs(e.target.value)}
+                    >
+                        <option value="Ui">Ui</option>
+                        <option value="Functionality">Functionality</option>
+                        <option value="Performance">Performance</option>
+                        <option value="Usability">Usability</option>
+                        <option value="Security">Security</option>
+                    </select>
+                </div>
+
                 {bugArray.map(bug => (
                     <BugItem
                         key={bug.bugId}
@@ -144,6 +172,7 @@ function Coder() {
                         description={bug.bugDesc}
                         suggestion={bug.bugSuggest}
                         status={bug.status}
+                        category={bug.category}
                         assignedUserId={bug.assignedId} 
                         assignedUsername={bug.assignedUsername} 
                         priority={bug.priority}
