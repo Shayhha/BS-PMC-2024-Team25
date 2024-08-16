@@ -1,0 +1,135 @@
+.reports-list-page {
+    position: fixed;
+    top: calc(100vh - calc(100vh - 150px));
+    left: 22.5%;
+    width: 50vw;
+    height: calc(100vh - 250px);
+    padding-top: 20px; /* Adjusted top padding */
+    margin: 25px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: black;
+    padding: 20px;
+}
+
+.reports-list-container {
+    width: 100%;
+    max-height: calc(100vh - 250px); /* Adjusted for better fit */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Reduced gap between items */
+    margin: 0;
+}
+
+.reports-list-reports-item {
+    width: 90%; /* Adjusted width for better spacing */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center; /* Center text horizontally */
+    align-items: center; /* Center text vertically */
+    color: black;
+    margin: 8px 0; /* Reduced margin */
+    padding: 10px; /* Reduced padding for smaller rows */
+    border-radius: 8px;
+    background-color: #ebebeb;
+    transition: background-color 0.3s ease;
+    border: 1px solid #ccc;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+    cursor: pointer; /* Added cursor pointer to indicate clickability */
+}
+
+.reports-list-reports-item:hover {
+    background-color: #dadada;
+}
+
+.reports-list-reports-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: center; /* Center text horizontally */
+    align-items: center; /* Center text vertically */
+    color: black;
+    width: 100%; /* Ensure it uses full width of item */
+}
+
+.reports-list-title {
+    padding-top: 10px; /* Adjusted top padding */
+    font-size: 42px;
+}
+
+.reports-list-reports-name {
+    font-size: 20px; /* Adjusted font size for readability */
+    width: 100%; /* Adjusted to use full width */
+    padding: 0 10px; /* Adjusted padding */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.reports_popup_overlay {
+    position: fixed;
+    top: 10%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.report_add_new_report_button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 20px 20px;
+    margin: 10px;
+    background-color: #4CAF50; /* Nice green color */
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s;
+}
+
+.report_add_new_report_button:hover {
+    background-color: #45a049; /* Slightly darker green on hover */
+}
+
+/* Webkit-based browsers (Chrome, Safari) */
+.reports-list-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+.reports-list-container::-webkit-scrollbar-track {
+    background: transparent; /* Makes the track transparent */
+}
+
+.reports-list-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3); /* Slightly visible thumb */
+    border-radius: 10px;
+    border: 3px solid transparent; /* Makes the scrollbar thumb edges transparent */
+}
+
+/* For Firefox */
+.reports-list-container {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+
+/* For Internet Explorer and Edge */
+.reports-list-container {
+    -ms-overflow-style: none; /* Hides the scrollbar for IE and Edge */
+}
+
+/* General styling for non-webkit browsers (fallback) */
+.reports-list-container {
+    overflow-y: auto; /* Only show the scrollbar when necessary */
+}
+
