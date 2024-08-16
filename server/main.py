@@ -443,6 +443,48 @@ class SQLHelper(ABC):
             print(f"An error occurred while pushing notifications to all users: {e}")
             return False
         
+    # Function for getting all comments of a specific bug using the given bugId
+    def getBugCommentsById(self, bugId):
+        sql_query = "SELECT * FROM BugComments WHERE bugId = ?"
+        try:
+            load_dotenv()
+            connectionString = os.getenv('DB_CONNECTION_STRING')
+            
+            with pyodbc.connect(connectionString) as connection:
+                with connection.cursor() as cursor:
+                    # Fetch all comments for this bug
+                    cursor.execute(sql_query, (bugId,)) 
+                    comments = cursor.fetchall()
+                    commentsList = [dict(zip([column[0] for column in cursor.description], row)) for row in comments]
+
+                    # Fetch all coders and create a dictionary mapping userId in BugComments to userName in Users
+                    allCodersList = db.getAllCoders()
+
+                    # Create the userIdToUsername dictionary 
+                    userIdToUsername = {}
+                    for coder in allCodersList:
+                        userIdToUsername[coder['userId']] = coder['userName']
+
+                    # Replace userId with the corresponding username in commentsList
+                    for comment in commentsList:
+                        if comment['userId'] in userIdToUsername:
+                            comment['userId'] = userIdToUsername[comment['userId']]  # Replace userId with userName
+
+                    return jsonify(commentsList)
+        except Exception as e:
+            return jsonify(f'Error: {e}')
+        
+    # Function for adding a new comment to a bug in the database
+    def addCommentToBug(self, bugId, userId, commentInfo):
+        sql_query = "INSERT INTO BugComments (bugId, userId, commentInfo) VALUES (?, ?, ?)"
+        try:
+            self.cursor.execute(sql_query, (bugId, userId, commentInfo, ))
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f"An error occurred while adding a comment to a bug: {e}")
+            return False
+
         
         
 # ==================================================================================================================== #
@@ -812,6 +854,31 @@ class BugFixer(ABC):
             raise ValueError("Could not push notifications to all users")
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+    # Function for getting all the comments for a bug using the bugId  
+    @app.route('/bugComments/getBugCommentsById', methods=['POST'])
+    def getBugCommentsById():
+        bugId = request.json
+        try:
+            comments = db.getBugCommentsById(bugId['bug_Id'])
+            return comments
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        
+    # Function for adding a comment to a bug in the database
+    @app.route('/bugComments/addCommentToBug', methods=['POST'])
+    def addCommentToBug():
+        data = request.json 
+        bugId = data['bugId']
+        userId = data['userId']
+        commentInfo = data['commentInfo']
+        try:
+            response = db.addCommentToBug(bugId, userId, commentInfo)
+            if response:
+                return jsonify({'message': 'Comment added successfully'}), 200
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+    
         
 
 # ==================================================================================================================== #

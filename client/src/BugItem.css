@@ -18,7 +18,7 @@
 
 .bug-item-title {
     color: #555;
-    font-size: 24px;
+    font-size: 32px;
     font-weight: bold;
     margin-bottom: 10px;
     text-align: center;
@@ -47,9 +47,16 @@
 }
 
 .bug-item-info {
+    font-size: 18px;
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.bug-item-stats {
+    display: flex;
+    gap: 30px;
+    color: black;
 }
 
 .bug-item-assigned-combobox {
@@ -130,8 +137,9 @@
     font-size: 18px;
 }
 
-.bug-item-label {
+.bug-item-edit-label {
     color: black;
+    margin-right: 10px;
 }
 
 .bug-item-cancel-button {
@@ -203,6 +211,24 @@
 
 .bug-item-edit-button:hover {
     background-color: #218838;
+}
+
+.bug-item-comments-button {
+    padding: 10px 20px;
+    margin-left: 20px;
+    margin-top: 15px;
+    background-color: #514588;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.bug-item-comments-button:hover {
+    color: #fff;
+    background-color: #362E5B;
 }
 
 .bug-item-status {
