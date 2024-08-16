@@ -195,7 +195,7 @@ class SQLHelper(ABC):
             return jsonify(f'Error: {e}')
 
 
-        # insert given bug into the database     
+    # insert given bug into the database     
     def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest, updateCounter, updateDates):
         try:
             insert_sql = """
@@ -299,6 +299,8 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return False
+        
+
     # fucntion for getting users from database
     def getUsers(self):
         try:
@@ -443,6 +445,49 @@ class SQLHelper(ABC):
             print(f"An error occurred while pushing notifications to all users: {e}")
             return False
         
+
+    # function for getting all reports of desired manager
+    def getReports(self, managerId):
+        try:
+            db.cursor.execute('SELECT * FROM Reports WHERE managerId = ?', (managerId,)) 
+            reports = db.cursor.fetchall()
+            reportsList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in reports]
+            return reportsList
+        except Exception as e:
+            return None
+    
+
+    # function for inserting new report in database
+    def createReport(self, managerId, creationDate, creationTime):
+        try:
+            self.cursor.execute('SELECT COUNT(*) FROM Bugs WHERE status <> \'Done\'')
+            openBugs = self.cursor.fetchone()[0]  # get the result of open bugs
+            
+            self.cursor.execute('SELECT COUNT(*) FROM Bugs WHERE status = \'Done\'')
+            closedBugs = self.cursor.fetchone()[0]  # Get the result of closed bugs
+            
+            self.cursor.execute('SELECT COUNT(*) FROM Bugs WHERE priority > 7')
+            priorityBugs = self.cursor.fetchone()[0]  # Get the result of priority bugs
+            
+            self.cursor.execute('SELECT COUNT(*) FROM Bugs WHERE importance > 7')
+            importanceBugs = self.cursor.fetchone()[0]  # Get the result of importance bugs
+            
+            # insert the report data
+            query = 'INSERT INTO Reports (managerId, openBugs, closedBugs, priorityBugs, importanceBugs, creationDate, creationTime) VALUES (?, ?, ?, ?, ?, ?, ?)'
+            self.cursor.execute(query, (managerId, openBugs, closedBugs, priorityBugs, importanceBugs, creationDate, creationTime))
+            self.connection.commit()  
+            
+            if self.cursor.rowcount > 0:
+                return True
+            else:
+                return False  # report not inserted
+
+        except Exception as e:
+            print(f'Error adding report: {e}')
+            self.connection.rollback()  
+            return False
+
+          
     # Function for getting all comments of a specific bug using the given bugId
     def getBugCommentsById(self, bugId):
         sql_query = "SELECT * FROM BugComments WHERE bugId = ?"
@@ -473,6 +518,7 @@ class SQLHelper(ABC):
                     return jsonify(commentsList)
         except Exception as e:
             return jsonify(f'Error: {e}')
+        
         
     # Function for adding a new comment to a bug in the database
     def addCommentToBug(self, bugId, userId, commentInfo):
@@ -704,7 +750,7 @@ class BugFixer(ABC):
             return jsonify({'error': 'failed to perform database query'}), 500
 
 
-        # function for updating bugs information using AI
+    # function for updating bugs information using AI
     @app.route('/homePage/updateBug', methods=['POST'])
     def updateBug():
         data = request.json  
@@ -743,8 +789,6 @@ class BugFixer(ABC):
                 'bugSuggest': bugSuggestion,
                 'updateCounter': updateCounter,
                 'updateDates': updateDates
-                
-
                 }), 200
         else:
             return jsonify({'error': 'Failed to update bug'}), 500
@@ -855,6 +899,7 @@ class BugFixer(ABC):
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
 
+          
     # Function for getting all the comments for a bug using the bugId  
     @app.route('/bugComments/getBugCommentsById', methods=['POST'])
     def getBugCommentsById():
@@ -864,6 +909,7 @@ class BugFixer(ABC):
             return comments
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        
         
     # Function for adding a comment to a bug in the database
     @app.route('/bugComments/addCommentToBug', methods=['POST'])
@@ -879,8 +925,33 @@ class BugFixer(ABC):
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
     
+
+    # function for getting all reports of manager from database
+    @app.route('/reports/getReports', methods=['GET'])
+    def getReports():
+        try:
+            global globalUser
+            reportList = db.getReports(globalUser.userId)
+            return jsonify(reportList), 200
+        except:
+            return jsonify({'error': 'Failed to perform database query'}), 500
         
 
+    # function for getting all reports of manager from database
+    @app.route('/reports/createReport', methods=['GET'])
+    def createReport():
+        try:
+            global globalUser
+            currentDate = datetime.today().strftime('%d/%m/%Y') # get current date
+            currentTime = datetime.now().strftime("%H:%M:%S") # get current time
+            if (db.createReport(globalUser.userId, currentDate, currentTime)): # call db function to create report
+                return jsonify({'message': 'Created report successfully'}), 200
+            else:
+                raise
+        except:
+            return jsonify({'error': 'Failed to perform database query'}), 500
+            
+        
 # ==================================================================================================================== #
 
 # =============================================HelperFunctions-Class================================================== #

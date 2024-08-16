@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './NavBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCog, faSignOutAlt, faBell } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCog, faSignOutAlt, faBell, faFileAlt} from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 function NavBar() {
@@ -236,6 +236,11 @@ function NavBar() {
                                     )}
                                     <button onClick={() => setDropdownVisible(prev => ({ ...prev, notifications: false }))} className="notification-close">Close</button>
                                 </div>
+                            )}
+                            {userType === 'Manager' && (
+                                <Link to="/reports" className="reports-icon" role="menuitem">
+                                    <FontAwesomeIcon icon={faFileAlt} className="reports-icon" />
+                                </Link>
                             )}
                             <div
                                 className="navbar_profile-icon"

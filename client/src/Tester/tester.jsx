@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './tester.css';
-import plusIcon from '../assets/plusIcon.png';
+import { FaPlus } from 'react-icons/fa';
 import searchIcon from '../assets/searchIcon.png';
 import BugItem from '../BugItem';
 import axios from 'axios';
@@ -315,12 +315,15 @@ function Tester() {
                 </div>
             </div>
 
-            <img
+            {/* <img
                 src={plusIcon}
                 className="tester_add_new_bug_button"
                 alt="Add New Bug"
                 onClick={handleImageClick}
-            />
+            /> */}
+            <button onClick={handleImageClick} className='tester_add_new_bug_button'>
+                <FaPlus style={{ fontSize: '40px', marginRight: '0px'}} />
+            </button>
 
             <div className="tester_inner_container">
                 {Array.isArray(bugArray) && bugArray.map(bug => (
