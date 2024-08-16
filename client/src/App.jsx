@@ -14,6 +14,7 @@ import Coder from './Coder/coder.jsx';
 import Tester from './Tester/tester.jsx'; 
 import UsersListPage from './UsersListPage.jsx';
 import Reports from './Reports.jsx';
+import BugComments from './BugComments.jsx';
 
 function App() {
 
@@ -32,6 +33,7 @@ function App() {
           <Route path="/editUser" element={<EditUser />} />
           <Route path="/removeUser" element={<UsersListPage />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/bugComments" element={<BugComments />} />
           {/* Add more routes as needed */}
         </Routes>
       </Router>

@@ -214,7 +214,9 @@ function Admin() {
                             importance={bug.importance}
                             creationDate={bug.creationDate}
                             openDate={bug.openDate}
+                            closeDate={bug.closeDate}
                             isAdmin={true}
+                            isCoder={false}
                             listOfCoders={coders}
                             update_counter={bug.updateCounter}       // הוסף את שדה ה-updateCounter
                             update_dates={bug.updateDates} 

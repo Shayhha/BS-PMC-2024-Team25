@@ -343,6 +343,7 @@ function Tester() {
                         openDate={bug.openDate}
                         closeDate={bug.closeDate}
                         isAdmin={false} // Adjust this based on actual admin check
+                        isCoder={false}
                         onSave={handleSave}
                         dateStatus={bugDateStatus[bug.bugId]} // Pass the date status
                         listOfCoders={coders}
