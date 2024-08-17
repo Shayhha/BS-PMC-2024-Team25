@@ -177,9 +177,9 @@ class SQLHelper(ABC):
     # fucntion for getting bugs from database
     def getBugs(self):
         try:
-            db.cursor.execute('SELECT * FROM Bugs') 
-            bugs = db.cursor.fetchall()
-            bugList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in bugs]
+            self.cursor.execute('SELECT * FROM Bugs') 
+            bugs = self.cursor.fetchall()
+            bugList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in bugs]
 
             #checking the return value of the assignedId and get the name of the user. this is needed later in the UI side of things...
             for bug in bugList:
@@ -304,9 +304,9 @@ class SQLHelper(ABC):
     # fucntion for getting users from database
     def getUsers(self):
         try:
-            db.cursor.execute('SELECT * FROM Users WHERE userType <> \'Manager\' AND isDeleted = 0') 
-            users = db.cursor.fetchall()
-            userList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in users]
+            self.cursor.execute('SELECT * FROM Users WHERE userType <> \'Manager\' AND isDeleted = 0') 
+            users = self.cursor.fetchall()
+            userList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in users]
             return jsonify(userList)
         except Exception as e:
             return jsonify(f'Error: {e}')
@@ -329,10 +329,10 @@ class SQLHelper(ABC):
             connectionString = os.getenv('DB_CONNECTION_STRING')
             with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
                 with connection.cursor() as cursor:
-                    cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
+                    self.cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
                     users = cursor.fetchall()
                     print('Fetched data successfully from database')
-                    userList = [dict(zip([column[0] for column in cursor.description], row)) for row in users]
+                    userList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in users]
                     return userList
         except:
             return False
@@ -340,8 +340,8 @@ class SQLHelper(ABC):
 
     def getUsernameById(self, userId): 
         try:
-            db.cursor.execute('SELECT userName FROM Users WHERE userId = ?', (userId,))
-            row = db.cursor.fetchone()
+            self.cursor.execute('SELECT userName FROM Users WHERE userId = ?', (userId,))
+            row = self.cursor.fetchone()
             if row is None:
                 print(f'No user found with userId: {userId}')
                 return None
@@ -355,10 +355,10 @@ class SQLHelper(ABC):
         try:
             query = f"UPDATE Bugs SET assignedId = ? WHERE bugId = ?" 
 
-            db.cursor.execute(query, (userId, bugId,))
-            db.connection.commit()
+            self.cursor.execute(query, (userId, bugId,))
+            self.connection.commit()
 
-            if db.cursor.rowcount > 0:
+            if self.cursor.rowcount > 0:
                 return True
             else:
                 return False
@@ -374,9 +374,9 @@ class SQLHelper(ABC):
             connectionString = os.getenv('DB_CONNECTION_STRING')
             with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
                 with connection.cursor() as cursor:
-                    cursor.execute('SELECT * FROM Notifications WHERE userId = ?', (user_id,))
-                    notifications = cursor.fetchall()
-                    notificationsList = [dict(zip([column[0] for column in cursor.description], row)) for row in notifications]
+                    self.cursor.execute('SELECT * FROM Notifications WHERE userId = ?', (user_id,))
+                    notifications = self.cursor.fetchall()
+                    notificationsList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in notifications]
                     return jsonify(notificationsList)
         except Exception as e:
             print(f"An error occurred while fetching notifications: {e}")
@@ -449,9 +449,9 @@ class SQLHelper(ABC):
     # function for getting all reports of desired manager
     def getReports(self, managerId):
         try:
-            db.cursor.execute('SELECT * FROM Reports WHERE managerId = ?', (managerId,)) 
-            reports = db.cursor.fetchall()
-            reportsList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in reports]
+            self.cursor.execute('SELECT * FROM Reports WHERE managerId = ?', (managerId,)) 
+            reports = self.cursor.fetchall()
+            reportsList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in reports]
             return reportsList
         except Exception as e:
             return None
@@ -531,7 +531,16 @@ class SQLHelper(ABC):
             print(f"An error occurred while adding a comment to a bug: {e}")
             return False
 
-        
+
+    # function for getting all managers id
+    def getManagersId(self):
+        try:
+            self.cursor.execute('SELECT userId FROM Users WHERE userType = \'Manager\' AND isDeleted = 0') 
+            managerId = self.cursor.fetchall()
+            managersIdList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in managerId]
+            return managersIdList
+        except Exception as e:
+            return None
         
 # ==================================================================================================================== #
 
@@ -938,14 +947,28 @@ class BugFixer(ABC):
         
 
     # function for getting all reports of manager from database
-    @app.route('/reports/createReport', methods=['GET'])
+    @app.route('/reports/createReport', methods=['POST'])
     def createReport():
+        data = request.json 
+        managerId = data.get('managerId')
         try:
-            global globalUser
             currentDate = datetime.today().strftime('%d/%m/%Y') # get current date
             currentTime = datetime.now().strftime("%H:%M:%S") # get current time
-            if (db.createReport(globalUser.userId, currentDate, currentTime)): # call db function to create report
+            if (db.createReport(managerId, currentDate, currentTime)): # call db function to create report
                 return jsonify({'message': 'Created report successfully'}), 200
+            else:
+                raise
+        except:
+            return jsonify({'error': 'Failed to perform database query'}), 500
+        
+
+    # function for getting all manager ids from database
+    @app.route('/getManagersId', methods=['GET'])
+    def getManagersId():
+        try:
+            managersIdList = db.getManagersId()
+            if managersIdList:
+                return jsonify(managersIdList), 200
             else:
                 raise
         except:
