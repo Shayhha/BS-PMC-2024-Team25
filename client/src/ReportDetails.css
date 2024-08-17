@@ -1,0 +1,53 @@
+.report-details-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 30px; /* Increased padding for more space inside the modal */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000; 
+    height: 50vh;
+    width: 30vw; /* Increased width for a larger form */
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+}
+
+.report-details-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); 
+    z-index: 999; 
+}
+
+.report-details-modal h2 {
+    margin-top: 30px;
+    font-size: 36px; /* Increased font size */
+}
+
+
+.report-details-modal button {
+    margin-top: 40px; /* Adjusted margin to keep spacing proportional */
+    font-size: 22px; /* Increased font size */
+    background-color: #514588;
+    padding: 10px 20px; /* Added padding for a bigger button */
+    transition: background-color 0.3s ease;
+    margin-bottom: 30px;
+}
+
+.report-details-modal button:hover {
+    background-color: #362E5B;
+}
+
+.report-details-modal p {
+    margin: 8px 0; /* Adjusted margins for better spacing */
+    padding: 0;
+    font-size: 22px; /* Increased font size for readability */
+}
+
