@@ -531,7 +531,23 @@ class SQLHelper(ABC):
             print(f"An error occurred while adding a comment to a bug: {e}")
             return False
 
+    # Function for editing a comment on a bug by updating the text in the database
+    def editCommentOnBug(self, commentId, commentInfo):
+        try:
+            query = f"UPDATE BugComments SET commentInfo = ? WHERE commentId = ?" 
+
+            self.cursor.execute(query, (commentInfo, commentId,))
+            self.connection.commit()
+
+            if self.cursor.rowcount > 0:
+                return True
+            else:
+                return False
+        except Exception as e:
+            print(f"An error occurred while editing a comment on a bug: {e}")
+            return False  
         
+
         
 # ==================================================================================================================== #
 
@@ -924,7 +940,7 @@ class BugFixer(ABC):
                 return jsonify({'message': 'Comment added successfully'}), 200
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
-    
+
 
     # function for getting all reports of manager from database
     @app.route('/reports/getReports', methods=['GET'])
@@ -935,7 +951,22 @@ class BugFixer(ABC):
             return jsonify(reportList), 200
         except:
             return jsonify({'error': 'Failed to perform database query'}), 500
+
         
+    # Function for editing a comment on a bug
+    @app.route('/bugComments/editCommentOnBug', methods=['POST'])
+    def editCommentOnBug():
+        data = request.json 
+        commentId = data['commentId']
+        commentInfo = data['commentInfo']
+        try:
+            response = db.editCommentOnBug(commentId, commentInfo)
+            if response:
+                return jsonify({'message': 'Comment added successfully'}), 200
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        
+
 
     # function for getting all reports of manager from database
     @app.route('/reports/createReport', methods=['GET'])
