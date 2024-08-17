@@ -641,3 +641,17 @@ def should_send_notification(close_date_str, last_notification_date_str):
     if close_date == today and (last_notification_date is None or last_notification_date != today):
         return True
     return False        
+
+
+def test_edit_comment_on_bug():
+    commentId = 1
+    newCommentInfo = "This is the new comment info"
+    db = SQLHelper()
+    db.connect()
+    try:
+        res = db.editCommentOnBug(commentId, newCommentInfo)
+        assert res, f"Failed to edit comment info on comment with id {commentId} "
+    except Exception as e:
+        pytest.fail(f"Assigning the result has failed: {e}")
+    finally:
+        db.close()
