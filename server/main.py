@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dotenv import load_dotenv
-from abc import ABC
+from abc import ABC, abstractmethod
 from datetime import datetime
 from groq import Groq
 from random import randint
@@ -42,18 +42,19 @@ class SQLHelper(ABC):
             self.connection.close()
 
 
+    # method for checking if user exists by email
     def searchUserByEmail(self, email):
         try:
             query = 'SELECT * FROM Users WHERE email = ?'
             self.cursor.execute(query, (email,))
             user = self.cursor.fetchone()
             if user:
-                return User(user[0], user[1], user[2], user[3], user[4], user[5])
+                return True
             else:
-                return None
+                return False
         except Exception as e:
             print(f'Error: {e}')
-            return None
+            return False
 
 
     # method for searching user in db, returns user obj if found else returns none
@@ -64,7 +65,14 @@ class SQLHelper(ABC):
             self.cursor.execute(query, (email, passSha,))
             user = self.cursor.fetchone() # use fetchone to find single user 
             if user: # if user found
-                return User(user[0], user[1], user[2], user[3], user[4], user[5]) # return user object
+                if user[5] == "Coder":
+                    return Coder(user[0], user[1], user[2], user[3], user[4]) # return Coder obj
+                elif user[5] == "Tester":
+                    return Tester(user[0], user[1], user[2], user[3], user[4]) # return Tester obj
+                elif user[5] == "Manager":
+                    return Manager(user[0], user[1], user[2], user[3], user[4]) # return Manager object
+                else:
+                    raise
             else: # else return none 
                 return None
         except Exception as e:
@@ -209,7 +217,6 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f"Error occurred: {e}")
             raise
-
 
 
     #updating email in edituser
@@ -565,7 +572,7 @@ class SQLHelper(ABC):
 
 # ======================================================User-Class==================================================== #
 # class that represents user in website
-class User:
+class User(ABC):
     # constructor of user class
     def __init__(self, userId, email, userName, fName, lName, userType):
         self.userId = userId
@@ -576,8 +583,17 @@ class User:
         self.userType = userType
 
     # method for getting a dictionary representation of user object
+    @abstractmethod
     def toDict(self):
-        userDict = {
+        pass
+
+# class that represents Coder in website
+class Coder(User):
+    def __init__(self, userId, email, userName, fName, lName):
+        super().__init__(userId, email, userName, fName, lName, userType='Coder')
+    
+    def toDict(self):
+        return {
             'userId': self.userId,
             'email': self.email,
             'userName': self.userName,
@@ -585,8 +601,36 @@ class User:
             'lName': self.lName,
             'userType': self.userType
         }
-        return userDict
 
+# class that represents Tester in website
+class Tester(User):
+    def __init__(self, userId, email, userName, fName, lName):
+        super().__init__(userId, email, userName, fName, lName, userType='Tester')
+    
+    def toDict(self):
+        return {
+            'userId': self.userId,
+            'email': self.email,
+            'userName': self.userName,
+            'fName': self.fName,
+            'lName': self.lName,
+            'userType': self.userType
+        }
+
+# class that represents Manager in website
+class Manager(User):
+    def __init__(self, userId, email, userName, fName, lName):
+        super().__init__(userId, email, userName, fName, lName, userType='Manager')
+    
+    def toDict(self):
+        return {
+            'userId': self.userId,
+            'email': self.email,
+            'userName': self.userName,
+            'fName': self.fName,
+            'lName': self.lName,
+            'userType': self.userType
+        }
 
 # ==================================================================================================================== #
 
@@ -609,8 +653,7 @@ class BugFixer(ABC):
             return jsonify({'error': "Missing fields"}), 400
 
         # Check if the email already exists
-        existing_user = db.searchUserByEmail(email)
-        if existing_user:
+        if db.searchUserByEmail(email):
             return jsonify({"error": "User with this email already exists"}), 400
 
         # Add the user to the database
@@ -641,7 +684,7 @@ class BugFixer(ABC):
     @app.route('/userSettings/changePassword', methods=['POST'])
     def changePassword():
         data = request.get_json()
-        if not HelperFunctions.checkPassword(data.get('newPassword')):
+        if not PasswordChecker.checkInput(data.get('newPassword')):
              return jsonify({'error': 'New password does not meet requirements.'}), 500
         if db.checkPassword(globalUser.userId, data.get('oldPassword')):
             if db.updatePassword(globalUser.userId, data.get('newPassword'), data.get('oldPassword')):
@@ -682,7 +725,7 @@ class BugFixer(ABC):
     @app.route('/userSettings/changeUserInfo', methods=['POST'])
     def changeUserInfo():
         data = request.get_json()
-        if not HelperFunctions.checkUserName(data.get('userName')) or not HelperFunctions.checkFname(data.get('fName')) or not HelperFunctions.checkLname(data.get('lName')):
+        if not UserNameChecker.checkInput(data.get('userName')) or not FnameChecker.checkInput(data.get('fName')) or not LnameChecker.checkInput(data.get('lName')):
             return jsonify({'error': 'User info parameters are invalid.'}), 500 
         if db.updateUserInfo(globalUser.userId, data.get('userName'), data.get('fName'), data.get('lName')):
             globalUser.userName = data.get('userName') # update globalUser's userName
@@ -739,7 +782,13 @@ class BugFixer(ABC):
         data["priority"] = bugPriority
         data["importance"] = bugImportance
 
-        if not HelperFunctions.checkBugInfo(data):
+        if (BugTitleOrDescriptionChecker.checkInput(data.get('title')) == False 
+            or BugTitleOrDescriptionChecker.checkInput(data.get('description')) == False
+            or BugPriorityOrImportanceChecker.checkInput(data.get('priority')) == False
+            or BugPriorityOrImportanceChecker.checkInput(data.get('importance')) == False
+            or BugOpenCreationDateChecker(data.get('openDate'), data.get('creationDate')) == False
+            or BugCloseDateChecker(data.get('openDate'), data.get('closeDate')) == False):
+
             return jsonify({'error': 'User entered invalid data'}), 500
         
         try:
@@ -1009,6 +1058,99 @@ class BugFixer(ABC):
             return jsonify({'error': 'Failed to perform database query'}), 500
             
         
+
+# ==================================================================================================================== #
+
+# ================================================InputChecker-Class================================================== #
+# base class for performing regex checks
+class InputChecker(ABC):
+    pattern = None
+
+    @classmethod
+    def setPattern(cls, pattern=None):
+        if pattern is not None:
+            cls.pattern = re.compile(pattern)
+        else:
+            cls.pattern = None
+
+    @staticmethod
+    @abstractmethod
+    def checkInput(*args, **kwargs):
+        pass
+
+# class for checking username input from front end
+class UserNameChecker(InputChecker):
+    @staticmethod
+    def checkInput(username):
+        UserNameChecker.setPattern(r'^[a-zA-Z0-9]*$')
+        return bool(UserNameChecker.pattern.fullmatch(username))
+
+# class for checking firstName input from front end
+class FnameChecker(InputChecker):
+    @staticmethod
+    def checkInput(fName):
+        FnameChecker.setPattern(r'^[a-zA-Z]*$')
+        return bool(FnameChecker.pattern.fullmatch(fName))
+
+# class for checking lastName input from front end
+class LnameChecker(InputChecker):
+    @staticmethod
+    def checkInput(lName):
+        LnameChecker.setPattern(r'^[a-zA-Z]*$')
+        return bool(LnameChecker.pattern.fullmatch(lName))
+
+# class for checking passowrd input from front end
+class PasswordChecker(InputChecker):
+    @staticmethod
+    def checkInput(password):
+        PasswordChecker.setPattern(r'^(?=.*[A-Z])[^\s\'=]{6,24}$')
+        return bool(PasswordChecker.pattern.fullmatch(password))
+
+# class for checking email input from front end
+class EmailChecker(InputChecker):
+    @staticmethod
+    def checkInput(email):
+        EmailChecker.setPattern(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        return bool(EmailChecker.pattern.fullmatch(email))
+
+# class for checking bugTitle or bugDescription input from front end
+class BugTitleOrDescriptionChecker(InputChecker):
+    @staticmethod
+    def checkInput(title):
+        BugTitleOrDescriptionChecker.setPattern(r'^[a-zA-Z0-9\-_!?(),.%+*/\'"|\[\]{};:<> \s]+$')
+        return bool(BugTitleOrDescriptionChecker.pattern.fullmatch(title)) and len(title) > 0
+
+# class for checking bugPriority or bugImportance input from front end
+class BugPriorityOrImportanceChecker(InputChecker):
+    @staticmethod
+    def checkInput(priority):
+        try:
+            priority_int = int(priority)
+        except ValueError:
+            return False
+
+        return priority_int >= 0 and priority_int <= 10
+
+# class for checking bugCreationDate input from front end
+class BugOpenCreationDateChecker(InputChecker):
+    @staticmethod
+    def checkInput(open_date, creation_date):
+        open_datetime = datetime.strptime(open_date, '%d/%m/%Y')
+        creation_datetime = datetime.strptime(creation_date, '%d/%m/%Y')
+        return creation_datetime <= open_datetime
+
+# class for checking bugCloseDate input from front end
+class BugCloseDateChecker(InputChecker):
+    @staticmethod
+    def checkInput(open_date, close_date):
+        if close_date is None:
+            return True
+
+        open_datetime = datetime.strptime(open_date, '%d/%m/%Y')
+        close_datetime = datetime.strptime(close_date, '%d/%m/%Y')
+        return close_datetime >= open_datetime
+
+
 # ==================================================================================================================== #
 
 # =============================================HelperFunctions-Class================================================== #
@@ -1045,109 +1187,6 @@ class HelperFunctions(ABC):
         hexResult = sha256Obj.hexdigest()
         return hexResult
     
-
-    # check username input from front end
-    def checkUserName(username):
-        pattern = re.compile(r'^[a-zA-Z0-9]*$')
-        if pattern.fullmatch(username):
-            return True
-        return False
-    
-
-    # check firstName input from front end
-    def checkFname(fName):
-        pattern = re.compile(r'^[a-zA-Z]*$') 
-        if pattern.fullmatch(fName):
-            return True
-        return False
-    
-
-    # check lastName input from front end
-    def checkLname(lName):
-        pattern = re.compile(r'^[a-zA-Z]*$')
-        if pattern.fullmatch(lName):
-            return True
-        return False
-    
-
-    # check password input from front end
-    def checkPassword(password):
-        pattern = re.compile(r'^(?=.*[A-Z])[^\s\'=]{6,24}$')
-        if pattern.fullmatch(password):
-            return True
-        return False
-    
-
-    #check email input from frontend
-    def checkemail(email):
-        pattern = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-        if pattern.fullmatch(email):
-            return True
-        return False
-
-
-    # checking if all bug info is correct 
-    def checkBugInfo(bugData):
-        if (HelperFunctions.checkBugTitleOrDescription(bugData.get('title')) == False 
-            or HelperFunctions.checkBugTitleOrDescription(bugData.get('description')) == False
-            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('priority')) == False
-            or HelperFunctions.checkBugPriorityOrImportance(bugData.get('importance')) == False
-            or HelperFunctions.checkBugOpenCreationDate(bugData.get('openDate'), bugData.get('creationDate')) == False
-            or HelperFunctions.checkBugCloseDate(bugData.get('openDate'), bugData.get('closeDate'))==False):
-            return False
-        return True
-    
-
-    def checkBugCloseDate(OpenDate,CloseDate):
-        if CloseDate==None:
-                    return True
-
-        OpenDate = datetime.strptime(OpenDate, '%d/%m/%Y')
-        CloseDate = datetime.strptime(CloseDate, '%d/%m/%Y') 
-        if CloseDate<OpenDate:
-            return False
-        else:
-            return True
-        
-
-    def checkBugTitleOrDescription(title):
-        pattern = re.compile(r'^[a-zA-Z0-9\-_!?(),.%+*/\'"|\[\]{};:<> \s]+$')
-        if not pattern.fullmatch(title) or len(title) == 0:
-            return False
-        return True
-
-
-    def checkBugPriorityOrImportance(priority):
-        try:
-            priority_int = int(priority)
-        except ValueError:
-            return False
-
-        if priority_int < 0 or priority_int > 10:
-            return False
-        return True
-    
-    def checkBugCloseDate(openDate, closeDate):
-        if closeDate is None:
-            return True
-
-        openDate = datetime.strptime(openDate, '%d/%m/%Y')
-        closeDate = datetime.strptime(closeDate, '%d/%m/%Y') 
-        if closeDate < openDate:
-            return False
-        else:
-            return True
-
-
-    def checkBugOpenCreationDate(openDate, creationDate):
-        open_datetime = datetime.strptime(openDate, '%d/%m/%Y')
-        creation_datetime = datetime.strptime(creationDate, '%d/%m/%Y')
-        
-        if  creation_datetime <= open_datetime:
-            return True
-        else:
-            return False
-
 
     # function for classifing bugs by their importance using Groq AI
     def handleBugImportance(title, description):
@@ -1233,11 +1272,12 @@ if __name__ == '__main__':
     # initialize SQL server connection for database functionality
     db = SQLHelper() 
     try:
+        # connect to the sql server database
         db.connect()
-        #print(db.sendQueryToGroq("what is C++??"))
         # execute the app and open website
         app.run(debug=True, port=8090)
+    except Exception as e:
+        print(f'Error, failed to open website...\n {e}')
+    finally:
         # close dabase connection after website closes
         db.close() 
-    except:
-        print('Failed to connect to database.')
