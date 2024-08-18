@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './HomePage.css';
-import plusIcon from './assets/plusIcon.png';
-import searchIcon from './assets/searchIcon.png';
+import { FaPlus } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
 import BugItem from './BugItem';
 import axios from 'axios';
 
@@ -103,6 +103,8 @@ function HomePage() {
 
     const handleSearch = async (e) => { 
         e.preventDefault();
+        if (searchResult === "") 
+            return;
         try {
             const response = await axios.post('http://localhost:8090/homePage/search', {searchResult : searchResult});
             setBugArray(response.data);
@@ -118,20 +120,16 @@ function HomePage() {
 
         <div className="home_page_search_container">
             <input type="text" className="home_page_search_input" placeholder="Search..." value={searchResult} onChange={handleSearchChange}/>
-            <img src={searchIcon} className="home_page_search_icon" alt="Search" onClick={handleSearch}/>
+            <button onClick={handleSearch} type="submit" className="homepage_search_button">
+                    <FaSearch className="home_page_search_icon" alt="Search"/>
+            </button>
         </div>
 
+            <button onClick={handleImageClick} className='home_page_add_new_bug_button'>
+                <FaPlus style={{ fontSize: '40px', marginRight: '0px'}}/>
+            </button>
 
-
-
-            <div className="home_page_inner_container">
-                <img
-                    src={plusIcon}
-                    className="home_page_add_new_bug_button"
-                    alt="Add New Bug"
-                    onClick={handleImageClick}
-                />
-                
+            <div className="home_page_inner_container">                
                 {bugArray.map(bug => (
                     <BugItem
                         key={bug.bugId}

@@ -257,9 +257,9 @@ class SQLHelper(ABC):
     # fucntion for getting bugs from database
     def getBugs(self):
         try:
-            db.cursor.execute('SELECT * FROM Bugs') 
-            bugs = db.cursor.fetchall()
-            bugList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in bugs]
+            self.cursor.execute('SELECT * FROM Bugs') 
+            bugs = self.cursor.fetchall()
+            bugList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in bugs]
 
             #checking the return value of the assignedId and get the name of the user. this is needed later in the UI side of things...
             for bug in bugList:
@@ -275,7 +275,7 @@ class SQLHelper(ABC):
             return jsonify(f'Error: {e}')
 
 
-        # insert given bug into the database     
+    # insert given bug into the database     
     def insertBug(self, bugName, projectId, createdId, assignedId, bugDesc, status, priority, importance, numOfComments, creationDate, openDate, closeDate, category, bugSuggest, updateCounter, updateDates):
         try:
             insert_sql = """
@@ -309,13 +309,23 @@ class SQLHelper(ABC):
 
     # method for removing a bug from the database using the bug id
     def removeBug(self, bugId):
-         try:
-             self.cursor.execute('DELETE FROM Bugs WHERE bugId = ?', (bugId,)) 
-             self.connection.commit()
-             return True
-         except Exception as e:
-             print(f"Error occurred: {e}")
-             raise
+        sql_delete_comments = """
+            DELETE FROM BugComments WHERE bugId = ?
+        """
+
+        sql_delete_bug = """
+            DELETE FROM Bugs WHERE bugId = ?
+        """
+        try:
+            # first we remove all the comments that this bug has, and then remove the bug
+            self.cursor.execute(sql_delete_comments, (bugId,)) 
+            self.cursor.execute(sql_delete_bug, (bugId,)) 
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            self.connection.rollback()  # Rollback the transaction on error
+            return False
 
 
     def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None, category=None, bugSuggest=None, updateCounter=None, updateDates=None):
@@ -379,12 +389,14 @@ class SQLHelper(ABC):
         except Exception as e:
             print(f'Error: {e}')
             return False
+        
+
     # fucntion for getting users from database
     def getUsers(self):
         try:
-            db.cursor.execute('SELECT * FROM Users WHERE userType <> \'Manager\' AND isDeleted = 0') 
-            users = db.cursor.fetchall()
-            userList = [dict(zip([column[0] for column in db.cursor.description], row)) for row in users]
+            self.cursor.execute('SELECT * FROM Users WHERE userType <> \'Manager\' AND isDeleted = 0') 
+            users = self.cursor.fetchall()
+            userList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in users]
             return jsonify(userList)
         except Exception as e:
             return jsonify(f'Error: {e}')
@@ -407,10 +419,10 @@ class SQLHelper(ABC):
             connectionString = os.getenv('DB_CONNECTION_STRING')
             with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
                 with connection.cursor() as cursor:
-                    cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
+                    self.cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
                     users = cursor.fetchall()
                     print('Fetched data successfully from database')
-                    userList = [dict(zip([column[0] for column in cursor.description], row)) for row in users]
+                    userList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in users]
                     return userList
         except:
             return False
@@ -418,8 +430,8 @@ class SQLHelper(ABC):
 
     def getUsernameById(self, userId): 
         try:
-            db.cursor.execute('SELECT userName FROM Users WHERE userId = ?', (userId,))
-            row = db.cursor.fetchone()
+            self.cursor.execute('SELECT userName FROM Users WHERE userId = ?', (userId,))
+            row = self.cursor.fetchone()
             if row is None:
                 print(f'No user found with userId: {userId}')
                 return None
@@ -433,10 +445,10 @@ class SQLHelper(ABC):
         try:
             query = f"UPDATE Bugs SET assignedId = ? WHERE bugId = ?" 
 
-            db.cursor.execute(query, (userId, bugId,))
-            db.connection.commit()
+            self.cursor.execute(query, (userId, bugId,))
+            self.connection.commit()
 
-            if db.cursor.rowcount > 0:
+            if self.cursor.rowcount > 0:
                 return True
             else:
                 return False
@@ -452,9 +464,9 @@ class SQLHelper(ABC):
             connectionString = os.getenv('DB_CONNECTION_STRING')
             with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
                 with connection.cursor() as cursor:
-                    cursor.execute('SELECT * FROM Notifications WHERE userId = ?', (user_id,))
-                    notifications = cursor.fetchall()
-                    notificationsList = [dict(zip([column[0] for column in cursor.description], row)) for row in notifications]
+                    self.cursor.execute('SELECT * FROM Notifications WHERE userId = ?', (user_id,))
+                    notifications = self.cursor.fetchall()
+                    notificationsList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in notifications]
                     return jsonify(notificationsList)
         except Exception as e:
             print(f"An error occurred while fetching notifications: {e}")
@@ -523,7 +535,154 @@ class SQLHelper(ABC):
             print(f"An error occurred while pushing notifications to all users: {e}")
             return False
         
+
+    # function for getting all reports of desired manager
+    def getReports(self, managerId):
+        try:
+            self.cursor.execute('SELECT * FROM Reports WHERE managerId = ?', (managerId,)) 
+            reports = self.cursor.fetchall()
+            reportsList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in reports]
+            return reportsList
+        except Exception as e:
+            return None
+    
+
+    # function for inserting new report in database
+    def createReport(self, managerId, creationDate, creationTime):
+        try:
+            self.cursor.execute('SELECT COUNT(*) FROM Bugs WHERE status <> \'Done\'')
+            openBugs = self.cursor.fetchone()[0]  # get the result of open bugs
+            
+            self.cursor.execute('SELECT COUNT(*) FROM Bugs WHERE status = \'Done\'')
+            closedBugs = self.cursor.fetchone()[0]  # Get the result of closed bugs
+            
+            self.cursor.execute('SELECT COUNT(*) FROM Bugs WHERE priority > 7')
+            priorityBugs = self.cursor.fetchone()[0]  # Get the result of priority bugs
+            
+            self.cursor.execute('SELECT COUNT(*) FROM Bugs WHERE importance > 7')
+            importanceBugs = self.cursor.fetchone()[0]  # Get the result of importance bugs
+            
+            # insert the report data
+            query = 'INSERT INTO Reports (managerId, openBugs, closedBugs, priorityBugs, importanceBugs, creationDate, creationTime) VALUES (?, ?, ?, ?, ?, ?, ?)'
+            self.cursor.execute(query, (managerId, openBugs, closedBugs, priorityBugs, importanceBugs, creationDate, creationTime))
+            self.connection.commit()  
+            
+            if self.cursor.rowcount > 0:
+                return True
+            else:
+                return False  # report not inserted
+
+        except Exception as e:
+            print(f'Error adding report: {e}')
+            self.connection.rollback()  
+            return False
+
+          
+    # Function for getting all comments of a specific bug using the given bugId
+    def getBugCommentsById(self, bugId):
+        sql_query = "SELECT * FROM BugComments WHERE bugId = ?"
+        try:
+            load_dotenv()
+            connectionString = os.getenv('DB_CONNECTION_STRING')
+            
+            with pyodbc.connect(connectionString) as connection:
+                with connection.cursor() as cursor:
+                    # Fetch all comments for this bug
+                    cursor.execute(sql_query, (bugId,)) 
+                    comments = cursor.fetchall()
+                    commentsList = [dict(zip([column[0] for column in cursor.description], row)) for row in comments]
+
+                    # Fetch all coders and create a dictionary mapping userId in BugComments to userName in Users
+                    allCodersList = db.getAllCoders()
+
+                    # Create the userIdToUsername dictionary 
+                    userIdToUsername = {}
+                    for coder in allCodersList:
+                        userIdToUsername[coder['userId']] = coder['userName']
+
+                    # Replace userId with the corresponding username in commentsList
+                    for comment in commentsList:
+                        if comment['userId'] in userIdToUsername:
+                            comment['userId'] = userIdToUsername[comment['userId']]  # Replace userId with userName
+
+                    return jsonify(commentsList)
+        except Exception as e:
+            return jsonify(f'Error: {e}')
         
+        
+    # Function for adding a new comment to a bug in the database
+    def addCommentToBug(self, bugId, userId, commentInfo):
+        sql_insert = """
+            INSERT INTO BugComments (bugId, userId, commentInfo)
+            VALUES (?, ?, ?);
+        """
+
+        sql_select_last = """
+            SELECT TOP 1 commentId
+            FROM BugComments
+            ORDER BY commentId DESC;
+        """
+
+        try:
+            # Execute the INSERT statement
+            self.cursor.execute(sql_insert, (bugId, userId, commentInfo))
+            
+            # Fetch the last inserted commentId
+            self.cursor.execute(sql_select_last)
+            commentId = self.cursor.fetchone()[0]
+            
+            # Commit the transaction
+            self.connection.commit()
+            return commentId
+        
+        except Exception as e:
+            print(f"An error occurred while adding a comment to a bug: {e}")
+            self.connection.rollback()
+            return -1
+        
+
+
+    # function for getting all managers id
+    def getManagersId(self):
+        try:
+            self.cursor.execute('SELECT userId FROM Users WHERE userType = \'Manager\' AND isDeleted = 0') 
+            managerId = self.cursor.fetchall()
+            managersIdList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in managerId]
+            return managersIdList
+        except Exception as e:
+            return None
+
+          
+    # Function for editing a comment on a bug by updating the text in the database
+    def editCommentOnBug(self, commentId, commentInfo):
+        try:
+            query = f"UPDATE BugComments SET commentInfo = ? WHERE commentId = ?" 
+
+            self.cursor.execute(query, (commentInfo, commentId,))
+            self.connection.commit()
+
+            if self.cursor.rowcount > 0:
+                return True
+            else:
+                return False
+        except Exception as e:
+            print(f"An error occurred while editing a comment on a bug: {e}")
+            return False  
+        
+
+    # Function for deleting a comment on a bug 
+    def deleteCommentFromBug(self, commentId):
+        try:
+            query = f"DELETE FROM BugComments WHERE commentId = ?" 
+
+            self.cursor.execute(query, (commentId,))
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f"An error occurred while editing a comment on a bug: {e}")
+            return False  
+        
+
         
 # ==================================================================================================================== #
 
@@ -735,14 +894,16 @@ class BugFixer(ABC):
     def removeBug():
         bugId = request.json
         try:
-            db.removeBug(bugId.get('bugId'))
-            return jsonify({'message': 'Bug removed successfully'}), 200
+            if db.removeBug(bugId.get('bugId')):
+                return jsonify({'message': 'Bug removed successfully'}), 200
+            else:
+                return jsonify({'error': 'failed to remove bug from database'}), 500
         except Exception as e:
             print(f"Error occurred: {e}")
             return jsonify({'error': 'failed to perform database query'}), 500
 
 
-        # function for updating bugs information using AI
+    # function for updating bugs information using AI
     @app.route('/homePage/updateBug', methods=['POST'])
     def updateBug():
         data = request.json  
@@ -781,8 +942,6 @@ class BugFixer(ABC):
                 'bugSuggest': bugSuggestion,
                 'updateCounter': updateCounter,
                 'updateDates': updateDates
-                
-
                 }), 200
         else:
             return jsonify({'error': 'Failed to update bug'}), 500
@@ -914,19 +1073,7 @@ class BugFixer(ABC):
         try:
             user_id = request.json.get('userId')
             messages = db.get_messages(user_id)
-            return messages
-            # המר את התוצאות למילון עבור תאימות טובה יותר עם JSON
-            formatted_messages = []
-            for message in messages:
-                formatted_messages.append({
-                    'messageId': message[0],
-                    'senderId': message[1],
-                    'receiverId': message[2],
-                    'messageInfo': message[3],
-                    'creationDate': message[4],
-                    'creationTime': message[5]
-                })
-            return jsonify(formatted_messages), 200
+            return messages , 200
         except Exception as e:
             return jsonify({'error': f'Error getting messages: {e}'}), 500
 
@@ -937,13 +1084,69 @@ class BugFixer(ABC):
     def mark_message_as_read():
         data = request.get_json()
         message_id = data.get('messageId')
-        
+
         sql_helper = SQLHelper()
         sql_helper.connect()
         sql_helper.markMessageAsRead(message_id)
         sql_helper.close()
         
         return jsonify({"status": "success", "message": "Message marked as read!"}), 200
+          
+    # Function for getting all the comments for a bug using the bugId  
+    @app.route('/bugComments/getBugCommentsById', methods=['POST'])
+    def getBugCommentsById():
+        bugId = request.json
+        try:
+            comments = db.getBugCommentsById(bugId['bug_Id'])
+            return comments
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        
+        
+    # Function for adding a comment to a bug in the database
+    @app.route('/bugComments/addCommentToBug', methods=['POST'])
+    def addCommentToBug():
+        data = request.json 
+        bugId = data['bugId']
+        userId = data['userId']
+        commentInfo = data['commentInfo']
+        try:
+            response = db.addCommentToBug(bugId, userId, commentInfo)
+            if (response != -1):
+                return jsonify({'message': 'Comment added successfully', 'commentId': response}), 200
+            else:
+                return jsonify({'error': 'Unable to add the comment'}), 500
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+        
+    # Function for editing a comment on a bug
+    @app.route('/bugComments/editCommentOnBug', methods=['POST'])
+    def editCommentOnBug():
+        data = request.json 
+        commentId = data['commentId']
+        commentInfo = data['commentInfo']
+        try:
+            response = db.editCommentOnBug(commentId, commentInfo)
+            if response:
+                return jsonify({'message': 'Comment edited successfully'}), 200
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        
+                
+    # Function for deleting a comment on a bug
+    @app.route('/bugComments/deleteCommentFromBug', methods=['POST'])
+    def deleteCommentFromBug():
+        data = request.json 
+        commentId = data['commentId']
+        try:
+            response = db.deleteCommentFromBug(commentId)
+            if response:
+                return jsonify({'message': 'Comment deleted successfully'}), 200
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        
+  
 
 
 
@@ -970,6 +1173,46 @@ class BugFixer(ABC):
             
             
 
+    # function for getting all reports of manager from database
+    @app.route('/reports/getReports', methods=['GET'])
+    def getReports():
+        try:
+            global globalUser
+            reportList = db.getReports(globalUser.userId)
+            return jsonify(reportList), 200
+        except:
+            return jsonify({'error': 'Failed to perform database query'}), 500
+
+
+    # function for getting all reports of manager from database
+    @app.route('/reports/createReport', methods=['POST'])
+    def createReport():
+        data = request.json 
+        managerId = data.get('managerId')
+        try:
+            currentDate = datetime.today().strftime('%d/%m/%Y') # get current date
+            currentTime = datetime.now().strftime("%H:%M:%S") # get current time
+            if (db.createReport(managerId, currentDate, currentTime)): # call db function to create report
+                return jsonify({'message': 'Created report successfully'}), 200
+            else:
+                raise
+        except:
+            return jsonify({'error': 'Failed to perform database query'}), 500
+        
+
+    # function for getting all manager ids from database
+    @app.route('/getManagersId', methods=['GET'])
+    def getManagersId():
+        try:
+            managersIdList = db.getManagersId()
+            if managersIdList:
+                return jsonify(managersIdList), 200
+            else:
+                raise
+        except:
+            return jsonify({'error': 'Failed to perform database query'}), 500
+            
+        
 # ==================================================================================================================== #
 
 # =============================================HelperFunctions-Class================================================== #

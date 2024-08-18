@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './tester.css';
-import plusIcon from '../assets/plusIcon.png';
-import searchIcon from '../assets/searchIcon.png';
+import { FaPlus } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
 import BugItem from '../BugItem';
 import axios from 'axios';
 
@@ -233,6 +233,8 @@ function Tester() {
 
     const handleSearch = async (e) => {
         e.preventDefault();
+        if (searchResult === "") 
+            return;
         try {
             const response = await axios.post('http://localhost:8090/homePage/search', { searchResult });
             setBugArray(response.data);
@@ -285,7 +287,7 @@ function Tester() {
                         onChange={handleSearchChange} 
                     />
                     <button type="submit" className="tester_search_button">
-                        <img src={searchIcon} className="tester_search_icon" alt="Search" />
+                        <FaSearch className="coder_search_icon" alt="Search" />
                     </button>
                 </form>
 
@@ -314,13 +316,10 @@ function Tester() {
                     </select>
                 </div>
             </div>
-
-            <img
-                src={plusIcon}
-                className="tester_add_new_bug_button"
-                alt="Add New Bug"
-                onClick={handleImageClick}
-            />
+            
+            <button onClick={handleImageClick} className='tester_add_new_bug_button'>
+                <FaPlus style={{ fontSize: '40px', marginRight: '0px'}} />
+            </button>
 
             <div className="tester_inner_container">
                 {Array.isArray(bugArray) && bugArray.map(bug => (
@@ -340,10 +339,11 @@ function Tester() {
                         openDate={bug.openDate}
                         closeDate={bug.closeDate}
                         isAdmin={false} // Adjust this based on actual admin check
+                        isCoder={false}
                         onSave={handleSave}
                         dateStatus={bugDateStatus[bug.bugId]} // Pass the date status
                         listOfCoders={coders}
-                        update_counter={bug.updateCounter}       // הוסף את שדה ה-updateCounter
+                        update_counter={bug.updateCounter}       
                         update_dates={bug.updateDates}  
                     />
                 ))}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './admin.css';
-import searchIcon from '../assets/searchIcon.png';
+import { FaSearch } from 'react-icons/fa';
 import BugItem from '../BugItem';
 import axios from 'axios';
 
@@ -126,6 +126,10 @@ function Admin() {
     const handleSearch = useCallback(async (e) => {
         e.preventDefault();
         setLoading(true);
+        if (searchResult === "") {
+            setLoading(false);
+            return;
+        }
         try {
             const response = await axios.post('http://localhost:8090/homePage/search', { searchResult });            
             if (Array.isArray(response.data)) {
@@ -164,7 +168,7 @@ function Admin() {
                         onChange={handleSearchChange} 
                     />
                     <button type="submit" className="admin_search_button">
-                        <img src={searchIcon} className="admin_search_icon" alt="Search" />
+                        <FaSearch className="coder_search_icon" alt="Search" />
                     </button>
                 </form>
 
@@ -214,9 +218,11 @@ function Admin() {
                             importance={bug.importance}
                             creationDate={bug.creationDate}
                             openDate={bug.openDate}
+                            closeDate={bug.closeDate}
                             isAdmin={true}
+                            isCoder={false}
                             listOfCoders={coders}
-                            update_counter={bug.updateCounter}       // הוסף את שדה ה-updateCounter
+                            update_counter={bug.updateCounter}  
                             update_dates={bug.updateDates} 
                         />
                     ))}

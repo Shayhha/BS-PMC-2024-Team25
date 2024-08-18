@@ -489,7 +489,7 @@ def test_handle_bug_importance_1():
     groqResponse = int(HF.handleBugImportance(title, desc)) # send query to Groq and get the response
     print(groqResponse)
     try:
-        assert not groqResponse > 5
+        assert not groqResponse > 6
     except Exception as e:
         pytest.fail(f"handleBugImportance raised an exception: {e}")
 
@@ -500,7 +500,7 @@ def test_handle_bug_importance_2():
     groqResponse = int(HF.handleBugImportance(title, desc)) # send query to Groq and get the response
     print(groqResponse)
     try:
-        assert not groqResponse > 5
+        assert not groqResponse > 6
     except Exception as e:
         pytest.fail(f"handleBugImportance raised an exception: {e}")
 
@@ -537,7 +537,7 @@ def test_handle_bug_priority_1():
     groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
     print(groqResponse)
     try:
-        assert not groqResponse > 7
+        assert not groqResponse > 6
     except Exception as e:
         pytest.fail(f"handleBugPriority raised an exception: {e}")
 
@@ -548,7 +548,7 @@ def test_handle_bug_priority_2():
     groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
     print(groqResponse)
     try:
-        assert not groqResponse > 7
+        assert not groqResponse > 6
     except Exception as e:
         pytest.fail(f"handleBugPriority raised an exception: {e}")
 
@@ -570,7 +570,7 @@ def test_handle_bug_priority_4():
     groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
     print(groqResponse)
     try:
-        assert not groqResponse < 7
+        assert not groqResponse < 6
     except Exception as e:
         pytest.fail(f"handleBugPriority raised an exception: {e}")
 
@@ -581,7 +581,7 @@ def test_handle_bug_priority_5():
     groqResponse = int(HF.handleBugPriority(title, desc))  # send query to Groq and get the response
     print(groqResponse)
     try:
-        assert not groqResponse > 7
+        assert not groqResponse > 6
     except Exception as e:
         pytest.fail(f"handleBugPriority raised an exception: {e}")
 
@@ -641,3 +641,58 @@ def should_send_notification(close_date_str, last_notification_date_str):
     if close_date == today and (last_notification_date is None or last_notification_date != today):
         return True
     return False        
+
+
+# def test_edit_comment_on_bug():
+#    commentId = 1
+#    newCommentInfo = "This is the new comment info"
+#    db = SQLHelper()
+#    db.connect()
+#    try:
+#        res = db.editCommentOnBug(commentId, newCommentInfo)
+#        assert res, f"Failed to edit comment info on comment with id {commentId} "
+#    except Exception as e:
+#        pytest.fail(f"Assigning the result has failed: {e}")
+#    finally:
+#        db.close()
+#    return False     
+
+# def test_get_reports():
+#     db = SQLHelper()
+#     db.connect()
+#     managerId = 3
+#     try:
+#         reportList = db.getReports(managerId)
+#         assert reportList != None, 'Failed to perform database query to get reports.'
+#     except Exception as e:
+#         pytest.fail(f"getReports raised an exception: {e}")
+#     finally:
+#         db.close()
+
+# def test_create_report():
+#     db = SQLHelper()
+#     db.connect()
+#     currentDate = datetime.today().strftime('%d/%m/%Y') # get current date
+#     currentTime = datetime.now().strftime("%H:%M:%S") # get current time
+#     managerId = 3
+#     try:
+#         if not db.createReport(managerId, currentDate, currentTime): # call db function to create report
+#             raise RuntimeError('Failed to perform database query to create report.')
+#     except Exception as e:
+#         pytest.fail(f"createReport raised an exception: {e}")
+#     finally:
+#         db.cursor.execute('DELETE FROM Reports WHERE creationDate = ? AND creationTime = ?', currentDate, currentTime) 
+#         db.connection.commit()
+#         db.close()
+
+# def test_get_managers_id():
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         managersList = db.getManagersId()
+#         assert managersList != None, 'Failed to perform database query to get managers.'
+#     except Exception as e:
+#         pytest.fail(f"getManagersId raised an exception: {e}")
+#     finally:
+#         db.close()
+

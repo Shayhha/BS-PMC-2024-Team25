@@ -1,0 +1,160 @@
+.bug_comments_page {
+  max-width: 70vw;
+  height: 70vh;
+  margin: 0 auto;
+  margin-top: 100px;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.bug_comments_content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.bug_comments_info {
+  margin-bottom: 00px;
+}
+
+.bug_comments_info h1 {
+  margin-bottom: 30px;
+  font-size: 36px;
+}
+
+.bug_comments_info p {
+  margin-bottom: 20px;
+  color: black;
+  font-size: 20px;
+}
+
+.bug_comments_stats {
+  display: flex;
+  gap: 30px;
+  font-size: 20px;
+  color: black;
+}
+
+.bug_comments_comments_section {
+  position: relative;
+  margin-top: 0px;
+  height: 50%;
+  overflow-y: auto; /* Enable vertical scrolling */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.bug_comments_comments_section h2 {
+  margin-bottom: 15px;
+  font-size: 20px;
+}
+
+.bug_comments_comments_list {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.bug_comments_comments_list li {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  font-size: 20px;
+  overflow-wrap: break-word; /* Ensures words break correctly within the li */
+  word-wrap: break-word; /* Legacy support */
+  word-break: break-word; /* For non-legacy browsers */
+}
+
+.bug_comments_comments_list_item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start; /* Ensures items align at the top */
+  gap: 10px; /* Adds space between text and buttons */
+}
+
+.bug_comments_comments_list_item_text {
+  flex: 1; /* Allows the text to take up available space */
+  overflow-wrap: break-word; /* Ensures long words wrap within the container */
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.bug_comments_comments_list_edit_button,
+.bug_comments_comments_list_delete_button,
+.bug_comments_comments_list_save_button,
+.bug_comments_comments_list_cancel_button {
+  margin-left: 10px; /* Adds spacing between the buttons */
+  padding: 10px;
+}
+
+.bug_comments_comments_list_item_buttons {
+  display: flex;
+  flex-shrink: 0; /* Prevents buttons from shrinking when text overflows */
+  align-content: center;
+  font-size: 18px;
+}
+
+.bug_comments_add_comment {
+  display: flex;
+  gap: 10px;
+}
+
+.bug_comments_add_comment input {
+  flex: 1;
+  padding: 10px;
+  font-size: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: white;
+  color: black;
+}
+
+.bug_comments_add_comment button {
+  padding: 5px 10px;
+  background-color: #514588;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+}
+
+.bug_comments_add_comment button:hover {
+  background-color: #362E5B;
+}
+
+.bug_comments_edit_input {
+  width: 100%;
+  padding: 8px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 20px;
+  color: #333;
+  background-color: white;
+  outline: none;
+  transition: border-color 0.3s ease;
+
+  /* Ensure the input doesn't overlap with surrounding elements */
+  box-sizing: border-box;
+}
+
+.bug_comments_edit_input:focus {
+  border-color: #007bff;  /* Change to your preferred focus color */
+  background-color: #fff;
+}
+
+/* Optional: Add some subtle shadow to match the style */
+.bug_comments_edit_input:focus {
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);  /* Light blue shadow on focus */
+}

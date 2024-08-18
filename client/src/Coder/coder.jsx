@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './coder.css';
-import searchIcon from '../assets/searchIcon.png';
+import { FaSearch } from 'react-icons/fa';
 import BugItem from '../BugItem';
 import axios from 'axios';
 
@@ -97,6 +97,8 @@ function Coder() {
 
     const handleSearch = async (e) => {
         e.preventDefault();
+        if (searchResult === "") 
+            return;
         try {
             const response = await axios.post('http://localhost:8090/homePage/search', { searchResult });
             setBugArray(response.data);
@@ -142,7 +144,7 @@ function Coder() {
                         onChange={handleSearchChange} 
                     />
                     <button type="submit" className="coder_search_button">
-                        <img src={searchIcon} className="coder_search_icon" alt="Search" />
+                        <FaSearch className="coder_search_icon" alt="Search" />
                     </button>
                 </form>
 
@@ -190,10 +192,11 @@ function Coder() {
                         openDate={bug.openDate}
                         closeDate={bug.closeDate}
                         isAdmin={false} // Adjust this based on actual admin check
+                        isCoder={true} 
                         onSave={handleSave}
                         dateStatus={bugDateStatus[bug.bugId]}
                         listOfCoders={coders}
-                        update_counter={bug.updateCounter}       // הוסף את שדה ה-updateCounter
+                        update_counter={bug.updateCounter}       
                         update_dates={bug.updateDates} 
                     />
                 ))}
