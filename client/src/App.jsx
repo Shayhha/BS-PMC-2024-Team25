@@ -13,7 +13,7 @@ import EditUser from './EditUser.jsx';
 import Coder from './Coder/coder.jsx'; 
 import Tester from './Tester/tester.jsx'; 
 import UsersListPage from './UsersListPage.jsx';
-
+import Chat from './Chat/Chat.jsx'; // ייבוא הקומפוננטה של הצ'אט
 function App() {
 
   return (
@@ -30,6 +30,7 @@ function App() {
           <Route path="/homepage" element={<HomePage />} />
           <Route path="/editUser" element={<EditUser />} />
           <Route path="/removeUser" element={<UsersListPage />} />
+          <Route path="/chat" element={<Chat />} /> {/* נתיב לצ'אט */}
           {/* Add more routes as needed */}
         </Routes>
       </Router>

@@ -42,6 +42,86 @@ class SQLHelper(ABC):
             self.connection.close()
 
 
+    # method for closing database connection
+    def close(self):
+        if self.cursor:
+            self.cursor.close()
+        if self.connection:
+            self.connection.close()
+    
+    
+    def insert_message(self, sender_id, receiver_id, message):
+        try:
+            query = """
+            INSERT INTO ChatMessages (senderId, receiverId, messageInfo, creationDate, creationTime)
+            VALUES (?, ?, ?, CONVERT(VARCHAR, GETDATE(), 23), CONVERT(VARCHAR, GETDATE(), 8))
+            """
+            self.cursor.execute(query, (sender_id, receiver_id, message))
+            self.connection.commit()
+        except Exception as e:
+            print(f"An error occurred while saving the message: {e}")
+            self.connection.rollback()
+
+    def get_messages(self, user_id):
+        try:
+            query = """
+            SELECT *
+            FROM ChatMessages 
+            WHERE receiverId = ?
+            ORDER BY creationDate, creationTime
+            """
+            load_dotenv()
+            connectionString = os.getenv('DB_CONNECTION_STRING')
+            with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
+                with connection.cursor() as cursor:
+                    print(user_id,"to check it \n")
+                    cursor.execute(query,  (user_id,))
+                    messages = cursor.fetchall()
+                    messagesList = [dict(zip([column[0] for column in cursor.description], row)) for row in messages]
+                    return messagesList
+        except Exception as e:
+            print(f"An error occurred while retrieving the messages: {e}")
+            return []
+   
+    def saveMessage(self, sender_id, receiver_id, message_info):
+        try:
+            query = """
+            INSERT INTO ChatMessages (senderId, receiverId, messageInfo, creationDate, creationTime)
+            VALUES (?, ?, ?, CONVERT(VARCHAR, GETDATE(), 23), CONVERT(VARCHAR, GETDATE(), 8))
+            """
+            self.cursor.execute(query, (sender_id, receiver_id, message_info,))
+            self.connection.commit()
+        except Exception as e:
+            print(f"An error occurred while saving the message: {e}")
+            self.connection.rollback()
+
+
+    # method for counting unread messages for a specific user
+    def countUnreadMessages(self, user_id):
+        try:
+            query = """
+            SELECT COUNT(*) FROM Messages WHERE receiverId = ? AND [read] = 0
+            """
+            self.cursor.execute(query, (user_id,))
+            count = self.cursor.fetchone()[0]
+            return count
+        except Exception as e:
+            print(f'Error counting unread messages: {e}')
+            return 0
+
+    # method for marking a message as read
+    def markMessageAsRead(self, message_id):
+        try:
+            query = """
+            UPDATE Messages SET [read] = 1 WHERE messageId = ?
+            """
+            self.cursor.execute(query, (message_id,))
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f'Error marking message as read: {e}')
+            return False
+
     def searchUserByEmail(self, email):
         try:
             query = 'SELECT * FROM Users WHERE email = ?'
@@ -812,7 +892,83 @@ class BugFixer(ABC):
             raise ValueError("Could not push notifications to all users")
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+    
+    @app.route('/chat/send_message', methods=['POST'])
+    def send_message():
+        data = request.get_json()
+        sender_id = data.get('sender_id')  
+        receiver_id = data.get('receiver_id')
+        message_info = data.get('message') # שיניתי את שם המשתנה ל- message_info כדי להתאים לעמודה במסד הנתונים
+
+        if not all([sender_id, receiver_id, message_info]):
+            return jsonify({'error': 'Missing fields'}), 400
+
+        try:
+            db.insert_message(sender_id, receiver_id, message_info)
+            return jsonify({'message': 'Message sent successfully'}), 200
+        except Exception as e:
+            return jsonify({'error': f'Error sending message: {e}'}), 500
+
+    @app.route('/chat/get_messages', methods=['POST'])
+    def get_messages():
+        try:
+            user_id = request.json.get('userId')
+            messages = db.get_messages(user_id)
+            return messages
+            # המר את התוצאות למילון עבור תאימות טובה יותר עם JSON
+            formatted_messages = []
+            for message in messages:
+                formatted_messages.append({
+                    'messageId': message[0],
+                    'senderId': message[1],
+                    'receiverId': message[2],
+                    'messageInfo': message[3],
+                    'creationDate': message[4],
+                    'creationTime': message[5]
+                })
+            return jsonify(formatted_messages), 200
+        except Exception as e:
+            return jsonify({'error': f'Error getting messages: {e}'}), 500
+
+
+    
+
+    @app.route('/chat/markMessageAsRead', methods=['POST'])
+    def mark_message_as_read():
+        data = request.get_json()
+        message_id = data.get('messageId')
         
+        sql_helper = SQLHelper()
+        sql_helper.connect()
+        sql_helper.markMessageAsRead(message_id)
+        sql_helper.close()
+        
+        return jsonify({"status": "success", "message": "Message marked as read!"}), 200
+
+
+
+
+    @app.route('/messages/unreadCount/<int:user_id>', methods=['GET'])
+    def get_unread_message_count(user_id):
+        unread_count = db.countUnreadMessages(user_id)  # ביצוע שאילתה לבסיס הנתונים
+        return jsonify({'unreadCount': unread_count}), 200
+
+    @app.route('/get_users', methods=['GET'])
+    def get_users():
+        try:
+            # SQL query to fetch coders and testers
+            query = "SELECT userId, userName, userType FROM Users WHERE userType IN ('Coder', 'Tester')"
+            db.cursor.execute(query)
+            users = db.cursor.fetchall()
+            return jsonify([{
+                "userId": user.userId,
+                "userName": user.userName,
+                "userType": user.userType  # Return user type to distinguish between coder and tester
+            } for user in users])
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500  # Error handling
+            
+            
 
 # ==================================================================================================================== #
 
