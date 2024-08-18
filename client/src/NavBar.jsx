@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation ,useNavigate} from 'react-router-dom';
 import './NavBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCog, faSignOutAlt, faBell, faInbox, faFileAlt} from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCog, faSignOutAlt, faBell, faInbox } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 function NavBar() {
@@ -143,6 +143,16 @@ function NavBar() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+        
+    const handleChatButtonClick = (e) => {
+        e.preventDefault();  // Prevent the default link behavior
+
+        navigate('/chat', {
+        state: {
+            userId: userId
+        }
+        });
+    };
 
     return (
         <header className="navbar_header">
@@ -238,6 +248,20 @@ function NavBar() {
                                     <button onClick={() => setDropdownVisible(prev => ({ ...prev, notifications: false }))} className="notification-close">Close</button>
                                 </div>
                             )}
+                            {(userType === "Coder" || userType === "Tester") && (
+                                <div
+                                    className="navbar_profile-icon"
+                                    
+                                >
+                                    <Link  onClick= {(e)=>handleChatButtonClick(e)}>
+                                        <FontAwesomeIcon
+                                            icon={faInbox}
+                                            className="message-icon"
+                                            style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+                                        />
+                                    </Link>
+                                </div>
+                            )}
                             <div
                                 className="navbar_profile-icon"
                                 onClick={() => toggleDropdown('settings')}
@@ -260,11 +284,6 @@ function NavBar() {
                                             <Link to="/removeUser" className="navbar_dropdown-button" role="menuitem">
                                                 Remove User
                                             </Link>
-                                        )}
-                                        {userType === 'Tester' && (
-                                            <button onClick={handleSendReport} className="navbar_dropdown-button" role="menuitem">
-                                                Send Report 
-                                            </button>
                                         )}
                                     </div>
                                 )}
