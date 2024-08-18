@@ -1211,6 +1211,19 @@ class BugFixer(ABC):
                 raise
         except:
             return jsonify({'error': 'Failed to perform database query'}), 500
+        
+   
+    @app.route('/bug/addComment', methods=['POST'])
+    def add_comment():
+        data = request.get_json()
+        bug_id = data.get('bugId')
+        comment = data.get('comment')
+        
+        # Add comment to the database (implementation depends on your setup)
+        # e.g., cursor.execute("INSERT INTO Comments (bugId, comment) VALUES (?, ?)", (bug_id, comment))
+
+        return jsonify({'status': 'success'})
+
             
         
 # ==================================================================================================================== #
