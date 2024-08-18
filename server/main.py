@@ -419,10 +419,10 @@ class SQLHelper(ABC):
             connectionString = os.getenv('DB_CONNECTION_STRING')
             with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
                 with connection.cursor() as cursor:
-                    self.cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
+                    cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
                     users = cursor.fetchall()
                     print('Fetched data successfully from database')
-                    userList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in users]
+                    userList = [dict(zip([column[0] for column in cursor.description], row)) for row in users]
                     return userList
         except:
             return False
@@ -464,9 +464,9 @@ class SQLHelper(ABC):
             connectionString = os.getenv('DB_CONNECTION_STRING')
             with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
                 with connection.cursor() as cursor:
-                    self.cursor.execute('SELECT * FROM Notifications WHERE userId = ?', (user_id,))
-                    notifications = self.cursor.fetchall()
-                    notificationsList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in notifications]
+                    cursor.execute('SELECT * FROM Notifications WHERE userId = ?', (user_id,))
+                    notifications = cursor.fetchall()
+                    notificationsList = [dict(zip([column[0] for column in cursor.description], row)) for row in notifications]
                     return jsonify(notificationsList)
         except Exception as e:
             print(f"An error occurred while fetching notifications: {e}")
