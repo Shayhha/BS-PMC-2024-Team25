@@ -40,9 +40,85 @@ class SQLHelper(ABC):
             self.cursor.close()
         if self.connection:
             self.connection.close()
+    
+    
+    def insert_message(self, sender_id, receiver_id, message):
+        try:
+            query = """
+            INSERT INTO ChatMessages (senderId, receiverId, messageInfo, creationDate, creationTime)
+            VALUES (?, ?, ?, CONVERT(VARCHAR, GETDATE(), 23), CONVERT(VARCHAR, GETDATE(), 8))
+            """
+            self.cursor.execute(query, (sender_id, receiver_id, message))
+            self.connection.commit()
+        except Exception as e:
+            print(f"An error occurred while saving the message: {e}")
+            self.connection.rollback()
+
+            
+    def get_messages(self, user_id):
+        try:
+            query = """
+            SELECT *
+            FROM ChatMessages 
+            WHERE receiverId = ?
+            ORDER BY creationDate, creationTime
+            """
+            load_dotenv()
+            connectionString = os.getenv('DB_CONNECTION_STRING')
+            with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
+                with connection.cursor() as cursor:
+                    print(user_id,"to check it \n")
+                    cursor.execute(query,  (user_id,))
+                    messages = cursor.fetchall()
+                    messagesList = [dict(zip([column[0] for column in cursor.description], row)) for row in messages]
+                    return messagesList
+        except Exception as e:
+            print(f"An error occurred while retrieving the messages: {e}")
+            return []
+   
+  
+    def saveMessage(self, sender_id, receiver_id, message_info):
+        try:
+            query = """
+            INSERT INTO ChatMessages (senderId, receiverId, messageInfo, creationDate, creationTime)
+            VALUES (?, ?, ?, CONVERT(VARCHAR, GETDATE(), 23), CONVERT(VARCHAR, GETDATE(), 8))
+            """
+            self.cursor.execute(query, (sender_id, receiver_id, message_info,))
+            self.connection.commit()
+        except Exception as e:
+            print(f"An error occurred while saving the message: {e}")
+            self.connection.rollback()
 
 
-    # method for checking if user exists by email
+    # method for counting unread messages for a specific user
+    def countUnreadMessages(self, user_id):
+        try:
+            query = """
+            SELECT COUNT(*) FROM Messages WHERE receiverId = ? AND [read] = 0
+            """
+            self.cursor.execute(query, (user_id,))
+            count = self.cursor.fetchone()[0]
+            return count
+        except Exception as e:
+            print(f'Error counting unread messages: {e}')
+            return 0
+
+          
+    # method for marking a message as read
+    def markMessageAsRead(self, message_id):
+        try:
+            query = """
+            UPDATE Messages SET [read] = 1 WHERE messageId = ?
+            """
+            self.cursor.execute(query, (message_id,))
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f'Error marking message as read: {e}')
+            return False
+
+          
+    # method for checking if user exists by email      
     def searchUserByEmail(self, email):
         try:
             query = 'SELECT * FROM Users WHERE email = ?'
@@ -236,13 +312,23 @@ class SQLHelper(ABC):
 
     # method for removing a bug from the database using the bug id
     def removeBug(self, bugId):
-         try:
-             self.cursor.execute('DELETE FROM Bugs WHERE bugId = ?', (bugId,)) 
-             self.connection.commit()
-             return True
-         except Exception as e:
-             print(f"Error occurred: {e}")
-             raise
+        sql_delete_comments = """
+            DELETE FROM BugComments WHERE bugId = ?
+        """
+
+        sql_delete_bug = """
+            DELETE FROM Bugs WHERE bugId = ?
+        """
+        try:
+            # first we remove all the comments that this bug has, and then remove the bug
+            self.cursor.execute(sql_delete_comments, (bugId,)) 
+            self.cursor.execute(sql_delete_bug, (bugId,)) 
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            self.connection.rollback()  # Rollback the transaction on error
+            return False
 
 
     def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None, category=None, bugSuggest=None, updateCounter=None, updateDates=None):
@@ -336,10 +422,10 @@ class SQLHelper(ABC):
             connectionString = os.getenv('DB_CONNECTION_STRING')
             with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
                 with connection.cursor() as cursor:
-                    self.cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
+                    cursor.execute('SELECT * FROM Users WHERE userType = ?', "Coder")
                     users = cursor.fetchall()
                     print('Fetched data successfully from database')
-                    userList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in users]
+                    userList = [dict(zip([column[0] for column in cursor.description], row)) for row in users]
                     return userList
         except:
             return False
@@ -381,9 +467,9 @@ class SQLHelper(ABC):
             connectionString = os.getenv('DB_CONNECTION_STRING')
             with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
                 with connection.cursor() as cursor:
-                    self.cursor.execute('SELECT * FROM Notifications WHERE userId = ?', (user_id,))
-                    notifications = self.cursor.fetchall()
-                    notificationsList = [dict(zip([column[0] for column in self.cursor.description], row)) for row in notifications]
+                    cursor.execute('SELECT * FROM Notifications WHERE userId = ?', (user_id,))
+                    notifications = cursor.fetchall()
+                    notificationsList = [dict(zip([column[0] for column in cursor.description], row)) for row in notifications]
                     return jsonify(notificationsList)
         except Exception as e:
             print(f"An error occurred while fetching notifications: {e}")
@@ -529,15 +615,34 @@ class SQLHelper(ABC):
         
     # Function for adding a new comment to a bug in the database
     def addCommentToBug(self, bugId, userId, commentInfo):
-        sql_query = "INSERT INTO BugComments (bugId, userId, commentInfo) VALUES (?, ?, ?)"
+        sql_insert = """
+            INSERT INTO BugComments (bugId, userId, commentInfo)
+            VALUES (?, ?, ?);
+        """
+
+        sql_select_last = """
+            SELECT TOP 1 commentId
+            FROM BugComments
+            ORDER BY commentId DESC;
+        """
+
         try:
-            self.cursor.execute(sql_query, (bugId, userId, commentInfo, ))
+            # Execute the INSERT statement
+            self.cursor.execute(sql_insert, (bugId, userId, commentInfo))
+            
+            # Fetch the last inserted commentId
+            self.cursor.execute(sql_select_last)
+            commentId = self.cursor.fetchone()[0]
+            
+            # Commit the transaction
             self.connection.commit()
-            return True
+            return commentId
+        
         except Exception as e:
             print(f"An error occurred while adding a comment to a bug: {e}")
-            return False
-
+            self.connection.rollback()
+            return -1
+        
 
     # function for getting all managers id
     def getManagersId(self):
@@ -566,7 +671,20 @@ class SQLHelper(ABC):
             print(f"An error occurred while editing a comment on a bug: {e}")
             return False  
         
-      
+
+    # Function for deleting a comment on a bug 
+    def deleteCommentFromBug(self, commentId):
+        try:
+            query = f"DELETE FROM BugComments WHERE commentId = ?" 
+
+            self.cursor.execute(query, (commentId,))
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f"An error occurred while editing a comment on a bug: {e}")
+            return False  
+        
+
         
 # ==================================================================================================================== #
 
@@ -820,8 +938,10 @@ class BugFixer(ABC):
     def removeBug():
         bugId = request.json
         try:
-            db.removeBug(bugId.get('bugId'))
-            return jsonify({'message': 'Bug removed successfully'}), 200
+            if db.removeBug(bugId.get('bugId')):
+                return jsonify({'message': 'Bug removed successfully'}), 200
+            else:
+                return jsonify({'error': 'failed to remove bug from database'}), 500
         except Exception as e:
             print(f"Error occurred: {e}")
             return jsonify({'error': 'failed to perform database query'}), 500
@@ -975,8 +1095,48 @@ class BugFixer(ABC):
             raise ValueError("Could not push notifications to all users")
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+    
+    
+    @app.route('/chat/send_message', methods=['POST'])
+    def send_message():
+        data = request.get_json()
+        sender_id = data.get('sender_id')  
+        receiver_id = data.get('receiver_id')
+        message_info = data.get('message') 
+
+        if not all([sender_id, receiver_id, message_info]):
+            return jsonify({'error': 'Missing fields'}), 400
+
+        try:
+            db.insert_message(sender_id, receiver_id, message_info)
+            return jsonify({'message': 'Message sent successfully'}), 200
+        except Exception as e:
+            return jsonify({'error': f'Error sending message: {e}'}), 500
 
           
+    @app.route('/chat/get_messages', methods=['POST'])
+    def get_messages():
+        try:
+            user_id = request.json.get('userId')
+            messages = db.get_messages(user_id)
+            return messages , 200
+        except Exception as e:
+            return jsonify({'error': f'Error getting messages: {e}'}), 500
+          
+
+    @app.route('/chat/markMessageAsRead', methods=['POST'])
+    def mark_message_as_read():
+        data = request.get_json()
+        message_id = data.get('messageId')
+
+        sql_helper = SQLHelper()
+        sql_helper.connect()
+        sql_helper.markMessageAsRead(message_id)
+        sql_helper.close()
+        
+        return jsonify({"status": "success", "message": "Message marked as read!"}), 200
+          
+        
     # Function for getting all the comments for a bug using the bugId  
     @app.route('/bugComments/getBugCommentsById', methods=['POST'])
     def getBugCommentsById():
@@ -997,21 +1157,12 @@ class BugFixer(ABC):
         commentInfo = data['commentInfo']
         try:
             response = db.addCommentToBug(bugId, userId, commentInfo)
-            if response:
-                return jsonify({'message': 'Comment added successfully'}), 200
+            if (response != -1):
+                return jsonify({'message': 'Comment added successfully', 'commentId': response}), 200
+            else:
+                return jsonify({'error': 'Unable to add the comment'}), 500
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
-
-
-    # function for getting all reports of manager from database
-    @app.route('/reports/getReports', methods=['GET'])
-    def getReports():
-        try:
-            global globalUser
-            reportList = db.getReports(globalUser.userId)
-            return jsonify(reportList), 200
-        except:
-            return jsonify({'error': 'Failed to perform database query'}), 500
 
         
     # Function for editing a comment on a bug
@@ -1023,10 +1174,55 @@ class BugFixer(ABC):
         try:
             response = db.editCommentOnBug(commentId, commentInfo)
             if response:
-                return jsonify({'message': 'Comment added successfully'}), 200
+                return jsonify({'message': 'Comment edited successfully'}), 200
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
         
+                
+    # Function for deleting a comment on a bug
+    @app.route('/bugComments/deleteCommentFromBug', methods=['POST'])
+    def deleteCommentFromBug():
+        data = request.json 
+        commentId = data['commentId']
+        try:
+            response = db.deleteCommentFromBug(commentId)
+            if response:
+                return jsonify({'message': 'Comment deleted successfully'}), 200
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+  
+
+    @app.route('/messages/unreadCount/<int:user_id>', methods=['GET'])
+    def get_unread_message_count(user_id):
+        unread_count = db.countUnreadMessages(user_id)  
+        return jsonify({'unreadCount': unread_count}), 200
+
+      
+    @app.route('/get_users', methods=['GET'])
+    def get_users():
+        try:
+            # SQL query to fetch coders and testers
+            query = "SELECT userId, userName, userType FROM Users WHERE userType IN ('Coder', 'Tester')"
+            db.cursor.execute(query)
+            users = db.cursor.fetchall()
+            return jsonify([{
+                "userId": user.userId,
+                "userName": user.userName,
+                "userType": user.userType  # Return user type to distinguish between coder and tester
+            } for user in users])
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500  # Error handling
+            
+           
+    # function for getting all reports of manager from database
+    @app.route('/reports/getReports', methods=['GET'])
+    def getReports():
+        try:
+            global globalUser
+            reportList = db.getReports(globalUser.userId)
+            return jsonify(reportList), 200
+        except:
+            return jsonify({'error': 'Failed to perform database query'}), 500
 
 
     # function for getting all reports of manager from database
@@ -1056,6 +1252,19 @@ class BugFixer(ABC):
                 raise
         except:
             return jsonify({'error': 'Failed to perform database query'}), 500
+        
+   
+    @app.route('/bug/addComment', methods=['POST'])
+    def add_comment():
+        data = request.get_json()
+        bug_id = data.get('bugId')
+        comment = data.get('comment')
+        
+        # Add comment to the database (implementation depends on your setup)
+        # e.g., cursor.execute("INSERT INTO Comments (bugId, comment) VALUES (?, ?)", (bug_id, comment))
+
+        return jsonify({'status': 'success'})
+
             
         
 

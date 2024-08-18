@@ -1,0 +1,176 @@
+/* General body styling */
+body {
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+    font-family: 'Roboto', sans-serif; /* Set default font family */
+    background-color: #eceef0; /* Set background color for the page */
+    display: flex; /* Use flexbox to center the content */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 100vh; /* Set height to full viewport height */
+    overflow: hidden; /* Prevent unwanted scrolling */
+}
+
+/* Container for the entire chat application */
+.chat-container {
+    display: flex; /* Flexbox layout for child elements */
+    justify-content: space-around; /* Space around items equally */
+    flex-wrap: nowrap; /* Do not allow wrapping of items */
+    width: 100vw; /* Full viewport width */
+    height: 90vh; /* 90% of the viewport height */
+    max-width: 1600px; /* Maximum width of the container */
+    max-height: 900px; /* Maximum height of the container */
+    margin: 100px auto; /* Center the container with some margin */
+    padding: 50px 100px; /* Add padding inside the container */
+    gap: 50px; /* Space between child elements */
+    background-color: #ffffff; /* White background for the container */
+    border-radius: 40px; /* Rounded corners for the container */
+    box-shadow: 0 60px 120px rgba(0, 0, 0, 0.2); /* Large shadow for depth effect */
+    overflow: visible; /* Ensure the shadow is visible */
+    transition: all 0.3s ease-in-out; /* Smooth transition for any changes */
+}
+
+/* Section for received messages or sending messages */
+.chat-section {
+    flex: 1; /* Take up equal space in the container */
+    min-width: 48%; /* Minimum width for each section */
+    max-width: 48%; /* Maximum width for each section */
+    padding: 15px; /* Padding inside each section */
+    border-radius: 12px; /* Rounded corners for the sections */
+    background-color: #f7f9fc; /* Light background for contrast */
+    display: flex; /* Flexbox layout inside the section */
+    flex-direction: column; /* Stack child elements vertically */
+    border: 1px solid #d1d5db; /* Light border around the sections */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+    transition: all 0.3s ease-in-out; /* Smooth transition for any changes */
+}
+
+/* Header styling for each section */
+.chat-section h2 {
+    margin-top: 0; /* Remove top margin */
+    padding-bottom: 10px; /* Add padding below the header */
+    border-bottom: 1px solid #080809; /* Dark bottom border for separation */
+    font-size: 3vw; /* Dynamic font size based on viewport width */
+    text-align: center; /* Center the header text */
+    font-weight: bold; /* Bold text for emphasis */
+    color: #333; /* Dark color for the text */
+}
+
+/* Styling for the messages container */
+.chat-messages {
+    flex: 1; /* Allow the container to grow to fill space */
+    height: auto; /* Automatically adjust height */
+    overflow-y: auto; /* Enable vertical scrolling for messages */
+    margin-bottom: 15px; /* Space below the message container */
+    padding-right: 8px; /* Padding on the right for spacing */
+    border-top: 1px solid #e1e3e7; /* Light border on top for separation */
+    padding-left: 10px; /* Padding on the left for spacing */
+}
+
+/* Styling for each individual message */
+.message {
+    margin-bottom: 10px; /* Space below each message */
+    padding: 15px; /* Padding inside each message box */
+    border-radius: 12px; /* Rounded corners for messages */
+    background-color: #e9eff7; /* Light blue background for messages */
+    font-family: 'Roboto', sans-serif; /* Consistent font family */
+    font-size: 2rem; /* Larger font size for readability */
+    color: #333; /* Dark text color for contrast */
+    box-shadow: 0 2px 8px rgba(234, 228, 228, 0.1); /* Shadow for depth effect */
+    max-width: 80%; /* Limit the width of messages */
+    word-wrap: break-word; /* Ensure long words break onto new lines */
+}
+
+/* Styling for messages sent by the user */
+.message.sender {
+    background-color: #d1e7dd; /* Light green background for sent messages */
+    margin-left: auto; /* Align sent messages to the right */
+}
+
+/* Styling for messages received from others */
+.message.receiver {
+    background-color: #f8d7da; /* Light red background for received messages */
+    margin-right: auto; /* Align received messages to the left */
+}
+
+/* Styling for the input area to send messages */
+.chat-input {
+    display: flex; /* Flexbox layout for input area */
+    flex-direction: column; /* Stack input and button vertically */
+    align-items: center; /* Center align the input area */
+    margin-top: 20px; /* Space above the input area */
+    gap: 20px; /* Space between input and button */
+}
+
+/* Styling for the textarea to type messages */
+.chat-input textarea {
+    width: 100%; /* Full width for the textarea */
+    height: 100%;
+    padding: 2px; /* Padding inside the textarea */
+    border: 1px solid #d1d5db; /* Light border around the textarea */
+    border-radius: 8px; /* Rounded corners for the textarea */
+    resize: vertical; /* Allow vertical resizing */
+    font-family: 'Roboto', sans-serif; /* Consistent font family */
+    font-size: 1.5vw; /* Dynamic font size based on viewport width */
+    background-color: #f9fafb; /* Light background for the textarea */
+    color: #333; /* Dark text color */
+    transition: border-color 0.3s ease, all 0.3s ease-in-out; /* Smooth transitions */
+}
+
+/* Focus state for the textarea */
+.chat-input textarea:focus {
+    border-color: #007bff; /* Blue border on focus */
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Blue shadow on focus */
+}
+
+/* Styling for the send button */
+.chat-input button {
+    padding: 10px 20px; /* Padding inside the button */
+    background-color: #007bff; /* Blue background for the button */
+    color: rgb(15, 14, 14); /* White text color */
+    border: none; /* Remove default border */
+    border-radius: 6px; /* Rounded corners for the button */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-family: 'Roboto', sans-serif; /* Consistent font family */
+    font-size: 2vw; /* Dynamic font size based on viewport width */
+    transition: background-color 0.3s ease, transform 0.2s ease, all 0.3s ease-in-out; /* Smooth transitions */
+}
+
+/* Hover state for the send button */
+.chat-input button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slightly enlarge button on hover */
+}
+
+/* Styling for the select dropdown to choose users */
+.chat-users select {
+    width: 100%; /* הגדרת רוחב הקומבובוקס ל-100% מההורה שלו */
+    height: 50px; /* גובה הקומבובוקס */
+    padding: 12px; /* Padding inside the select */
+    border: 1px solid #d1d5db; /* Light border around the select */
+    border-radius: 6px; /* Rounded corners for the select */
+    background-color: #f9fafb; /* Light background color */
+    color: #f7f2f2; /* Dark text color */
+    font-family: 'Roboto', sans-serif; /* Consistent font family */
+    font-size: 1.5vw ; /* Dynamic font size based on viewport width */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: border-color 0.3s ease, all 0.3s ease-in-out; /* Smooth transitions */
+}
+
+/* Focus state for the select dropdown */
+.chat-users select:focus {
+    border-color: #007bff; /* Blue border on focus */
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Blue shadow on focus */
+    background-color: #f0f0f0; /* שנה את צבע הרקע */
+}
+
+/* Responsive design adjustments for smaller screens */
+@media (max-width: 768px) {
+    .chat-container {
+        flex-wrap: nowrap; /* Ensure no wrapping on smaller screens */
+        overflow-x: visible; /* Ensure overflow is handled correctly */
+    }
+}
+

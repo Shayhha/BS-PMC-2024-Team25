@@ -106,6 +106,20 @@ function NavBar() {
             setLoadingNotifications(false);
         }
     };
+    const markAllNotificationsAsRead = async () => {
+        try {
+            const unreadNotifications = notifications.filter(notification => !notification.read);
+            for (const notification of unreadNotifications) {
+                await axios.post('http://localhost:8090/notifications/markNotificationsAsRead', { notificationId: notification.id, read: true });
+            }
+            setNotifications(prevNotifications =>
+                prevNotifications.map(notification => ({ ...notification, read: true }))
+            );
+            setUnreadCount(0);
+        } catch (error) {
+            console.error('Error marking all notifications as read:', error);
+        }
+    };
 
     const markNotificationAsRead = async (notificationId,read) => {
         try {
@@ -255,6 +269,7 @@ function NavBar() {
                                     ) : (
                                         <div className="notification-item">No notifications</div>
                                     )}
+                                    <button onClick={markAllNotificationsAsRead} className="notification-mark-all">Mark All as Read</button>
                                     <button onClick={() => setDropdownVisible(prev => ({ ...prev, notifications: false }))} className="notification-close">Close</button>
                                 </div>
                             )}
