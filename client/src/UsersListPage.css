@@ -1,23 +1,43 @@
 .users-list-page {
-    width: 500px;
+    width: 600px;
     margin-top: 120px;
     border-radius: 8px;
     border: 1px solid #ccc;
     background-color: white;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     color: black;
-    
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .users-list-container {
     width: 100%;
-    max-height: calc(100vh - 520px);
+    height: 50vh;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    margin: 40px 0;
+    margin: 10px 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+
+/* Webkit-based browsers (Chrome, Safari) */
+.users-list-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+.users-list-container::-webkit-scrollbar-track {
+    background: transparent; /* Makes the track transparent */
+}
+
+.users-list-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3); /* Slightly visible thumb */
+    border-radius: 10px;
+    border: 3px solid transparent; /* Makes the scrollbar thumb edges transparent */
 }
 
 .users-list-user-item {
@@ -72,3 +92,4 @@
     cursor: pointer;
     padding-right: 15px;
 }
+
