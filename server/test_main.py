@@ -663,7 +663,7 @@ def should_send_notification(close_date_str, last_notification_date_str):
 #     managerId = 3
 #     try:
 #         reportList = db.getReports(managerId)
-#         assert reportList == None, 'Failed to perform database query to get reports.'
+#         assert reportList != None, 'Failed to perform database query to get reports.'
 #     except Exception as e:
 #         pytest.fail(f"getReports raised an exception: {e}")
 #     finally:
@@ -683,5 +683,16 @@ def should_send_notification(close_date_str, last_notification_date_str):
 #     finally:
 #         db.cursor.execute('DELETE FROM Reports WHERE creationDate = ? AND creationTime = ?', currentDate, currentTime) 
 #         db.connection.commit()
+#         db.close()
+
+# def test_get_managers_id():
+#     db = SQLHelper()
+#     db.connect()
+#     try:
+#         managersList = db.getManagersId()
+#         assert managersList != None, 'Failed to perform database query to get managers.'
+#     except Exception as e:
+#         pytest.fail(f"getManagersId raised an exception: {e}")
+#     finally:
 #         db.close()
 

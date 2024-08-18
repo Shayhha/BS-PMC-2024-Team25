@@ -47,12 +47,14 @@
 
 .tester_search_button{
     background-color: transparent;
+    padding: 5px;
 }
 
 .tester_search_icon {
     width: 30px;
     height: 30px;
     cursor: pointer;
+    color: black;
 }
 
 .tester_search_input {
@@ -62,7 +64,7 @@
     border-radius: 25px;
     padding: 10px;
     padding-left: 15px;
-    margin-right: 15px;
+    margin-right: 5px;
     font-size: 20px;
     background-color: whitesmoke;
     color: #333;

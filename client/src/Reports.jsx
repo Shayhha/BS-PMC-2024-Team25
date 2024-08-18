@@ -31,7 +31,8 @@ function Reports() {
 
     const createReport = async () => {
         try {
-            const response = await axios.get('http://localhost:8090/reports/createReport');
+            const managerUser = await axios.get('http://localhost:8090/userSettings/getUser');
+            const response = await axios.post('http://localhost:8090/reports/createReport', {managerId : managerUser.data.userId});
             await fetchReports();
             alert("Created a new report successfully!");
         } catch (error) {
