@@ -65,7 +65,7 @@ const BugComments = () => {
                 if (response.data.error) {
                     console.error('Error adding comment:', response.data.error);
                 }
-                setComments([...comments, { commentId: comments.length + 1, bugId: bug.bugId, userId: userName, commentInfo: newComment }]);
+                setComments([...comments, { commentId: response.data.commentId, bugId: bug.bugId, userId: userName, commentInfo: newComment }]);
                 setNewComment('');
             }
             catch (error) {
@@ -107,6 +107,23 @@ const BugComments = () => {
         }
     };
 
+    // Function for deleting a comment from the database and then update the list of comments on screen
+    const handleDeleteButtonClick = async (commentId) => {
+        try {
+            const response = await axios.post('http://localhost:8090/bugComments/deleteCommentFromBug', { commentId: commentId });
+            if (response.data.error) {
+                console.error('Error adding comment:', response.data.error);
+            }
+
+            // remove the deleted comment from the array
+            const updatedComments = comments.filter(comment => comment.commentId !== commentId);
+            setComments(updatedComments);
+        }
+        catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
     // Function to handle clicking the Edit button
     const handleEditButtonClick = (commentId, commentText) => {
         setEditingCommentId(commentId);  // Set the comment ID to be edited
@@ -138,58 +155,63 @@ const BugComments = () => {
                         <span><strong>Importance</strong>: {bug.importance}</span>
                         <span><strong>Status</strong>: {bug.status}</span>
                     </div>
-                </div>
 
+                    <p><strong>Comments:</strong></p>
+                </div>
+                
                 <div className="bug_comments_comments_section">
-                    <h2>Comments</h2>
                     <ul className="bug_comments_comments_list">
-                        {comments.map(comment => (
-                            <li key={comment.commentId}>
-                                <div className='bug_comments_comments_list_item'>
-                                    {comment.userId !== userName ? (
-                                        <p className='bug_comments_comments_list_item_text'>
-                                            <strong>{comment.userId}</strong>: {comment.commentInfo}
-                                        </p>
-                                    ) : (
-                                        <>
-                                            {editingCommentId === comment.commentId ? (
-                                                <input
-                                                    type="text"
-                                                    value={editedCommentText}
-                                                    onChange={(e) => setEditedCommentText(e.target.value)}
-                                                    className="bug_comments_edit_input"
-                                                />
-                                            ) : (
-                                                <p className='bug_comments_comments_list_item_text'>
-                                                    <strong>{comment.userId}</strong>: {comment.commentInfo}
-                                                </p>
-                                            )}
-                                            <div className='bug_comments_comments_list_item_buttons'>
+                    {comments.length === 0 ? (
+                            <p>This bug doesn't have any comments . . .</p>
+                        ) : (
+                            comments.map(comment => (
+                                <li key={comment.commentId}>
+                                    <div className='bug_comments_comments_list_item'>
+                                        {comment.userId !== userName ? (
+                                            <p className='bug_comments_comments_list_item_text'>
+                                                <strong>{comment.userId}</strong>: {comment.commentInfo}
+                                            </p>
+                                        ) : (
+                                            <>
                                                 {editingCommentId === comment.commentId ? (
-                                                    <>
-                                                        <button className="bug_comments_comments_list_save_button" onClick={() => handleEditComment(comment.commentId)}>
-                                                            <FontAwesomeIcon icon={faSave} /> Save
-                                                        </button>
-                                                        <button className="bug_comments_comments_list_cancel_button" onClick={handleCancelEdit}>
-                                                            <FontAwesomeIcon icon={faTimes} /> Cancel
-                                                        </button>
-                                                    </>
+                                                    <input
+                                                        type="text"
+                                                        value={editedCommentText}
+                                                        onChange={(e) => setEditedCommentText(e.target.value)}
+                                                        className="bug_comments_edit_input"
+                                                    />
                                                 ) : (
-                                                    <>
-                                                        <button className="bug_comments_comments_list_edit_button" onClick={() => handleEditButtonClick(comment.commentId, comment.commentInfo)}>
-                                                            <FontAwesomeIcon icon={faPen} /> Edit
-                                                        </button>
-                                                        <button className="bug_comments_comments_list_delete_button" style={{ display: editingCommentId === comment.commentId ? 'none' : 'block' }}>
-                                                            <FontAwesomeIcon icon={faTrash} /> Delete
-                                                        </button>
-                                                    </>
+                                                    <p className='bug_comments_comments_list_item_text'>
+                                                        <strong>{comment.userId}</strong>: {comment.commentInfo}
+                                                    </p>
                                                 )}
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            </li>
-                        ))}
+                                                <div className='bug_comments_comments_list_item_buttons'>
+                                                    {editingCommentId === comment.commentId ? (
+                                                        <>
+                                                            <button className="bug_comments_comments_list_save_button" onClick={() => handleEditComment(comment.commentId)}>
+                                                                <FontAwesomeIcon icon={faSave} /> Save
+                                                            </button>
+                                                            <button className="bug_comments_comments_list_cancel_button" onClick={handleCancelEdit}>
+                                                                <FontAwesomeIcon icon={faTimes} /> Cancel
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <button className="bug_comments_comments_list_edit_button" onClick={() => handleEditButtonClick(comment.commentId, comment.commentInfo)}>
+                                                                <FontAwesomeIcon icon={faPen} /> Edit
+                                                            </button>
+                                                            <button className="bug_comments_comments_list_delete_button" onClick={() => handleDeleteButtonClick(comment.commentId)} style={{ display: editingCommentId === comment.commentId ? 'none' : 'block' }}>
+                                                                <FontAwesomeIcon icon={faTrash} /> Delete
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </li>
+                            ))
+                        )}
                     </ul>
                 </div>
 
