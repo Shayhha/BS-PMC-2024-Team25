@@ -18,7 +18,7 @@
 }
 
 .bug_comments_info {
-  margin-bottom: 30px;
+  margin-bottom: 00px;
 }
 
 .bug_comments_info h1 {
@@ -41,7 +41,7 @@
 
 .bug_comments_comments_section {
   position: relative;
-  margin-top: 30px;
+  margin-top: 0px;
   height: 50%;
   overflow-y: auto; /* Enable vertical scrolling */
   border: 1px solid #ccc;

@@ -229,13 +229,23 @@ class SQLHelper(ABC):
 
     # method for removing a bug from the database using the bug id
     def removeBug(self, bugId):
-         try:
-             self.cursor.execute('DELETE FROM Bugs WHERE bugId = ?', (bugId,)) 
-             self.connection.commit()
-             return True
-         except Exception as e:
-             print(f"Error occurred: {e}")
-             raise
+        sql_delete_comments = """
+            DELETE FROM BugComments WHERE bugId = ?
+        """
+
+        sql_delete_bug = """
+            DELETE FROM Bugs WHERE bugId = ?
+        """
+        try:
+            # first we remove all the comments that this bug has, and then remove the bug
+            self.cursor.execute(sql_delete_comments, (bugId,)) 
+            self.cursor.execute(sql_delete_bug, (bugId,)) 
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            self.connection.rollback()  # Rollback the transaction on error
+            return False
 
 
     def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None, category=None, bugSuggest=None, updateCounter=None, updateDates=None):
@@ -522,14 +532,34 @@ class SQLHelper(ABC):
         
     # Function for adding a new comment to a bug in the database
     def addCommentToBug(self, bugId, userId, commentInfo):
-        sql_query = "INSERT INTO BugComments (bugId, userId, commentInfo) VALUES (?, ?, ?)"
+        sql_insert = """
+            INSERT INTO BugComments (bugId, userId, commentInfo)
+            VALUES (?, ?, ?);
+        """
+
+        sql_select_last = """
+            SELECT TOP 1 commentId
+            FROM BugComments
+            ORDER BY commentId DESC;
+        """
+
         try:
-            self.cursor.execute(sql_query, (bugId, userId, commentInfo, ))
+            # Execute the INSERT statement
+            self.cursor.execute(sql_insert, (bugId, userId, commentInfo))
+            
+            # Fetch the last inserted commentId
+            self.cursor.execute(sql_select_last)
+            commentId = self.cursor.fetchone()[0]
+            
+            # Commit the transaction
             self.connection.commit()
-            return True
+            return commentId
+        
         except Exception as e:
             print(f"An error occurred while adding a comment to a bug: {e}")
-            return False
+            self.connection.rollback()
+            return -1
+        
 
     # Function for editing a comment on a bug by updating the text in the database
     def editCommentOnBug(self, commentId, commentInfo):
@@ -547,7 +577,18 @@ class SQLHelper(ABC):
             print(f"An error occurred while editing a comment on a bug: {e}")
             return False  
         
+    # Function for deleting a comment on a bug 
+    def deleteCommentFromBug(self, commentId):
+        try:
+            query = f"DELETE FROM BugComments WHERE commentId = ?" 
 
+            self.cursor.execute(query, (commentId,))
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f"An error occurred while editing a comment on a bug: {e}")
+            return False  
+        
         
 # ==================================================================================================================== #
 
@@ -759,8 +800,10 @@ class BugFixer(ABC):
     def removeBug():
         bugId = request.json
         try:
-            db.removeBug(bugId.get('bugId'))
-            return jsonify({'message': 'Bug removed successfully'}), 200
+            if db.removeBug(bugId.get('bugId')):
+                return jsonify({'message': 'Bug removed successfully'}), 200
+            else:
+                return jsonify({'error': 'failed to remove bug from database'}), 500
         except Exception as e:
             print(f"Error occurred: {e}")
             return jsonify({'error': 'failed to perform database query'}), 500
@@ -936,21 +979,12 @@ class BugFixer(ABC):
         commentInfo = data['commentInfo']
         try:
             response = db.addCommentToBug(bugId, userId, commentInfo)
-            if response:
-                return jsonify({'message': 'Comment added successfully'}), 200
+            if (response != -1):
+                return jsonify({'message': 'Comment added successfully', 'commentId': response}), 200
+            else:
+                return jsonify({'error': 'Unable to add the comment'}), 500
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
-
-
-    # function for getting all reports of manager from database
-    @app.route('/reports/getReports', methods=['GET'])
-    def getReports():
-        try:
-            global globalUser
-            reportList = db.getReports(globalUser.userId)
-            return jsonify(reportList), 200
-        except:
-            return jsonify({'error': 'Failed to perform database query'}), 500
 
         
     # Function for editing a comment on a bug
@@ -962,10 +996,33 @@ class BugFixer(ABC):
         try:
             response = db.editCommentOnBug(commentId, commentInfo)
             if response:
-                return jsonify({'message': 'Comment added successfully'}), 200
+                return jsonify({'message': 'Comment edited successfully'}), 200
         except Exception as e:
             return jsonify({'error': f'An error occurred: {str(e)}'}), 500
         
+                
+    # Function for deleting a comment on a bug
+    @app.route('/bugComments/deleteCommentFromBug', methods=['POST'])
+    def deleteCommentFromBug():
+        data = request.json 
+        commentId = data['commentId']
+        try:
+            response = db.deleteCommentFromBug(commentId)
+            if response:
+                return jsonify({'message': 'Comment deleted successfully'}), 200
+        except Exception as e:
+            return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+        
+
+    # function for getting all reports of manager from database
+    @app.route('/reports/getReports', methods=['GET'])
+    def getReports():
+        try:
+            global globalUser
+            reportList = db.getReports(globalUser.userId)
+            return jsonify(reportList), 200
+        except:
+            return jsonify({'error': 'Failed to perform database query'}), 500
 
 
     # function for getting all reports of manager from database
