@@ -335,6 +335,21 @@ class SQLHelper(ABC):
             print(f"Error occurred: {e}")
             self.connection.rollback()  # Rollback the transaction on error
             return False
+    
+     # method for removing a bug from the database using the bug id,  USED ONLY IN INTEGRATION TESTS
+    def removeBugByTitle(self, bugName):
+        sql_delete_bug = """
+            DELETE FROM Bugs WHERE bugName = ?
+        """
+        try:
+            # remove the bug that has the given title in the database
+            self.cursor.execute(sql_delete_bug, (bugName,)) 
+            self.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            self.connection.rollback()  # Rollback the transaction on error
+            return False
 
 
     def updateBug(self, bug_id, bugName=None, bugDesc=None, status=None, importance=None, priority=None, assignedId=None, category=None, bugSuggest=None, updateCounter=None, updateDates=None):
@@ -919,8 +934,8 @@ class BugFixer(ABC):
             or BugTitleOrDescriptionChecker.checkInput(data.get('description')) == False
             or BugPriorityOrImportanceChecker.checkInput(data.get('priority')) == False
             or BugPriorityOrImportanceChecker.checkInput(data.get('importance')) == False
-            or BugOpenCreationDateChecker(data.get('openDate'), data.get('creationDate')) == False
-            or BugCloseDateChecker(data.get('openDate'), data.get('closeDate')) == False):
+            or BugOpenCreationDateChecker.checkInput(data.get('openDate'), data.get('creationDate')) == False
+            or BugCloseDateChecker.checkInput(data.get('openDate'), data.get('closeDate')) == False):
 
             return jsonify({'error': 'User entered invalid data'}), 500
         
@@ -954,6 +969,20 @@ class BugFixer(ABC):
         bugId = request.json
         try:
             if db.removeBug(bugId.get('bugId')):
+                return jsonify({'message': 'Bug removed successfully'}), 200
+            else:
+                return jsonify({'error': 'failed to remove bug from database'}), 500
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            return jsonify({'error': 'failed to perform database query'}), 500
+
+
+    # function for removing bugs by bug name, USED ONLY IN INTEGRATION TESTS
+    @app.route('/homePage/removeBugByTitle', methods=['POST'])
+    def removeBugByTitle():
+        bugId = request.json
+        try:
+            if db.removeBugByTitle(bugId.get('bugName')):
                 return jsonify({'message': 'Bug removed successfully'}), 200
             else:
                 return jsonify({'error': 'failed to remove bug from database'}), 500
