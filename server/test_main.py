@@ -4,11 +4,7 @@ from main import HelperFunctions as HF
 from dotenv import load_dotenv
 from datetime import datetime
 
-<<<<<<< HEAD
-
-=======
 # global object for database 
->>>>>>> ab1803d798da3d92066e793e3e9b343e7b793715
 db = None
 
 

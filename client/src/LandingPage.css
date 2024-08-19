@@ -1,8 +1,15 @@
+/* src/LandingPage.css */
+
 .landing-page {
     padding-top: 100px; 
+    min-height: 100vh; /* Ensure the landing page takes full viewport height */
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
 }
 
 .article-container {
-    max-height: calc(100vh - 100px);
+    max-height: calc(100vh - 100px); /* Ensure the container is scrollable if content exceeds viewport */
     overflow-y: auto; /* Enable vertical scrolling */
+    padding: 20px; /* Optional: add padding inside container */
+    box-sizing: border-box; /* Include padding in height calculation */
 }

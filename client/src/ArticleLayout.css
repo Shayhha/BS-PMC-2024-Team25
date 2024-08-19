@@ -2,16 +2,17 @@
 .Article_Layout_container {
     display: flex;
     flex-direction: column;
-    margin: 20px 30px;
+    margin: 30px 40px;
 }
 
 .Article_Layout_main-content {
     display: flex;
-    margin-top: 20px;
+    margin-top: 40px;
     background-color: #f0f0f0;
-    padding: 20px;
-    border-radius: 8px;
-    gap: 25px; /* Add gap for equal spacing between image and description */
+    padding: 60px; /* Increase padding for a larger section */
+    border-radius: 20px; /* Larger border radius for rounded corners */
+    gap: 20px; /* Adjusted gap between image and description for a larger image */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for visual separation */
 }
 
 .Article_Layout_code-image {
@@ -22,10 +23,12 @@
 }
 
 .Article_Layout_code-image img {
-    width: 450px;
-    height: 350px;
-    max-width: 100%;
-    border-radius: 8px;
+    width: 100%; /* Make the image responsive */
+    height: auto; /* Maintain aspect ratio */
+    max-width: 1000px; /* Increase maximum width for a much larger image */
+    max-height: 900px; /* Increase maximum height for a much larger image */
+    border-radius: 15px; /* Match border radius with container */
+    object-fit: cover; /* Ensure the image covers the area without distortion */
 }
 
 .Article_Layout_description {
@@ -33,10 +36,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-right: 15px;
+    padding-right: 20px; /* Add padding for more space */
 }
 
 .Article_Layout_description p {
-    font-size: 16px;
+    font-size: 30px; /* Increase font size for better readability */
     color: black; /* Set text color to black */
+    text-align: justify; /* Justify text alignment for better readability */
 }

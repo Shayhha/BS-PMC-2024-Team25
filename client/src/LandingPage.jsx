@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
+// src/LandingPage.jsx
+import React from 'react';
 import './LandingPage.css';
 import ArticleLayout from './ArticleLayout';
 import NavBar from './NavBar';
 import Footer from './Footer';
 
+// Import images
+import coderImage from './assets/coder.png'; // Adjust the path as needed
+
 function LandingPage() {
-    // Dummy data for articles, you can replace with actual data
+    // Data for articles with image and text
     const articles = [
-        { id: 1 },
-        { id: 2 },
-        { id: 3 },
-        { id: 4 },
-        { id: 5 },
-        { id: 6 },
-        // Add more articles as needed
+        { id: 1, image: coderImage, text: 'The Coder component is designed to provide an interactive interface for managing and viewing bugs within a software project. It integrates various functionalities to enhance the user experience for coders..' },
+        { id: 2, image: coderImage, text: 'Second article description here.' },
+        { id: 3, image: coderImage, text: 'Third article description here.' },
+        { id: 4, image: coderImage, text: 'Fourth article description here.' },
+        { id: 5, image: coderImage, text: 'Fifth article description here.' },
+        { id: 6, image: coderImage, text: 'Sixth article description here.' },
     ];
 
     return (
@@ -21,7 +24,11 @@ function LandingPage() {
             <NavBar /> {/* Assuming NavBar component handles navigation */}
             <div className="article-container">
                 {articles.map(article => (
-                    <ArticleLayout key={article.id} />
+                    <ArticleLayout
+                        key={article.id}
+                        image={article.image}
+                        text={article.text}
+                    />
                 ))}
             </div>
             <Footer/>
@@ -29,4 +36,4 @@ function LandingPage() {
     );
 }
 
-export default LandingPage
+export default LandingPage;
