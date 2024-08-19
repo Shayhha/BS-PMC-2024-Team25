@@ -235,7 +235,7 @@ function NavBar() {
                                 <FontAwesomeIcon
                                     icon={faBell}
                                     className="notification-icon"
-                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }}
                                 />
                                 {unreadCount > 0 && (
                                     <span className="notification-badge">
@@ -270,14 +270,12 @@ function NavBar() {
                             )}
                             {(userType === "Coder" || userType === "Tester") && (
                                 <div
-                                    className="navbar_profile-icon"
-                                    
-                                >
+                                    className="navbar_profile-icon">
                                     <Link  onClick= {(e)=>handleChatButtonClick(e)}>
                                         <FontAwesomeIcon
                                             icon={faInbox}
                                             className="message-icon"
-                                            style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+                                            style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} 
                                         />
                                     </Link>
                                 </div>
@@ -291,12 +289,11 @@ function NavBar() {
                                 className="navbar_profile-icon"
                                 onClick={() => toggleDropdown('settings')}
                                 ref={settingsRef}
-                                aria-haspopup="true"
-                            >
+                                aria-haspopup="true">
                                 <FontAwesomeIcon
                                     icon={faCog}
                                     className="settings-icon"
-                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} 
                                 />
                                 {dropdownVisible.settings && (
                                     <div className="navbar_dropdown" role="menu">
@@ -327,7 +324,7 @@ function NavBar() {
                                 <FontAwesomeIcon
                                     icon={faSignOutAlt}
                                     className="logout-icon"
-                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }}
                                 />
                                 {dropdownVisible.logout && (
                                     <div className="navbar_dropdown" role="menu">

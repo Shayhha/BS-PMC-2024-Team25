@@ -1125,7 +1125,7 @@ class BugFixer(ABC):
         try:
             user_id = request.json.get('userId')
             messages = db.get_messages(user_id)
-            return jsonify(messages), 200  # צריך להשתמש ב-jsonify כדי לוודא שההודעות יחזרו כ-JSON תקין
+            return jsonify(messages), 200  
         except Exception as e:
             return jsonify({'error': f'Error getting messages: {e}'}), 500
           
@@ -1258,20 +1258,6 @@ class BugFixer(ABC):
                 raise
         except:
             return jsonify({'error': 'Failed to perform database query'}), 500
-        
-   
-    @app.route('/bug/addComment', methods=['POST'])
-    def add_comment():
-        data = request.get_json()
-        bug_id = data.get('bugId')
-        comment = data.get('comment')
-        
-        # Add comment to the database (implementation depends on your setup)
-        # e.g., cursor.execute("INSERT INTO Comments (bugId, comment) VALUES (?, ?)", (bug_id, comment))
-
-        return jsonify({'status': 'success'})
-
-            
         
 
 # ==================================================================================================================== #
