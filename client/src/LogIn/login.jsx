@@ -35,7 +35,7 @@ function Login() {
         }, 1000); // Delay of 1 second before redirecting
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError('Invalid credentials, please try again.');
       setSuccess(''); // Clear any previous success message
       console.error('Login error:', err);
     }

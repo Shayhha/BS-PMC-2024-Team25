@@ -15,16 +15,70 @@ function Register() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    // this is for error messages //
+    const [userNameError, setUserNameError] = useState('');
+    const [fNameError, setFNameError] = useState('');
+    const [lNameError, setLNameError] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+
     const handleChange = e => {
         const { name, value } = e.target;
         setFormData(prevState => ({
             ...prevState,
             [name]: value
         }));
+
+        //validate the input as the user types
+        switch (name) {
+            case 'username':
+                if (/^[a-zA-Z0-9]*$/.test(value)) {
+                    setUserNameError('');
+                } else {
+                    setUserNameError('Username must contain only letters and numbers.');
+                }
+                break;
+            case 'password':
+                if (/^(?=.*[A-Z])[^\s'=]{6,24}$/.test(value)) {
+                    setPasswordError('');
+                } else {
+                    setPasswordError('Invalid password format, password should include at least 6 characters and at least one capital letter.');
+                }
+                break;
+            case 'email':
+                if (/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
+                    setEmailError('');
+                } else {
+                    setEmailError('Invalid email format.');
+                }
+                break;
+            case 'name':
+                if (/^[a-zA-Z]*$/.test(value)) {
+                    setFNameError('');
+                } else {
+                    setFNameError('First name must contain only letters.');
+                }
+                break;
+            case 'lastname':
+                if (/^[a-zA-Z]*$/.test(value)) {
+                    setLNameError('');
+                } else {
+                    setLNameError('Last name must contain only letters.');
+                }
+                break;
+            default:
+                break;
+        }
     };
 
     const handleSubmit = async e => {
         e.preventDefault();
+        
+        if (userNameError !== '' || emailError !== '' || fNameError !== '' || lNameError !== '' || passwordError !== '') {
+            console.log('Invalid user info parameters.');
+            alert(`Invalid user info parameters.`);
+            return;
+        }
 
         try {
             const response = await axios.post('http://127.0.0.1:8090/homepage/register', formData);
@@ -43,9 +97,9 @@ function Register() {
 
                 setError(errorMessage);
                 setSuccess(''); // Clear any previous success message
-
                 // Show popup message
                 alert(errorMessage);
+
             } else {
                 console.log('Registration successful:', response.data);
                 setError(''); // Clear any previous error
@@ -92,6 +146,7 @@ function Register() {
                         onChange={handleChange}
                         required
                     />
+                    {userNameError && <span style={{ color: 'red' }}>{userNameError}</span>}
                     <label htmlFor="password">Password</label>
                     <input
                         type="password"
@@ -102,6 +157,7 @@ function Register() {
                         onChange={handleChange}
                         required
                     />
+                    {passwordError && <span style={{ color: 'red' }}>{passwordError}</span>}
                     <label htmlFor="email">Email address</label>
                     <input
                         type="email"
@@ -112,6 +168,7 @@ function Register() {
                         onChange={handleChange}
                         required
                     />
+                    {emailError && <span style={{ color: 'red' }}>{emailError}</span>}
                     <label htmlFor="name">Name</label>
                     <input
                         type="text"
@@ -122,6 +179,7 @@ function Register() {
                         onChange={handleChange}
                         required
                     />
+                    {fNameError && <span style={{ color: 'red' }}>{fNameError}</span>}
                     <label htmlFor="lastname">Lastname</label>
                     <input
                         type="text"
@@ -132,6 +190,7 @@ function Register() {
                         onChange={handleChange}
                         required
                     />
+                    {lNameError && <span style={{ color: 'red' }}>{lNameError}</span>}
                     <label htmlFor="userType">Worker Type</label>
                     <select
                         id="userType"

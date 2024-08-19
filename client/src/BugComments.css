@@ -50,6 +50,37 @@
   margin-bottom: 20px;
 }
 
+/* Webkit-based browsers (Chrome, Safari) */
+.bug_comments_comments_section::-webkit-scrollbar {
+  width: 12px;
+}
+
+.bug_comments_comments_section::-webkit-scrollbar-track {
+  background: transparent; /* Makes the track transparent */
+}
+
+.bug_comments_comments_section::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3); /* Slightly visible thumb */
+  border-radius: 10px;
+  border: 3px solid transparent; /* Makes the scrollbar thumb edges transparent */
+}
+
+/* For Firefox */
+.bug_comments_comments_section {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+
+/* For Internet Explorer and Edge */
+.bug_comments_comments_section {
+  -ms-overflow-style: none; /* Hides the scrollbar for IE and Edge */
+}
+
+/* General styling for non-webkit browsers (fallback) */
+.bug_comments_comments_section {
+  overflow-y: auto; /* Only show the scrollbar when necessary */
+}
+
 .bug_comments_comments_section h2 {
   margin-bottom: 15px;
   font-size: 20px;

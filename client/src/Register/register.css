@@ -1,18 +1,16 @@
 .register-page {
-    margin-top: 100px;
+    margin-top: 150px;
     position: relative;
 }
 
 .register-container {
-    width: 500px;
-    max-height: calc(100vh - 100px);
-
+    width: 450px;
+    height: 840px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    
-    max-width: 850px; /* Increased maximum width */
-    padding: 60px; /* Increased the padding */
+    justify-content: center;
+    padding: 40px; /* Increased the padding */
     border: 3px solid #ccc;
     border-radius: 50px;
     background-color: #f9f9f9;
@@ -30,7 +28,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 3px;
     margin-bottom: 20px; /* Increased the margin-bottom */
 }
 
@@ -40,15 +38,15 @@
     margin-bottom: -5px;
     margin-left: 3px;
     display: block;
-    font-size: 22px; /* Increased the font size */
+    font-size: 20px; /* Increased the font size */
 }
 
 .register-form input[type="text"],
 .register-form input[type="email"],
 .register-form input[type="password"] {
     width: 100%;
-    padding: 15px; /* Increased the padding */
-    font-size: 26px; /* Increased the font size */
+    padding: 10px; /* Increased the padding */
+    font-size: 20px; /* Increased the font size */
     border: 1px solid #ccc;
     border-radius: 10px;
     box-sizing: border-box;
@@ -60,7 +58,7 @@
     width: 100%;
     box-sizing: border-box;
     padding: 10px; /* Increased the padding */
-    font-size: 26px; /* Increased the font size */
+    font-size: 20px; /* Increased the font size */
     border: 1px solid #ccc;
     border-radius: 10px;
     background-color: white;
@@ -68,16 +66,16 @@
 }
 
 .register-button {
-    margin-top: 20px;
+    margin-top: 15px;
     margin-bottom: 0px;
-    padding: 20px; 
+    padding: 15px; 
     background-color: #007bff;
     width: 100%;
     color: #fff;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 30px;
+    font-size: 26px;
     transition: background-color 0.3s ease;
 }
 

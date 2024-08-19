@@ -16,19 +16,16 @@ function EditUser() {
         userName: '',
         fName: '',
         lName: '',
-        userType: '',
-        isValid: '0'
+        userType: ''
     });
 
     const [emailData, setEmailData] = useState({
-        email: '',
-        isValid: '0'
+        email: ''
     });
 
     const [passwordData, setPasswordData] = useState({
         oldPassword: '',
-        newPassword: '',
-        isValid: '0'
+        newPassword: ''
     });
 
     // this is for error messages //
@@ -85,28 +82,22 @@ function EditUser() {
         switch (name) {
             case 'userName':
                 if (/^[a-zA-Z0-9]*$/.test(value)) {
-                    leftFormData.isValid = '0';
                     setUserNameError('');
                 } else {
-                    leftFormData.isValid = '1';
                     setUserNameError('Username must contain only letters and numbers.');
                 }
                 break;
             case 'fName':
                 if (/^[a-zA-Z]*$/.test(value)) {
-                    leftFormData.isValid = '0';
                     setFNameError('');
                 } else {
-                    leftFormData.isValid = '1';
                     setFNameError('First name must contain only letters.');
                 }
                 break;
             case 'lName':
                 if (/^[a-zA-Z]*$/.test(value)) {
-                    leftFormData.isValid = '0';
                     setLNameError('');
                 } else {
-                    leftFormData.isValid = '1';
                     setLNameError('Last name must contain only letters.');
                 }
                 break;
@@ -125,7 +116,7 @@ function EditUser() {
             return;
         }
 
-        if (leftFormData.isValid === '1') {
+        if (userNameError !== '' || fNameError !== '' || lNameError !== '') {
             console.log('Invalid user info parameters.');
             alert(`Invalid user info parameters.`);
             return;
@@ -152,10 +143,8 @@ function EditUser() {
 
         //validate email
         if (/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) {
-            emailData.isValid = '0';
             setEmailError('');
         } else {
-            emailData.isValid = '1';
             setEmailError('Invalid email format.');
         }
     };
@@ -164,7 +153,7 @@ function EditUser() {
     const handleRightEmailSubmit = async (e) => {
         e.preventDefault();
 
-        if (emailData.isValid === '1') {
+        if (emailError !== '') {
             alert(`Invalid email format.`);
             return;
         }
@@ -189,10 +178,8 @@ function EditUser() {
 
         //validate password form
         if (/^(?=.*[A-Z])[^\s'=]{6,24}$/.test(value)) {
-            passwordData.isValid = '0';
             setPasswordError('');
         } else {
-            passwordData.isValid = '1';
             setPasswordError('Invalid password format, password should include at least 6 characters and at least one capital letter.');
         }
     };
@@ -201,7 +188,7 @@ function EditUser() {
     const handleRightPasswordSubmit = async (e) => {
         e.preventDefault();
 
-        if (passwordData.isValid === '1') {
+        if (passwordError !== '') {
             alert(`Invalid password format, please provide a valid password that matches requirements.`);
             return;
         }

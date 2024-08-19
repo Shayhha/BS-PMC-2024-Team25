@@ -269,3 +269,34 @@
 .notification-mark-all:hover {
     background-color: #7b311c;
 }
+
+/* Webkit-based browsers (Chrome, Safari) */
+.notification-dropdown::-webkit-scrollbar {
+    width: 12px;
+}
+
+.notification-dropdown::-webkit-scrollbar-track {
+    background: transparent; /* Makes the track transparent */
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3); /* Slightly visible thumb */
+    border-radius: 10px;
+    border: 3px solid transparent; /* Makes the scrollbar thumb edges transparent */
+}
+
+/* For Firefox */
+.notification-dropdown {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+
+/* For Internet Explorer and Edge */
+.notification-dropdown {
+    -ms-overflow-style: none; /* Hides the scrollbar for IE and Edge */
+}
+
+/* General styling for non-webkit browsers (fallback) */
+.notification-dropdown {
+    overflow-y: auto; /* Only show the scrollbar when necessary */
+}
