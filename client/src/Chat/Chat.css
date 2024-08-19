@@ -28,7 +28,7 @@ body {
     box-shadow: 0 60px 120px rgba(0, 0, 0, 0.2); /* Large shadow for depth effect */
     overflow: visible; /* Ensure the shadow is visible */
     transition: all 0.3s ease-in-out; /* Smooth transition for any changes */
-}
+} 
 
 /* Section for received messages or sending messages */
 .chat-section {
@@ -133,7 +133,7 @@ body {
     border-radius: 6px; /* Rounded corners for the button */
     cursor: pointer; /* Pointer cursor on hover */
     font-family: 'Roboto', sans-serif; /* Consistent font family */
-    font-size: 2vw; /* Dynamic font size based on viewport width */
+    font-size: 1.5vw; /* Dynamic font size based on viewport width */
     transition: background-color 0.3s ease, transform 0.2s ease, all 0.3s ease-in-out; /* Smooth transitions */
 }
 
@@ -174,3 +174,17 @@ body {
     }
 }
 
+.custom-combobox {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 1.5vw;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+.custom-combobox option {
+    padding: 10px;
+    font-size: 16px;
+}

@@ -52,11 +52,17 @@ class SQLHelper(ABC):
     
     def insert_message(self, sender_id, receiver_id, message):
         try:
+            # Fetch sender's name
+            sender_name_query = "SELECT userName FROM Users WHERE userId = ?"
+            self.cursor.execute(sender_name_query, (sender_id,))
+            sender_name = self.cursor.fetchone()[0]
+
+            # Insert message along with sender's name
             query = """
-            INSERT INTO ChatMessages (senderId, receiverId, messageInfo, creationDate, creationTime)
-            VALUES (?, ?, ?, CONVERT(VARCHAR, GETDATE(), 23), CONVERT(VARCHAR, GETDATE(), 8))
+            INSERT INTO ChatMessages (senderId, receiverId, messageInfo, senderName, creationDate, creationTime)
+            VALUES (?, ?, ?, ?, CONVERT(VARCHAR, GETDATE(), 23), CONVERT(VARCHAR, GETDATE(), 8))
             """
-            self.cursor.execute(query, (sender_id, receiver_id, message))
+            self.cursor.execute(query, (sender_id, receiver_id, message, sender_name))
             self.connection.commit()
         except Exception as e:
             print(f"An error occurred while saving the message: {e}")
@@ -65,23 +71,24 @@ class SQLHelper(ABC):
     def get_messages(self, user_id):
         try:
             query = """
-            SELECT *
+            SELECT senderId, receiverId, messageInfo, senderName, creationDate, creationTime
             FROM ChatMessages 
             WHERE receiverId = ?
             ORDER BY creationDate, creationTime
             """
             load_dotenv()
             connectionString = os.getenv('DB_CONNECTION_STRING')
-            with pyodbc.connect(connectionString) as connection: # this connection and cursor will automatically close at the end of the block
+            with pyodbc.connect(connectionString) as connection:
                 with connection.cursor() as cursor:
-                    print(user_id,"to check it \n")
-                    cursor.execute(query,  (user_id,))
+                    print(user_id, "to check it \n")
+                    cursor.execute(query, (user_id,))
                     messages = cursor.fetchall()
                     messagesList = [dict(zip([column[0] for column in cursor.description], row)) for row in messages]
                     return messagesList
         except Exception as e:
             print(f"An error occurred while retrieving the messages: {e}")
             return []
+
    
     def saveMessage(self, sender_id, receiver_id, message_info):
         try:
@@ -1055,9 +1062,9 @@ class BugFixer(ABC):
     @app.route('/chat/send_message', methods=['POST'])
     def send_message():
         data = request.get_json()
-        sender_id = data.get('sender_id')  
+        sender_id = data.get('sender_id')
         receiver_id = data.get('receiver_id')
-        message_info = data.get('message') # שיניתי את שם המשתנה ל- message_info כדי להתאים לעמודה במסד הנתונים
+        message_info = data.get('message')
 
         if not all([sender_id, receiver_id, message_info]):
             return jsonify({'error': 'Missing fields'}), 400
@@ -1068,14 +1075,16 @@ class BugFixer(ABC):
         except Exception as e:
             return jsonify({'error': f'Error sending message: {e}'}), 500
 
+  
     @app.route('/chat/get_messages', methods=['POST'])
     def get_messages():
         try:
             user_id = request.json.get('userId')
             messages = db.get_messages(user_id)
-            return messages , 200
+            return jsonify(messages), 200  # צריך להשתמש ב-jsonify כדי לוודא שההודעות יחזרו כ-JSON תקין
         except Exception as e:
             return jsonify({'error': f'Error getting messages: {e}'}), 500
+
 
 
     
@@ -1428,6 +1437,23 @@ class HelperFunctions(ABC):
     def add(a, b):
         """Return the sum of a and b."""
         return a + b
+    
+
+    def sendMessage(senderId, receiverId, message, db):
+        if not message or not message.strip():
+            return "Message cannot be empty."
+
+        if not isinstance(senderId, int) or not isinstance(receiverId, int):
+            return "Invalid user IDs."
+
+        # שמירת ההודעה בבסיס הנתונים
+        db.execute('''
+            INSERT INTO ChatMessages (senderId, receiverId, messageInfo, creationDate, creationTime)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (senderId, receiverId, message, datetime.now().strftime('%d/%m/%Y'), datetime.now().strftime('%H:%M:%S')))
+        
+        return "Message sent successfully."
+
     
 # ==================================================================================================================== #
 

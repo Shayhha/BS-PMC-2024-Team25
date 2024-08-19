@@ -640,7 +640,37 @@ def should_send_notification(close_date_str, last_notification_date_str):
     
     if close_date == today and (last_notification_date is None or last_notification_date != today):
         return True
-    return False        
+    return False    
+
+def test_send_message_empty():
+    try:
+        db = SQLHelper()  
+        db.connect()  
+        response = HF.sendMessage(1, 2, "", db)
+        if response != "Message cannot be empty.":
+            raise AssertionError()
+    except Exception:
+        pytest.fail(f"sendMessage raised an exception on empty message.")
+
+def test_send_message_invalid_ids():
+    try:
+        db = SQLHelper()  
+        db.connect()  
+        response = HF.sendMessage("one", 2, "Hello, World!", db)
+        if response != "Invalid user IDs.":
+            raise AssertionError()
+    except Exception:
+        pytest.fail(f"sendMessage raised an exception on invalid user IDs.")
+
+def test_send_message_whitespace_message():
+    try:
+        db = SQLHelper()  
+        db.connect()  
+        response = HF.sendMessage(1, 2, "   ", db)
+        if response != "Message cannot be empty.":
+            raise AssertionError()
+    except Exception:
+        pytest.fail(f"sendMessage raised an exception on whitespace message.")    
 
 
 # def test_edit_comment_on_bug():
