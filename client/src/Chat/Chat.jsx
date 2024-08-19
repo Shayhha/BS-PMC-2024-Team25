@@ -26,11 +26,13 @@ function Chat() {
             const response = await axios.post('http://localhost:8090/chat/get_messages', {
                 userId: userId 
             });
+            console.log("Messages fetched from server:", response.data); // הוסף את זה
             setMessages(response.data);
         } catch (error) {
             console.error('Error fetching messages:', error);
         }
     };
+
 
     const loadAllData = async () => {
         await fetchUsers();
@@ -49,20 +51,27 @@ function Chat() {
                     receiver_id: selectedUser,
                     message: message,
                 });
-
-                setMessages([...messages, {
-                    senderName: response.data.senderName,
-                    messageInfo: message
-                }]);
-
+    
+                console.log("Message sent response:", response.data);
+    
+                // Only add the message to the state if the user is the receiver
+                if (response.data.receiver_id === userId) {
+                    setMessages([...messages, {
+                        senderName: response.data.senderName,
+                        messageInfo: message
+                    }]);
+                }
+    
                 setMessage(''); 
-                setFeedbackMessage('Message sent successfully!'); // Add success feedback
-                setTimeout(() => setFeedbackMessage(''), 3000); // Clear feedback after 3 seconds
+                setFeedbackMessage('Message sent successfully!'); 
+                setTimeout(() => setFeedbackMessage(''), 3000);
             } catch (error) {
                 console.error('Error sending message:', error);
             }
         }
     };
+    
+     
 
     return (
         <div className="chat-container">
@@ -84,6 +93,7 @@ function Chat() {
             <div className="chat-section send-message">
                 <h2>Send a Message</h2>
                 <select 
+                    className="custom-combobox" // הוספתי את מחלקת ה-CSS
                     value={selectedUser} 
                     onChange={(e) => setSelectedUser(e.target.value)}
                 >
@@ -96,6 +106,7 @@ function Chat() {
                             </option>
                         ))}
                 </select>
+
                 <div className="chat-input">
                     <textarea
                         value={message}
@@ -106,10 +117,11 @@ function Chat() {
                     />
                     <button onClick={handleSendMessage} disabled={!selectedUser || !message.trim()}>Send</button>
                 </div>
-                {feedbackMessage && <div className="feedback-message">{feedbackMessage}</div>} {/* Display feedback */}
+                {feedbackMessage && <div className="feedback-message">{feedbackMessage}</div>}
             </div>
         </div>
     );
+    
 }
 
 export default Chat;

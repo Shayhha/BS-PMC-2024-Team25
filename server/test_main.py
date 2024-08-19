@@ -1,9 +1,14 @@
 import pytest
-from main import HelperFunctions as HF, SQLHelper
+from main import SQLHelper, UserNameChecker, FnameChecker, LnameChecker, PasswordChecker, EmailChecker, BugTitleOrDescriptionChecker, BugPriorityOrImportanceChecker, BugOpenCreationDateChecker, BugCloseDateChecker
+from main import HelperFunctions as HF
 from dotenv import load_dotenv
 from datetime import datetime
 
+<<<<<<< HEAD
 
+=======
+# global object for database 
+>>>>>>> ab1803d798da3d92066e793e3e9b343e7b793715
 db = None
 
 
@@ -74,21 +79,21 @@ def test_to_sha256_3():
 
 def test_check_User_Name_1():
     try:
-        if not HF.checkUserName('Shay12'):
+        if not UserNameChecker.checkInput('Shay12'):
             raise 
     except:
         pytest.fail(f"checkUserName raised an exception: username regex is not valid.")
 
 def test_check_User_Name_2():
     try:
-        if not HF.checkUserName('MaxSu'):
+        if not UserNameChecker.checkInput('MaxSu'):
             raise 
     except:
         pytest.fail(f"checkUserName raised an exception: username regex is not valid.")
 
 def test_check_User_Name_3():
     try:
-        if HF.checkUserName('Shay*&'):
+        if UserNameChecker.checkInput('Shay*&'):
             raise 
     except:
         pytest.fail(f"checkUserName raised an exception: username regex is not valid.")
@@ -96,7 +101,7 @@ def test_check_User_Name_3():
 
 def test_check_User_Name_4():
     try:
-        if HF.checkUserName('*₪12'):
+        if UserNameChecker.checkInput('*₪12'):
             raise 
     except:
         pytest.fail(f"checkUserName raised an exception: username regex is not valid.")
@@ -104,127 +109,127 @@ def test_check_User_Name_4():
 
 def test_check_fName_1():
     try:
-        if not HF.checkFname('Shay'):
+        if not FnameChecker.checkInput('Shay'):
             raise 
     except:
         pytest.fail(f"checkFname raised an exception: firstName regex is not valid.")
 
 def test_check_fName_2():
     try:
-        if not HF.checkFname('Maxim'):
+        if not FnameChecker.checkInput('Maxim'):
             raise 
     except:
         pytest.fail(f"checkFname raised an exception: firstName regex is not valid.")
 
 def test_check_fName_3():
     try:
-        if HF.checkFname('Sh4y'):
+        if FnameChecker.checkInput('Sh4y'):
             raise 
     except:
         pytest.fail(f"checkFname raised an exception: firstName regex is not valid.")
 
 def test_check_lName_1():
     try:
-        if not HF.checkLname('Hahiashvili'):
+        if not LnameChecker.checkInput('Hahiashvili'):
             raise 
     except:
         pytest.fail(f"checkLname raised an exception: lastName regex is not valid.")
 
 def test_check_lName_2():
     try:
-        if not HF.checkLname('Subotin'):
+        if not LnameChecker.checkInput('Subotin'):
             raise 
     except:
         pytest.fail(f"checkLname raised an exception: lastName regex is not valid.")
 
 def test_check_lName_3():
     try:
-        if HF.checkLname('S3btus4'):
+        if LnameChecker.checkInput('S3btus4'):
             raise 
     except:
         pytest.fail(f"checkLname raised an exception: lastName regex is not valid.")
 
 def test_check_password_1():
     try:
-        if not HF.checkPassword('Apple123'):
+        if not PasswordChecker.checkInput('Apple123'):
             raise 
     except:
         pytest.fail(f"checkPassword raised an exception: password regex is not valid.")
 
 def test_check_password_2():
     try:
-        if not HF.checkPassword('CatDog22'):
+        if not PasswordChecker.checkInput('CatDog22'):
             raise 
     except:
         pytest.fail(f"checkPassword raised an exception: password regex is not valid.")
 
 def test_check_password_3():
     try:
-        if HF.checkPassword('tomcruize21'):
+        if PasswordChecker.checkInput('tomcruize21'):
             raise 
     except:
         pytest.fail(f"checkPassword raised an exception: password regex is not valid.")
 
 def test_check_email1():
     try:
-        if HF.checkemail("plainaddress"):
+        if EmailChecker.checkInput("plainaddress"):
             raise
     except:
         pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
 
 def test_check_email2():
     try:
-        if not HF.checkemail("ayman@gmail.com"):
+        if not EmailChecker.checkInput("ayman@gmail.com"):
             raise
     except:
         pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
 
 def test_check_email3():
     try:
-        if not HF.checkemail("user.name+tag+sorting@example.com"):
+        if not EmailChecker.checkInput("user.name+tag+sorting@example.com"):
             raise
     except:
         pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
 
 def test_check_email4():
     try:
-        if not HF.checkemail("user_name@sub.example.org"):
+        if not EmailChecker.checkInput("user_name@sub.example.org"):
             raise
     except:
         pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
 
 def test_check_email5():
     try:
-        if  HF.checkemail("@missingusername.com"):
+        if  EmailChecker.checkInput("@missingusername.com"):
             raise
     except:
         pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
 
 
-def test_check_email5():
+def test_check_email6():
     try:
-        if  HF.checkemail("shay@.com"):
+        if  EmailChecker.checkInput("shay@.com"):
             raise
     except:
         pytest.fail(f"checkEmail raised an exception: password regex is not valid.")
 
 def test_check_bug_clsoe_1():
     try:
-        if not HF.checkBugCloseDate('16/01/2009', '08/07/2012'):
+        if not BugCloseDateChecker.checkInput('16/01/2009', '08/07/2012'):
             raise 
     except:
         pytest.fail(f"checkBugCloseDate raised an exception: close date is  not valid.")
     
 def test_check_bug_clsoe_2():
     try:
-        if not HF.checkBugCloseDate('16/01/2009', '16/01/2009'):
+        if not BugCloseDateChecker.checkInput('16/01/2009', '16/01/2009'):
             raise 
     except:
         pytest.fail(f"checkBugCloseDate raised an exception: close date is  not valid.")
 
 def test_check_bug_clsoe_3():
     try:
-        if  HF.checkBugCloseDate('20/02/2012', '16/01/2009'):
+        if BugCloseDateChecker.checkInput('20/02/2012', '16/01/2009'):
             raise 
     except:
         pytest.fail(f"checkBugCloseDate raised an exception: close date is  not valid.")
@@ -232,7 +237,7 @@ def test_check_bug_clsoe_3():
 
 def test_check_bug_clsoe_4():
     try:
-        if  HF.checkBugCloseDate('10/04/2009', '16/01/2009'):
+        if BugCloseDateChecker.checkInput('10/04/2009', '16/01/2009'):
             raise 
     except:
         pytest.fail(f"checkBugCloseDate raised an exception: close date is  not valid.")
@@ -240,100 +245,94 @@ def test_check_bug_clsoe_4():
 
 def test_check_bug_title_or_description_1():
     try:
-        if not HF.checkBugTitleOrDescription('Bug 1'):
+        if not BugTitleOrDescriptionChecker.checkInput('Bug 1'):
             raise 
     except:
         pytest.fail(f"checkBugTitleOrDescription raised an exception.")
 
 def test_check_bug_title_or_description_2():
     try:
-        if not HF.checkBugTitleOrDescription('(Test1) good title 123'):
+        if not BugTitleOrDescriptionChecker.checkInput('(Test1) good title 123'):
             raise 
     except:
         pytest.fail(f"checkBugTitleOrDescription raised an exception.")
 
 def test_check_bug_title_or_description_3():
     try:
-        if not HF.checkBugTitleOrDescription('Lorem ipsum dolor, sit amet consectetur adipisicing elit. Reprehenderit repellat tenetur eos a tempora velit ipsa dolore error nihil, blanditiis debitis expedita repudiandae praesentium! Mollitia aut fuga laborum repudiandae enim.'):
+        if not BugTitleOrDescriptionChecker.checkInput('Lorem ipsum dolor, sit amet consectetur adipisicing elit. Reprehenderit repellat tenetur eos a tempora velit ipsa dolore error nihil, blanditiis debitis expedita repudiandae praesentium! Mollitia aut fuga laborum repudiandae enim.'):
             raise 
     except:
         pytest.fail(f"checkBugTitleOrDescription raised an exception.")
 
 def test_check_bug_title_or_description_4():
     try:
-        if HF.checkBugTitleOrDescription('`SELECT * FROM Users`'):
+        if BugTitleOrDescriptionChecker.checkInput('`SELECT * FROM Users`'):
             raise 
     except:
         pytest.fail(f"checkBugTitleOrDescription raised an exception.")
 
 def test_check_bug_title_or_description_5():
     try:
-        if HF.checkBugTitleOrDescription('`@)*&$VJ@*&JC&Shfsjhcajsh~`-182u`s\n\t`'):
+        if BugTitleOrDescriptionChecker.checkInput('`@)*&$VJ@*&JC&Shfsjhcajsh~`-182u`s\n\t`'):
             raise 
     except:
         pytest.fail(f"checkBugTitleOrDescription raised an exception.")
 
 def test_check_bug_priority_or_importance_1():
     try:
-        if not HF.checkBugPriorityOrImportance(3):
+        if not BugPriorityOrImportanceChecker.checkInput(3):
             raise 
     except:
         pytest.fail(f"checkBugPriorityOrImportance raised an exception.")
 
 def test_check_bug_priority_or_importance_2():
     try:
-        if not HF.checkBugPriorityOrImportance(10):
+        if not BugPriorityOrImportanceChecker.checkInput(10):
             raise 
     except:
         pytest.fail(f"checkBugPriorityOrImportance raised an exception.")
 
 def test_check_bug_priority_or_importance_3():
     try:
-        if not HF.checkBugPriorityOrImportance(0):
+        if not BugPriorityOrImportanceChecker.checkInput(0):
             raise 
     except:
         pytest.fail(f"checkBugPriorityOrImportance raised an exception.")
 
 def test_check_bug_priority_or_importance_4():
     try:
-        if HF.checkBugPriorityOrImportance(-25):
+        if BugPriorityOrImportanceChecker.checkInput(-25):
             raise 
     except:
         pytest.fail(f"checkBugPriorityOrImportance raised an exception.")
 
 def test_check_bug_priority_or_importance_5():
     try:
-        if HF.checkBugPriorityOrImportance(425):
+        if BugPriorityOrImportanceChecker.checkInput(425):
             raise 
     except:
         pytest.fail(f"checkBugPriorityOrImportance raised an exception.")
 
-
-
-
 def test_check_bug_open_creation_date_1():
     try:
-        if not HF.checkBugOpenCreationDate('24/04/2022', '12/04/2022'):
+        if not BugOpenCreationDateChecker.checkInput('24/04/2022', '12/04/2022'):
             raise 
     except:
         pytest.fail(f"checkBugOpenCreationDate raised an exception: open and creation dates are not valid.")
 
 def test_check_bug_open_creation_date_2():
     try:
-        if not HF.checkBugOpenCreationDate('01/12/2023', '01/12/2023'):
+        if not BugOpenCreationDateChecker.checkInput('01/12/2023', '01/12/2023'):
             raise 
     except:
         pytest.fail(f"checkBugOpenCreationDate raised an exception: open and creation dates are not valid.")
 
 def test_check_bug_open_creation_date_3():
     try:
-        if HF.checkBugOpenCreationDate('16/01/2009', '18/06/2011'):
+        if BugOpenCreationDateChecker.checkInput('16/01/2009', '18/06/2011'):
             raise 
     except:
         pytest.fail(f"checkBugOpenCreationDate raised an exception: open and creation dates are not valid.")
-
-
-
 
 # def test_insert_bug_1():
 #     db = SQLHelper()
@@ -355,7 +354,9 @@ def test_check_bug_open_creation_date_3():
 #             "02/01/2024",
 #             "03/01/2024",
 #             "Ui",
-#             "these are some suggestions: 1,2,3"
+#             "these are some suggestions: 1,2,3",
+#             0,
+#             ""
 #         )
 
 #         # Clean up: Delete the inserted bug from the database
@@ -391,7 +392,9 @@ def test_check_bug_open_creation_date_3():
 #             "03/01/2024",
 #             "06/01/2024",
 #             "Performance",
-#             "these are some suggestions: 1,2,3"
+#             "these are some suggestions: 1,2,3",
+#                         0,
+#             ""
 #         )
 
 #         # Clean up: Delete the inserted bug from the database
@@ -426,7 +429,9 @@ def test_check_bug_open_creation_date_3():
 #             "02/01/2024",
 #             "03/01/2024",
 #             "Performance",
-#             "these are some suggestions: 1,2,3"
+#             "these are some suggestions: 1,2,3",
+#             0,
+#             ""
 #         )
      
 #         # If insertBug succeeds and doesn't raise an exception, fail the test
@@ -450,20 +455,20 @@ def test_check_bug_open_creation_date_3():
 #         db.close()
 
 def test_check_bug_priority_or_importance_valid():
-    assert HF.checkBugPriorityOrImportance(0)
-    assert HF.checkBugPriorityOrImportance(1)
-    assert HF.checkBugPriorityOrImportance(10)
+    assert BugPriorityOrImportanceChecker.checkInput(0)
+    assert BugPriorityOrImportanceChecker.checkInput(1)
+    assert BugPriorityOrImportanceChecker.checkInput(10)
 
 def test_check_bug_priority_or_importance_invalid():
-    assert not HF.checkBugPriorityOrImportance(-1)
-    assert not HF.checkBugPriorityOrImportance(11)
-    assert not HF.checkBugPriorityOrImportance(999)
+    assert not BugPriorityOrImportanceChecker.checkInput(-1)
+    assert not BugPriorityOrImportanceChecker.checkInput(11)
+    assert not BugPriorityOrImportanceChecker.checkInput(999)
 
 # def test_sort_bugs_newest_to_oldest():
 #     db = SQLHelper()
 #     db.connect()
 #     try:
-#         bugs = db.searchBug('')  # Fetch all bugs
+#         bugs = db.searchBug('Bug')  # Fetch all bugs
 #         sorted_bugs = sorted(bugs, key=lambda x: x['openDate'], reverse=True)
 #         assert bugs == sorted_bugs
 #     except Exception as e:
@@ -475,7 +480,7 @@ def test_check_bug_priority_or_importance_invalid():
 #     db = SQLHelper()
 #     db.connect()
 #     try:
-#         bugs = db.searchBug('')  # Fetch all bugs
+#         bugs = db.searchBug('Bug')  # Fetch all bugs
 #         sorted_bugs = sorted(bugs, key=lambda x: x['openDate'])
 #         assert bugs == sorted_bugs
 #     except Exception as e:
@@ -641,11 +646,40 @@ def should_send_notification(close_date_str, last_notification_date_str):
     
     if close_date == today and (last_notification_date is None or last_notification_date != today):
         return True
-    return False        
+    return False    
 
+def test_send_message_empty():
+    try:
+        db = SQLHelper()  
+        db.connect()  
+        response = HF.sendMessage(1, 2, "", db)
+        if response != "Message cannot be empty.":
+            raise AssertionError()
+    except Exception:
+        pytest.fail(f"sendMessage raised an exception on empty message.")
+
+def test_send_message_invalid_ids():
+    try:
+        db = SQLHelper()  
+        db.connect()  
+        response = HF.sendMessage("one", 2, "Hello, World!", db)
+        if response != "Invalid user IDs.":
+            raise AssertionError()
+    except Exception:
+        pytest.fail(f"sendMessage raised an exception on invalid user IDs.")
+
+def test_send_message_whitespace_message():
+    try:
+        db = SQLHelper()  
+        db.connect()  
+        response = HF.sendMessage(1, 2, "   ", db)
+        if response != "Message cannot be empty.":
+            raise AssertionError()
+    except Exception:
+        pytest.fail(f"sendMessage raised an exception on whitespace message.")    
 
 # def test_edit_comment_on_bug():
-#    commentId = 1
+#    commentId = 60
 #    newCommentInfo = "This is the new comment info"
 #    db = SQLHelper()
 #    db.connect()
