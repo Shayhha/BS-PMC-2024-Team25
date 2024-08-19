@@ -16,7 +16,6 @@ const BugComments = () => {
     const [editingCommentId, setEditingCommentId] = useState(null);  // Tracks the comment being edited
     const [editedCommentText, setEditedCommentText] = useState('');  // Stores the new text for the comment
 
-
     useEffect(() => {
         if (bug?.id) {
             setBugId(bug.id);
@@ -41,7 +40,7 @@ const BugComments = () => {
         }
     }
 
-    // Function for getting info line userName and userId of the current connected user from the database
+    // Function for getting info like userName and userId of the current connected user from the database
     const fetchUserInfo = async () => {
         try {
             const response = await axios.get('http://localhost:8090/userSettings/getUser');
@@ -57,7 +56,21 @@ const BugComments = () => {
         }
     };
 
-    // Function for adding a comment to the database and then to the list of comments on screen
+    // Function to push notification to a user
+    const pushNotification = async (user_id, notification_message) => {
+        try {
+            const response = await axios.post('http://localhost:8090/notifications/pushNotificationToUser', {
+                userId: user_id, message: notification_message
+            });
+            if (response.data.error) {
+                console.error('Error pushing notification to user:', response.data.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+     // Function for adding a comment to the database and then to the list of comments on screen
     const handleAddComment = async () => {
         if (newComment.trim()) { // if the input is empty then the following code will not run
             try {
@@ -65,7 +78,15 @@ const BugComments = () => {
                 if (response.data.error) {
                     console.error('Error adding comment:', response.data.error);
                 }
-                setComments([...comments, { commentId: response.data.commentId, bugId: bug.bugId, userId: userName, commentInfo: newComment }]);
+                const addedComment = { commentId: response.data.commentId, bugId: bug.bugId, userId: userName, commentInfo: newComment };
+                setComments([...comments, addedComment]);
+
+                // Notify the assigned user about the new comment
+                if (bug.assignedUserId) {
+                    const notificationMessage = `${userName} added a new comment to the bug titled "${bug.title}".`;
+                    await pushNotification(bug.assignedUserId, notificationMessage);
+                }
+
                 setNewComment('');
             }
             catch (error) {
@@ -73,6 +94,8 @@ const BugComments = () => {
             }
         }
     };
+
+
 
     // Function for editing a comment in the database 
     const handleEditComment = async (commentId) => {
@@ -112,14 +135,32 @@ const BugComments = () => {
         try {
             const response = await axios.post('http://localhost:8090/bugComments/deleteCommentFromBug', { commentId: commentId });
             if (response.data.error) {
-                console.error('Error adding comment:', response.data.error);
+                console.error('Error deleting comment:', response.data.error);
             }
 
-            // remove the deleted comment from the array
+            // Remove the deleted comment from the array
             const updatedComments = comments.filter(comment => comment.commentId !== commentId);
             setComments(updatedComments);
+
+            // Notify all users about the comment deletion
+            const notificationMessage = `A comment has been deleted from the bug titled "${bug.title}".`;
+            await pushNotificationsToAllUsers(notificationMessage);
         }
         catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    // Function to notify all users about an event
+    const pushNotificationsToAllUsers = async (notification_message) => {
+        try {
+            const response = await axios.post('http://localhost:8090/notifications/pushNotificationsToAllUsers', {
+                message: notification_message
+            });
+            if (response.data.error) {
+                console.error('Error pushing notification to all users:', response.data.error);
+            }
+        } catch (error) {
             console.error('Error:', error);
         }
     };

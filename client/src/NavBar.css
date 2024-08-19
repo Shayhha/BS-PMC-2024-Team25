@@ -253,3 +253,19 @@
 .custom-message-icon:hover {
     transform: scale(1.1); /* Scale up on hover */
 }
+.notification-mark-all {
+    background-color: #f82d16;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+.notification-mark-all:hover {
+    background-color: #7b311c;
+}

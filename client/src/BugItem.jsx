@@ -66,17 +66,25 @@ function BugItem({
             console.error('Error:', error);
         }
     };
+    
 
     const handleDeleteBug = async () => {
         if (status !== "Done") return;
         if (!window.confirm("Are you sure you want to delete this bug?")) return;
         try {
+            // Delete the bug from the database
             await axios.post('http://localhost:8090/homePage/removeBug', { bugId });
+    
+            // After successful deletion, send a notification
+            await sendDeleteNotification();
+    
+            // Reload the page or update state to remove the deleted bug from the list
             window.location.reload();
         } catch (error) {
             alert(`Error removing the bug: ${error.response?.data?.error || error.message}`);
         }
     };
+    
 
     const handleEditClick = () => setIsEditing(true);
 
@@ -127,6 +135,20 @@ function BugItem({
             console.error('Error:', error);
         }
     };
+    
+    
+    const sendDeleteNotification = async () => {
+        const notificationMessage = `The bug titled "${title}" has been deleted.`;
+        
+        try {
+            // Notify all users about the bug deletion
+            await pushNotificationsToAllUsers(notificationMessage);
+        } catch (error) {
+            console.error('Error sending delete notification:', error);
+        }
+    };
+    
+
 
     const handleCancelClick = () => {
         setIsEditing(false);
