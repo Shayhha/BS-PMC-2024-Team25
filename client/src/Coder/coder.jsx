@@ -62,7 +62,7 @@ function Coder() {
 
     // Function to fetch and sort bugs
     const fetchBugs = async () => {
-        const response = await axios.get('http://localhost:8090/homePage/getBugs');
+        const response = await axios.get('http://127.0.0.1:8090/homePage/getBugs');
         const sortedBugs = [...response.data].sort((a, b) => {
             const dateA = parseDate(a.creationDate);
             const dateB = parseDate(b.creationDate);
@@ -100,7 +100,7 @@ function Coder() {
         if (searchResult === "") 
             return;
         try {
-            const response = await axios.post('http://localhost:8090/homePage/search', { searchResult });
+            const response = await axios.post('http://127.0.0.1:8090/homePage/search', { searchResult });
             setBugArray(response.data);
             console.log('Data sent successfully:', response.data);
         } catch (error) {
@@ -121,7 +121,7 @@ function Coder() {
     //gets all users of type Coder from the database to later display their names on bugs where they are assigned
     const fetchCoderUsers = async () => {
         try {
-            const response = await axios.get('http://localhost:8090/bug/getAllCoders');
+            const response = await axios.get('http://127.0.0.1:8090/bug/getAllCoders');
             if (!response.data.error) {
                 setCoders(response.data);
             } else {

@@ -27,7 +27,7 @@ function Register() {
         e.preventDefault();
 
         try {
-            const response = await axios.post('http://localhost:8090/homepage/register', formData);
+            const response = await axios.post('http://127.0.0.1:8090/homepage/register', formData);
 
             if (response.data.error) {
                 let errorMessage = 'An unexpected error occurred. Please try again.';
@@ -87,6 +87,7 @@ function Register() {
                         type="text"
                         id="username"
                         name="username"
+                        data-testid="cypress-register-username-input"
                         value={formData.username}
                         onChange={handleChange}
                         required
@@ -96,6 +97,7 @@ function Register() {
                         type="password"
                         id="password"
                         name="password"
+                        data-testid="cypress-register-password-input"
                         value={formData.password}
                         onChange={handleChange}
                         required
@@ -105,6 +107,7 @@ function Register() {
                         type="email"
                         id="email"
                         name="email"
+                        data-testid="cypress-register-email-input"
                         value={formData.email}
                         onChange={handleChange}
                         required
@@ -114,6 +117,7 @@ function Register() {
                         type="text"
                         id="name"
                         name="name"
+                        data-testid="cypress-register-name-input"
                         value={formData.name}
                         onChange={handleChange}
                         required
@@ -123,6 +127,7 @@ function Register() {
                         type="text"
                         id="lastname"
                         name="lastname"
+                        data-testid="cypress-register-lastname-input"
                         value={formData.lastname}
                         onChange={handleChange}
                         required
@@ -131,6 +136,7 @@ function Register() {
                     <select
                         id="userType"
                         name="userType"
+                        data-testid="cypress-register-worker-type-select"
                         value={formData.userType}
                         onChange={handleChange}
                         required

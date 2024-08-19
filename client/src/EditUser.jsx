@@ -61,7 +61,7 @@ function EditUser() {
         // Fetch user data on component mount
         const fetchUserData = async () => {
             try {
-                const response = await axios.get('http://localhost:8090/userSettings/getUser'); 
+                const response = await axios.get('http://127.0.0.1:8090/userSettings/getUser'); 
                 setleftFormData(response.data);
                 setEmailData(response.data);
                 setOldData(response.data); //set old data
@@ -132,7 +132,7 @@ function EditUser() {
         }
 
         try {
-            const response = await axios.post('http://localhost:8090/userSettings/changeUserInfo', leftFormData);
+            const response = await axios.post('http://127.0.0.1:8090/userSettings/changeUserInfo', leftFormData);
             setOldData(leftFormData); //set our oldData to be newly set data
             console.log('User info updated successfully:', response.data);
             alert(`User info updated successfully.`);
@@ -170,7 +170,7 @@ function EditUser() {
         }
 
         try {
-            const response = await axios.post('http://localhost:8090/userSettings/changeEmail', { newEmail: emailData.email });
+            const response = await axios.post('http://127.0.0.1:8090/userSettings/changeEmail', { newEmail: emailData.email });
             setOldData(prevState => ({ ...prevState, email: emailData.email })); // Update oldData with new email
             console.log('User email updated successfully:', response.data);
             alert(`User email updated successfully.`);
@@ -207,7 +207,7 @@ function EditUser() {
         }
 
         try {
-            const response = await axios.post('http://localhost:8090/userSettings/changePassword', passwordData);
+            const response = await axios.post('http://127.0.0.1:8090/userSettings/changePassword', passwordData);
             console.log('User password updated successfully:', response.data);
             alert(`User password updated successfully.`);
             //clear password fields after successful submission
@@ -231,7 +231,7 @@ function EditUser() {
                     <form className="edit_user_form" onSubmit={handleLeftSubmit}>
                         <label>
                             Username:
-                            <input type="text" name="userName" value={leftFormData.userName} onChange={handleLeftChange} required/>
+                            <input type="text" name="userName" value={leftFormData.userName} onChange={handleLeftChange} data-testid="cypress-edituser-username-input" required/>
                             {userNameError && <span style={{ color: 'red' }}>{userNameError}</span>}
                         </label>
                         <label>
@@ -244,7 +244,7 @@ function EditUser() {
                             <input type="text" name="lName" value={leftFormData.lName} onChange={handleLeftChange} required/>
                             {lNameError && <span style={{ color: 'red' }}>{lNameError}</span>}
                         </label>
-                        <button type="submit" className="edit_user_submit_button">Submit</button>
+                        <button type="submit" className="edit_user_submit_button" data-testid="cypress-edituser-username-submit-button">Submit</button>
                     </form>
                 </div>
 
@@ -253,10 +253,10 @@ function EditUser() {
                     <form className="edit_user_form" onSubmit={handleRightEmailSubmit}>
                         <label>
                             Email:
-                            <input type="email" name="email" value={emailData.email} onChange={handleRightEmailChange} required/>
+                            <input type="email" name="email" value={emailData.email} onChange={handleRightEmailChange} data-testid="cypress-edituser-email-input" required/>
                             {emailError && <span style={{ color: 'red' }}>{emailError}</span>}
                         </label>
-                        <button type="submit" className="edit_user_submit_button">Submit Email</button>
+                        <button type="submit" className="edit_user_submit_button" data-testid="cypress-edituser-email-submit-button">Submit Email</button>
                     </form>
                     <form className="edit_user_form" onSubmit={handleRightPasswordSubmit}>
                         <label>
