@@ -11,7 +11,8 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8090/homepage/login', { email, password });
+      console.log('Submitting login request'); 
+      const response = await axios.post('http://127.0.0.1:8090/homepage/login', { email, password });
       if (response.data.error) {
         setError(response.data.error);
         setSuccess(''); // Clear any previous success message
@@ -50,6 +51,7 @@ function Login() {
             type="email" 
             id="email" 
             placeholder="you@yourcompany.com" 
+            data-testid="cypress-login-email-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -58,7 +60,8 @@ function Login() {
           <input 
             type="password" 
             id="password" 
-            placeholder="****************" 
+            placeholder="••••••••••••••" 
+            data-testid="cypress-login-password-input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

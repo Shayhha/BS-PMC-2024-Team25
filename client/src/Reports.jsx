@@ -10,7 +10,7 @@ function Reports() {
 
     const fetchReports = async () => {
         try {
-            const response = await axios.get('http://localhost:8090/reports/getReports');
+            const response = await axios.get('http://127.0.0.1:8090/reports/getReports');
             setReportArray(response.data);
         } catch (error) {
             alert(`Error: ${error.response.data.error}`);
@@ -31,8 +31,8 @@ function Reports() {
 
     const createReport = async () => {
         try {
-            const managerUser = await axios.get('http://localhost:8090/userSettings/getUser');
-            const response = await axios.post('http://localhost:8090/reports/createReport', {managerId : managerUser.data.userId});
+            const managerUser = await axios.get('http://127.0.0.1:8090/userSettings/getUser');
+            const response = await axios.post('http://127.0.0.1:8090/reports/createReport', {managerId : managerUser.data.userId});
             await fetchReports();
             alert("Created a new report successfully!");
         } catch (error) {
@@ -60,7 +60,7 @@ function Reports() {
                 />
                 </div>
             )}
-            <button onClick={createReport} className='report_add_new_report_button'>
+            <button onClick={createReport} className='report_add_new_report_button' data-testid="cypress-create-new-report-button">
                 <FaPlus style={{ fontSize: '40px', marginRight: '0px' }}/>
             </button>
         </div>

@@ -410,6 +410,15 @@ class SQLHelper(ABC):
             return True
         except Exception as e:
             return False
+        
+    # fucntion for deleting user from database by name, USED ONLY IN INTEGRATION TESTS
+    def deleteUserByName(self, userName):
+        try:
+            self.cursor.execute('DELETE FROM Users WHERE userName = ?', (userName,)) 
+            self.connection.commit()
+            return True
+        except Exception as e:
+            return False
 
 
     def getAllCoders(self):
@@ -963,6 +972,19 @@ class BugFixer(ABC):
         data = request.json
         try:
             if db.deleteUser(data.get('id')):
+                return jsonify({'message': 'User removed successfully'}), 200
+            else:
+                raise
+        except:
+            return jsonify({'error': 'Failed to perform database query'}), 500
+        
+
+    # function for deleting user from database, USED ONLY IN INTEGRATION TESTS
+    @app.route('/removeUsers/deleteUserByName', methods=['POST'])
+    def deleteUserByName():
+        data = request.json
+        try:
+            if db.deleteUserByName(data.get('userName')):
                 return jsonify({'message': 'User removed successfully'}), 200
             else:
                 raise

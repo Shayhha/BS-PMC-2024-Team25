@@ -46,7 +46,7 @@ function Admin() {
     const fetchBugs = useCallback(async () => {
         const fetchFunction = async (attempt = 0) => {
             try {
-                const response = await axios.get('http://localhost:8090/homePage/getBugs');
+                const response = await axios.get('http://127.0.0.1:8090/homePage/getBugs');
                 
                 if (Array.isArray(response.data)) {
                     return response.data;
@@ -97,7 +97,7 @@ function Admin() {
 
     const fetchCoderUsers = useCallback(async () => {
         const fetchFunction = async () => {
-            const response = await axios.get('http://localhost:8090/bug/getAllCoders');
+            const response = await axios.get('http://127.0.0.1:8090/bug/getAllCoders');
             if (response.data.error) {
                 setCoders([]);
                 throw new Error('Failed to fetch coders.');

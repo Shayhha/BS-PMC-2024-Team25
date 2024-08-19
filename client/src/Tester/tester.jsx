@@ -81,7 +81,7 @@ function Tester() {
     // Function to fetch and sort bugs
     const fetchBugs = async () => {
         try {
-            const response = await axios.get('http://localhost:8090/homePage/getBugs');
+            const response = await axios.get('http://127.0.0.1:8090/homePage/getBugs');
             const sortedBugs = [...response.data].sort((a, b) => {
                 const dateA = parseDate(a.creationDate);
                 const dateB = parseDate(b.creationDate);
@@ -170,7 +170,7 @@ function Tester() {
         console.log(formattedData);
         try {
             setButtonBackgroundColor("tester_popup_submit_button", "orange");
-            const response = await axios.post('http://localhost:8090/homePage/addBug', formattedData);
+            const response = await axios.post('http://127.0.0.1:8090/homePage/addBug', formattedData);
             await pushNotificationsToAllUsers("New bug was added to the system: " + formData.title);
             await pushNotificationToAssignedUser(formattedData.assignedId, "You have been assign to a new bug: " + formData.title);
             setFormData({
@@ -197,7 +197,7 @@ function Tester() {
 
     const pushNotificationsToAllUsers = async (notification_message) => {
         try {
-            const response = await axios.post('http://localhost:8090/notifications/pushNotificationsToAllUsers', { message: notification_message });
+            const response = await axios.post('http://127.0.0.1:8090/notifications/pushNotificationsToAllUsers', { message: notification_message });
             if (response.data.error) {
                 console.error('Error pushing notification to all users:', response.data.error);
             }
@@ -208,7 +208,7 @@ function Tester() {
 
     const pushNotificationToAssignedUser = async (user_id, notification_message) => {
         try {
-            const response = await axios.post('http://localhost:8090/notifications/pushNotificationToUser', { userId: user_id, message: notification_message });
+            const response = await axios.post('http://127.0.0.1:8090/notifications/pushNotificationToUser', { userId: user_id, message: notification_message });
             if (response.data.error) {
                 console.error('Error pushing notification to assigned user:', response.data.error);
             }
@@ -236,7 +236,7 @@ function Tester() {
         if (searchResult === "") 
             return;
         try {
-            const response = await axios.post('http://localhost:8090/homePage/search', { searchResult });
+            const response = await axios.post('http://127.0.0.1:8090/homePage/search', { searchResult });
             setBugArray(response.data);
         } catch (error) {
             console.error('Error searching bugs:', error);
@@ -257,7 +257,7 @@ function Tester() {
     //gets all users of type Coder from the database to later display their names on bugs where they are assigned
     const fetchCoderUsers = async () => {
         try {
-            const response = await axios.get('http://localhost:8090/bug/getAllCoders');
+            const response = await axios.get('http://127.0.0.1:8090/bug/getAllCoders');
             if (!response.data.error) {
                 setCoders(response.data);
             } else {
@@ -317,7 +317,7 @@ function Tester() {
                 </div>
             </div>
             
-            <button onClick={handleImageClick} className='tester_add_new_bug_button'>
+            <button onClick={handleImageClick} className='tester_add_new_bug_button' data-testid="cypress-add-bug-button">
                 <FaPlus style={{ fontSize: '40px', marginRight: '0px'}} />
             </button>
 
@@ -350,22 +350,22 @@ function Tester() {
            </div>
 
             {isPopupVisible && (
-                <div className="tester_popup_overlay">
+                <div className="tester_popup_overlay" data-testid="cypress-add-bug-popup">
                     <div className="tester_popup">
                         <span className="tester_close_button" onClick={handleCloseClick}>&times;</span>
                         <h2 className="tester_popup_header">New Bug</h2>
                         <form onSubmit={handleSubmit}>
                             <label>
                                 Title:
-                                <input type="text" name="title" value={formData.title} onChange={handleChange} required/>
+                                <input type="text" name="title" value={formData.title} onChange={handleChange} data-testid="cypress-add-bug-title-input" required/>
                             </label>
                             <label>
                                 Description:
-                                <textarea name="description" value={formData.description} onChange={handleChange} required></textarea>
+                                <textarea name="description" value={formData.description} onChange={handleChange} data-testid="cypress-add-bug-description-input" required></textarea>
                             </label>
                             <label>
                                 Status:
-                                <select name="status" value={formData.status} onChange={handleChange} required>
+                                <select name="status" value={formData.status} onChange={handleChange} data-testid="cypress-add-bug-status-select" required>
                                     <option value="New">New</option>
                                     <option value="In Progress">In Progress</option>
                                     <option value="Done">Done</option>
@@ -378,6 +378,7 @@ function Tester() {
                                     name="category" 
                                     value={formData.category} 
                                     onChange={handleChange}  
+                                    data-testid="cypress-add-bug-category-select" 
                                     required
                                 >
                                     {categoryOptions.map(option => (
@@ -387,7 +388,7 @@ function Tester() {
                             </label>
                             <label>
                                 Assigned To:
-                                <select name="assignedTo" value={formData.assignedTo} onChange={handleChange} required>
+                                <select name="assignedTo" value={formData.assignedTo} onChange={handleChange} data-testid="cypress-add-bug-assigned-to-select" required>
                                     <option value="None">None</option>
                                     {Array.isArray(coders) && coders.map(user => (
                                         <option key={user.userId} value={`${user.userName} - ${user.userId}`}>{`${user.userName} - ${user.userId}`}</option>
@@ -400,13 +401,13 @@ function Tester() {
                             </label>
                             <label>
                                 Open Date:
-                                <input type="date" name="openDate" value={formData.openDate} onChange={handleChange} min={formData.creationDate} required />
+                                <input type="date" name="openDate" value={formData.openDate} onChange={handleChange} min={formData.creationDate} data-testid="cypress-add-bug-opendate-input" required />
                             </label>
                             <label>
                                 Deadline:
-                                <input type="date" name="closeDate" value={formData.closeDate} onChange={handleChange} min={formData.creationDate} required />
+                                <input type="date" name="closeDate" value={formData.closeDate} onChange={handleChange} min={formData.creationDate} data-testid="cypress-add-bug-closedate-input" required />
                             </label>
-                            <button type="submit" className="tester_popup_submit_button">Submit</button>
+                            <button type="submit" className="tester_popup_submit_button" data-testid="cypress-add-bug-submit-button">Submit</button>
                         </form>
                     </div>
                 </div>
