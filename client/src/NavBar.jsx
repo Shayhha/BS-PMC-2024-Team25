@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation ,useNavigate} from 'react-router-dom';
 import './NavBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCog, faSignOutAlt, faBell, faInbox, faFileAlt } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCog, faSignOutAlt, faBell, faInbox,faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 function NavBar() {
@@ -153,7 +153,7 @@ function NavBar() {
         }
         });
     };
-
+   
     const handleSendReport = async () => {
         try {
             const notification_message = "Please check your report page for viewing new report.";
@@ -239,6 +239,7 @@ function NavBar() {
                                     className="notification-icon"
                                     data-testid="cypress-notification-bell-icon"
                                     style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+
                                 />
                                 {unreadCount > 0 && (
                                     <span className="notification-badge">
@@ -279,7 +280,7 @@ function NavBar() {
                                         <FontAwesomeIcon
                                             icon={faInbox}
                                             className="message-icon"
-                                            style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+                                            style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} 
                                         />
                                     </Link>
                                 </div>
@@ -294,12 +295,11 @@ function NavBar() {
                                 data-testid="cypress-settings-dropdown-div"
                                 onClick={() => toggleDropdown('settings')}
                                 ref={settingsRef}
-                                aria-haspopup="true"
-                            >
+                                aria-haspopup="true">
                                 <FontAwesomeIcon
                                     icon={faCog}
                                     className="settings-icon"
-                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} 
                                 />
                                 {dropdownVisible.settings && (
                                     <div className="navbar_dropdown" role="menu">
@@ -331,7 +331,7 @@ function NavBar() {
                                 <FontAwesomeIcon
                                     icon={faSignOutAlt}
                                     className="logout-icon"
-                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }}
                                 />
                                 {dropdownVisible.logout && (
                                     <div className="navbar_dropdown" role="menu">

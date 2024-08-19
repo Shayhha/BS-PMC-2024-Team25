@@ -43,8 +43,8 @@ function UsersListPage() {
 
     return (
         <div className="users-list-page">
+            <h1 className="users-list-title">Users</h1>
             <div className="users-list-container">
-                <h1 className="users-list-title">Users</h1>
                 {userArray.map(user => (
                     <div className="users-list-user-item" key={user.userId}>
                         <div className="users-list-user-info">
