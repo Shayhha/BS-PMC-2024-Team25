@@ -14,7 +14,7 @@ The application is developed as a course project using the SCRUM methodology, wi
 
 ## Installation
 
-1. **Clone the repo:**
+1. **Clone the repository:**
     ```bash
     git clone https://github.com/Shayhha/BugFixer.git
     ```
@@ -71,6 +71,51 @@ The application is developed as a course project using the SCRUM methodology, wi
     ```bash
     npm run dev
     ```
+## Unit Tests 
+
+1. **Set up the Pytest environment:**
+
+    2.1. Go to the `server` folder:
+    ```bash
+    cd server
+    ```
+
+    2.2. Activate the virtual environment:
+    - **For Windows:**
+    ```bash
+    venv\Scripts\activate
+    ```
+    
+    - **For macOS/Linux:**
+    ```bash
+    source venv/bin/activate
+    ```
+    
+    2.3 Run command to run unit tests: 
+    ```bash
+    pytest test_main.py
+    ```
+    
+## Integration Tests
+
+1. **Open both backend server and react frontend website.**
+
+2. **Set up the Cypress integration tests:**
+
+    2.1. Open a separate terminal and go to the `client` folder:
+    ```bash
+    cd client
+    ```
+
+    2.2. Run Cypress application:
+    ```bash
+    npx cypress open
+    ```
+    
+    2.3 Click E2E testing, choose your current running browser and click on desired test to run.
+
+
+
 
 ## Features
 
@@ -82,12 +127,13 @@ The application is developed as a course project using the SCRUM methodology, wi
 
 
 ## License
-tbd
+
+BugFixer website is released under the [MIT License](LICENSE.txt).
 
 ## Contact
 
 - **Maxim Subotin**
-  - [maxim.sub21@gmail.com](mailto:maxim.sub21@gmail.com)
+  - Email: [maxim.sub21@gmail.com](mailto:maxim.sub21@gmail.com)
   - GitHub: [https://github.com/MaxSubotin](https://github.com/MaxSubotin)
 
 - **Shay Hahiashvili**
