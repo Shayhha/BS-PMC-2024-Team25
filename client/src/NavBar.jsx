@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation ,useNavigate} from 'react-router-dom';
 import './NavBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCog, faSignOutAlt, faBell, faInbox } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCog, faSignOutAlt, faBell, faInbox,faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 function NavBar() {
@@ -153,6 +153,26 @@ function NavBar() {
         }
         });
     };
+   
+    const handleSendReport = async () => {
+        try {
+            const notification_message = "Please check your report page for viewing new report.";
+            const managersIdList = await axios.get('http://localhost:8090/getManagersId');
+            const response = await axios.post('http://localhost:8090/reports/createReport', {managerId : managersIdList.data[0].userId});
+    
+            for (const manager of managersIdList.data) {
+                const managerId = manager.userId; // Accessing the userId from each object
+                const response = await axios.post('http://localhost:8090/notifications/pushNotificationToUser', { userId: managerId, message: notification_message });
+                if (response.data.error) {
+                    console.error(`Error pushing notification to manager with ID ${managerId}:`, response.data.error);
+                }
+            }
+            alert("Sent new report to manager successfully!");
+        } catch (error) {
+            console.error('Error:', error);
+            alert(`Error: ${error.response.data.error}`);
+        }
+    };
 
     return (
         <header className="navbar_header">
@@ -262,6 +282,11 @@ function NavBar() {
                                     </Link>
                                 </div>
                             )}
+                            {userType === 'Manager' && (
+                                <Link to="/reports" className="reports-icon" role="menuitem">
+                                    <FontAwesomeIcon icon={faFileAlt} className="reports-icon"/>
+                                </Link>
+                            )}
                             <div
                                 className="navbar_profile-icon"
                                 onClick={() => toggleDropdown('settings')}
@@ -284,6 +309,11 @@ function NavBar() {
                                             <Link to="/removeUser" className="navbar_dropdown-button" role="menuitem">
                                                 Remove User
                                             </Link>
+                                        )}
+                                        {userType === 'Tester' && (
+                                            <button onClick={handleSendReport} className="navbar_dropdown-button" role="menuitem">
+                                                Send Report 
+                                            </button>
                                         )}
                                     </div>
                                 )}
