@@ -36,7 +36,7 @@ function NavBar() {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch('http://localhost:8090/homepage/logout', {
+            const response = await fetch('http://127.0.0.1:8090/homepage/logout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ function NavBar() {
     const fetchUserInfo = async () => {
         setLoadingUser(true);
         try {
-            const response = await fetch('http://localhost:8090/userSettings/getUser', {
+            const response = await fetch('http://127.0.0.1:8090/userSettings/getUser', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ function NavBar() {
         if (!userId) return;
         setLoadingNotifications(true);
         try {
-            const response = await axios.post('http://localhost:8090/notifications/getNotifications', { userId });
+            const response = await axios.post('http://127.0.0.1:8090/notifications/getNotifications', { userId });
             const notifications = response.data;
             setNotifications(notifications);
             setUnreadCount(notifications.filter(notification => !notification.read).length);
@@ -109,7 +109,7 @@ function NavBar() {
 
     const markNotificationAsRead = async (notificationId, read) => {
         try {
-            await axios.post('http://localhost:8090/notifications/markNotificationsAsRead', { notificationId, read });
+            await axios.post('http://127.0.0.1:8090/notifications/markNotificationsAsRead', { notificationId, read });
             setNotifications(prevNotifications =>
                 prevNotifications.map(notification =>
                     notification.id === notificationId ? { ...notification, read: true } : notification
@@ -157,12 +157,12 @@ function NavBar() {
     const handleSendReport = async () => {
         try {
             const notification_message = "Please check your report page for viewing new report.";
-            const managersIdList = await axios.get('http://localhost:8090/getManagersId');
-            const response = await axios.post('http://localhost:8090/reports/createReport', {managerId : managersIdList.data[0].userId});
+            const managersIdList = await axios.get('http://127.0.0.1:8090/getManagersId');
+            const response = await axios.post('http://127.0.0.1:8090/reports/createReport', {managerId : managersIdList.data[0].userId});
     
             for (const manager of managersIdList.data) {
                 const managerId = manager.userId; // Accessing the userId from each object
-                const response = await axios.post('http://localhost:8090/notifications/pushNotificationToUser', { userId: managerId, message: notification_message });
+                const response = await axios.post('http://127.0.0.1:8090/notifications/pushNotificationToUser', { userId: managerId, message: notification_message });
                 if (response.data.error) {
                     console.error(`Error pushing notification to manager with ID ${managerId}:`, response.data.error);
                 }
@@ -208,6 +208,7 @@ function NavBar() {
                     {(location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/') && (
                         <div
                             className="navbar_profile-icon"
+                            data-testid="cypress-login-dropdown"
                             onClick={() => toggleDropdown('login')}
                             ref={profileRef}
                             aria-haspopup="true"
@@ -215,10 +216,10 @@ function NavBar() {
                             <FontAwesomeIcon icon={faUser} className="hero-image" style={{ fontSize: '28px', marginRight: '20px' }} />
                             {dropdownVisible.login && (
                                 <div className="navbar_dropdown" role="menu">
-                                    <Link to="/login" className="navbar_dropdown-button" role="menuitem">
+                                    <Link to="/login" className="navbar_dropdown-button" data-testid="cypress-login-button" role="menuitem">
                                         Login
                                     </Link>
-                                    <Link to="/register" className="navbar_dropdown-button" role="menuitem">
+                                    <Link to="/register" className="navbar_dropdown-button" data-testid="cypress-register-button" role="menuitem">
                                         Register
                                     </Link>
                                 </div>
@@ -229,13 +230,16 @@ function NavBar() {
                         <>
                             <div
                                 className="navbar_profile-icon"
+                                data-testid="cypress-notification-dropdown"
                                 onClick={() => toggleDropdown('notifications')}
                                 aria-haspopup="true"
                             >
                                 <FontAwesomeIcon
                                     icon={faBell}
                                     className="notification-icon"
-                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }}
+                                    data-testid="cypress-notification-bell-icon"
+                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+
                                 />
                                 {unreadCount > 0 && (
                                     <span className="notification-badge">
@@ -244,7 +248,7 @@ function NavBar() {
                                 )}
                             </div>
                             {dropdownVisible.notifications && (
-                                <div className="notification-dropdown show">
+                                <div className="notification-dropdown show" data-testid="cypress-notification-dropdown-div">
                                     {loadingNotifications ? (
                                         <div className="notification-item">Loading...</div>
                                     ) : notifications.length > 0 ? (
@@ -265,12 +269,13 @@ function NavBar() {
                                     ) : (
                                         <div className="notification-item">No notifications</div>
                                     )}
-                                    <button onClick={() => setDropdownVisible(prev => ({ ...prev, notifications: false }))} className="notification-close">Close</button>
+                                    <button onClick={() => setDropdownVisible(prev => ({ ...prev, notifications: false }))} className="notification-close" data-testid="cypress-notification-close-button">Close</button>
                                 </div>
                             )}
                             {(userType === "Coder" || userType === "Tester") && (
                                 <div
-                                    className="navbar_profile-icon">
+                                    className="navbar_profile-icon"
+                                >
                                     <Link  onClick= {(e)=>handleChatButtonClick(e)}>
                                         <FontAwesomeIcon
                                             icon={faInbox}
@@ -282,11 +287,12 @@ function NavBar() {
                             )}
                             {userType === 'Manager' && (
                                 <Link to="/reports" className="reports-icon" role="menuitem">
-                                    <FontAwesomeIcon icon={faFileAlt} className="reports-icon"/>
+                                    <FontAwesomeIcon icon={faFileAlt} className="reports-icon" data-testid="cypress-reports-button"/>
                                 </Link>
                             )}
                             <div
                                 className="navbar_profile-icon"
+                                data-testid="cypress-settings-dropdown-div"
                                 onClick={() => toggleDropdown('settings')}
                                 ref={settingsRef}
                                 aria-haspopup="true">
@@ -298,7 +304,7 @@ function NavBar() {
                                 {dropdownVisible.settings && (
                                     <div className="navbar_dropdown" role="menu">
                                         {showEditUser && (
-                                            <Link to="/edituser" className="navbar_dropdown-button" role="menuitem">
+                                            <Link to="/edituser" className="navbar_dropdown-button" data-testid="cypress-settings-button" role="menuitem">
                                                 Edit User
                                             </Link>
                                         )}
@@ -317,6 +323,7 @@ function NavBar() {
                             </div>
                             <div
                                 className="navbar_profile-icon"
+                                data-testid="cypress-logout-dropdown"
                                 onClick={() => toggleDropdown('logout')}
                                 ref={logoutRef}
                                 aria-haspopup="true"
@@ -328,7 +335,7 @@ function NavBar() {
                                 />
                                 {dropdownVisible.logout && (
                                     <div className="navbar_dropdown" role="menu">
-                                        <Link onClick={handleLogout} to="/login" className="navbar_dropdown-button" role="menuitem" >
+                                        <Link onClick={handleLogout} to="/login" className="navbar_dropdown-button" data-testid="cypress-logout-button" role="menuitem" >
                                             Logout
                                         </Link>
                                     </div>
