@@ -3,6 +3,7 @@ from main import HelperFunctions as HF, SQLHelper
 from dotenv import load_dotenv
 from datetime import datetime
 
+
 db = None
 
 
@@ -696,3 +697,31 @@ def should_send_notification(close_date_str, last_notification_date_str):
 #     finally:
 #         db.close()
 
+
+# def test_notification_on_comment_addition():
+#     db = SQLHelper()
+#     db.connect()
+    
+#     user_id = 1  # replace with the actual user ID
+#     comment_text = "This is a test comment."
+#     bug_id = 1  # replace with the actual bug ID
+    
+#     # Clear previous notifications
+#     db.cursor.execute('DELETE FROM Notifications WHERE userId = ?', (user_id,))
+#     db.connection.commit()
+
+#     # Act: Add a comment and trigger notification
+#     try:
+       
+        
+#         # Check notifications
+#         db.cursor.execute('SELECT * FROM Notifications WHERE userId = ?', (user_id,))
+#         notifications = db.cursor.fetchall()
+
+#         notification_texts = [n['message'] for n in notifications]
+        
+#     except Exception as e:
+#         pytest.fail(f"Notification test raised an exception: {e}")
+    
+#     finally:
+#         db.close()
