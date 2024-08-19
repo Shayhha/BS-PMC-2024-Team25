@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation ,useNavigate} from 'react-router-dom';
 import './NavBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faCog, faSignOutAlt, faBell, faFileAlt} from '@fortawesome/free-solid-svg-icons';
+import { faUser, faCog, faSignOutAlt, faBell, faInbox } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 function NavBar() {
@@ -21,7 +21,7 @@ function NavBar() {
     const [unreadCount, setUnreadCount] = useState(0);
     const [loadingUser, setLoadingUser] = useState(true);
     const [loadingNotifications, setLoadingNotifications] = useState(false);
-
+    const navigate = useNavigate();
     const profileRef = useRef(null);
     const settingsRef = useRef(null);
     const logoutRef = useRef(null);
@@ -106,24 +106,10 @@ function NavBar() {
             setLoadingNotifications(false);
         }
     };
-    const markAllNotificationsAsRead = async () => {
-        try {
-            const unreadNotifications = notifications.filter(notification => !notification.read);
-            for (const notification of unreadNotifications) {
-                await axios.post('http://localhost:8090/notifications/markNotificationsAsRead', { notificationId: notification.id, read: true });
-            }
-            setNotifications(prevNotifications =>
-                prevNotifications.map(notification => ({ ...notification, read: true }))
-            );
-            setUnreadCount(0);
-        } catch (error) {
-            console.error('Error marking all notifications as read:', error);
-        }
-    };
 
-    const markNotificationAsRead = async (notificationId,read) => {
+    const markNotificationAsRead = async (notificationId, read) => {
         try {
-            await axios.post('http://localhost:8090/notifications/markNotificationsAsRead', { notificationId:notificationId ,read:read});
+            await axios.post('http://localhost:8090/notifications/markNotificationsAsRead', { notificationId, read });
             setNotifications(prevNotifications =>
                 prevNotifications.map(notification =>
                     notification.id === notificationId ? { ...notification, read: true } : notification
@@ -157,27 +143,16 @@ function NavBar() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+        
+    const handleChatButtonClick = (e) => {
+        e.preventDefault();  // Prevent the default link behavior
 
-    const handleSendReport = async () => {
-        try {
-            const notification_message = "Please check your report page for viewing new report.";
-            const managersIdList = await axios.get('http://localhost:8090/getManagersId');
-            const response = await axios.post('http://localhost:8090/reports/createReport', {managerId : managersIdList.data[0].userId});
-    
-            for (const manager of managersIdList.data) {
-                const managerId = manager.userId; // Accessing the userId from each object
-                const response = await axios.post('http://localhost:8090/notifications/pushNotificationToUser', { userId: managerId, message: notification_message });
-                if (response.data.error) {
-                    console.error(`Error pushing notification to manager with ID ${managerId}:`, response.data.error);
-                }
-            }
-            alert("Sent new report to manager successfully!");
-        } catch (error) {
-            console.error('Error:', error);
-            alert(`Error: ${error.response.data.error}`);
+        navigate('/chat', {
+        state: {
+            userId: userId
         }
+        });
     };
-    
 
     return (
         <header className="navbar_header">
@@ -217,7 +192,7 @@ function NavBar() {
                             ref={profileRef}
                             aria-haspopup="true"
                         >
-                            <FontAwesomeIcon icon={faUser} className="hero-image" />
+                            <FontAwesomeIcon icon={faUser} className="hero-image" style={{ fontSize: '28px', marginRight: '20px' }} />
                             {dropdownVisible.login && (
                                 <div className="navbar_dropdown" role="menu">
                                     <Link to="/login" className="navbar_dropdown-button" role="menuitem">
@@ -240,6 +215,7 @@ function NavBar() {
                                 <FontAwesomeIcon
                                     icon={faBell}
                                     className="notification-icon"
+                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
                                 />
                                 {unreadCount > 0 && (
                                     <span className="notification-badge">
@@ -256,7 +232,7 @@ function NavBar() {
                                             <button
                                                 key={notification.id}
                                                 className={`notification-item ${notification.read ? 'read' : 'unread'}`}
-                                                onClick={() => !notification.read && markNotificationAsRead(notification.id,notification.read)}
+                                                onClick={() => !notification.read && markNotificationAsRead(notification.id, notification.read)}
                                             >
                                                 <strong>Message:</strong> {notification.message}
                                                 <br />
@@ -269,14 +245,22 @@ function NavBar() {
                                     ) : (
                                         <div className="notification-item">No notifications</div>
                                     )}
-                                    <button onClick={markAllNotificationsAsRead} className="notification-mark-all">Mark All as Read</button>
                                     <button onClick={() => setDropdownVisible(prev => ({ ...prev, notifications: false }))} className="notification-close">Close</button>
                                 </div>
                             )}
-                            {userType === 'Manager' && (
-                                <Link to="/reports" className="reports-icon" role="menuitem">
-                                    <FontAwesomeIcon icon={faFileAlt} className="reports-icon" />
-                                </Link>
+                            {(userType === "Coder" || userType === "Tester") && (
+                                <div
+                                    className="navbar_profile-icon"
+                                    
+                                >
+                                    <Link  onClick= {(e)=>handleChatButtonClick(e)}>
+                                        <FontAwesomeIcon
+                                            icon={faInbox}
+                                            className="message-icon"
+                                            style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+                                        />
+                                    </Link>
+                                </div>
                             )}
                             <div
                                 className="navbar_profile-icon"
@@ -284,7 +268,11 @@ function NavBar() {
                                 ref={settingsRef}
                                 aria-haspopup="true"
                             >
-                                <FontAwesomeIcon icon={faCog} className="settings-icon" />
+                                <FontAwesomeIcon
+                                    icon={faCog}
+                                    className="settings-icon"
+                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
+                                />
                                 {dropdownVisible.settings && (
                                     <div className="navbar_dropdown" role="menu">
                                         {showEditUser && (
@@ -296,11 +284,6 @@ function NavBar() {
                                             <Link to="/removeUser" className="navbar_dropdown-button" role="menuitem">
                                                 Remove User
                                             </Link>
-                                        )}
-                                        {userType === 'Tester' && (
-                                            <button onClick={handleSendReport} className="navbar_dropdown-button" role="menuitem">
-                                                Send Report 
-                                            </button>
                                         )}
                                     </div>
                                 )}
@@ -314,6 +297,7 @@ function NavBar() {
                                 <FontAwesomeIcon
                                     icon={faSignOutAlt}
                                     className="logout-icon"
+                                    style={{ color: 'white', fontSize: '28px', marginRight: '20px' }} /* אייקון בצבע לבן ובגודל מוגדל */
                                 />
                                 {dropdownVisible.logout && (
                                     <div className="navbar_dropdown" role="menu">
