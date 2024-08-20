@@ -35,7 +35,7 @@ function Tester() {
 
     // Function to parse date string
     const parseDate = (dateStr) => {
-        const [year, month, day] = dateStr.split('-').map(num => parseInt(num, 10));
+        const [year, month, day] = dateStr.split('/').map(num => parseInt(num, 10));
         return new Date(year, month - 1, day);
     };
 
@@ -95,7 +95,7 @@ function Tester() {
                 } else if (sortOption === 'importance') {
                     return b.importance - a.importance;
                 } 
-                return 0;
+
             });
 
             setBugArray(sortedBugs);

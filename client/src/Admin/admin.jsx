@@ -15,6 +15,12 @@ function Admin() {
 
     const categoryOptions = ["Ui", "Functionality", "Performance", "Usability", "Security"]; // Options for category dropdown
 
+    // Function to parse date string
+    const parseDate = (dateStr) => {
+        const [day, month, year] = dateStr.split('/').map(num => parseInt(num, 10));
+        return new Date(year, month - 1, day);
+    };
+
     const filterBugs = async (newValue) => {
         setFilterOption(newValue);
         await fetchBugs();
@@ -69,8 +75,8 @@ function Admin() {
 
             // Sort bugs based on the selected sort option
             const sortedBugs = [...bugs].sort((a, b) => {
-                const dateA = new Date(a.creationDate);
-                const dateB = new Date(b.creationDate);
+                const dateA = parseDate(a.creationDate);
+                const dateB = parseDate(b.creationDate);
 
                 if (sortOption === 'newest') {
                     return dateB - dateA;
@@ -81,7 +87,7 @@ function Admin() {
                 } else if (sortOption === 'importance') {
                     return b.importance - a.importance;
                 }
-                return 0;
+      
             });
 
             setBugArray(sortedBugs);
