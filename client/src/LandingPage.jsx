@@ -6,17 +6,34 @@ import NavBar from './NavBar';
 import Footer from './Footer';
 
 // Import images
-import coderImage from './assets/coder.png'; // Adjust the path as needed
+import landingPageImage1 from './assets/landingPageImage1.jpg'; // Adjust the path as needed , landingPageImage2, landingPageImage3, landingPageImage4
+import landingPageImage2 from './assets/landingPageImage2.jpg';
+import landingPageImage3 from './assets/landingPageImage3.jpg';
+import landingPageImage4 from './assets/landingPageImage4.jpg';
 
 function LandingPage() {
     // Data for articles with image and text
     const articles = [
-        { id: 1, image: coderImage, text: 'The Coder component is designed to provide an interactive interface for managing and viewing bugs within a software project. It integrates various functionalities to enhance the user experience for coders..' },
-        { id: 2, image: coderImage, text: 'Second article description here.' },
-        { id: 3, image: coderImage, text: 'Third article description here.' },
-        { id: 4, image: coderImage, text: 'Fourth article description here.' },
-        { id: 5, image: coderImage, text: 'Fifth article description here.' },
-        { id: 6, image: coderImage, text: 'Sixth article description here.' },
+        { 
+            id: 1,
+            text: "Effortlessly manage bug records by adding titles, descriptions, and other crucial details. Our web app provides a centralized platform for developers to keep track of known bugs, ensuring your team has all the necessary information to tackle each issue effectively.",
+            image: landingPageImage1
+        },
+        { 
+            id: 2,
+            text: "Harness the power of Groq, an advanced AI tool, to automatically determine the priority and importance of each bug. By focusing on the most critical issues first, your team can optimize the bug resolution process and enhance overall productivity.",
+            image: landingPageImage2
+        },
+        { 
+            id: 3,
+            text: "Assign bugs to specific team members, ensuring accountability and effective teamwork. With built-in notifications, users stay informed of any updates or changes, keeping everyone aligned throughout the bug-fixing process.",
+            image: landingPageImage3
+        },
+        { 
+            id: 4,
+            text: "Utilize our detailed commenting system on each bug entry to provide context, suggest solutions, or document progress. This collaborative environment ensures all relevant information is easily accessible, helping developers make informed decisions.",
+            image: landingPageImage4
+        },
     ];
 
     return (
