@@ -9,6 +9,7 @@ import pyodbc
 import hashlib
 import os
 import re
+import time
  
 
 # initialize app with flask for backend connection with front end react
@@ -1509,7 +1510,36 @@ class HelperFunctions(ABC):
             return groqResponse
         else: #else we return empty string
             return ''
-        
+    
+
+    # helper function for testing Groq API response (metric)
+    def testGroq():
+        try:
+            startTime = time.time()
+            groqQuery = 'This is a test message.'
+            HelperFunctions.sendQueryToGroq(groqQuery)
+            endTime = time.time()  
+            reposneTime = endTime - startTime
+            print(f'Response time for Groq API: {reposneTime:.5f} seconds')
+        except:
+            print('Error testing SQL Server response.')
+
+
+    # helper function for testing Groq API response (metric)
+    def testSQLServer():
+        global db
+        try:
+            startTime = time.time()
+            if db is None:
+                db = SQLHelper()
+            db.connect()
+            db.close()
+            endTime = time.time()  
+            reposneTime = endTime - startTime
+            print(f'Response time for SQL Server: {reposneTime:.5f} seconds')
+        except:
+            print('Error testing SQL Server response.')
+
 
     # example function for testing Jenkins
     def add(a, b):
@@ -1538,6 +1568,9 @@ class HelperFunctions(ABC):
 # ========================================================MAIN======================================================== #
 # running the python backend app
 if __name__ == '__main__':
+    # metrics for measuring the time for response from Groq API and SQL Server
+    HelperFunctions.testGroq()
+    HelperFunctions.testSQLServer()
     # initialize SQL server connection for database functionality
     db = SQLHelper() 
     try:
